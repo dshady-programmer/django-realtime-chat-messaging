@@ -1,4 +1,4 @@
-# Django Realtime Chat Package
+# Django Realtime Chat Messaging Package
 
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
 [![Django Version](https://img.shields.io/badge/django-4.2%2B-green.svg)](https://www.djangoproject.com/)
