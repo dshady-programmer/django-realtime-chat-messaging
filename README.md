@@ -415,4 +415,4 @@ If this package helped you, please consider:
 
 ---
 
-**Made with ❤️ by the Django community**
+**Made with ❤️ by me**
