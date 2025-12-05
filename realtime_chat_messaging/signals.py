@@ -1,7 +1,7 @@
 from django.dispatch import receiver 
 from django.db.models.signals import m2m_changed, post_save
 from django.core.exceptions import ValidationError
-
+from guardian.shortcuts import assign_perm
 from .models import OneToOneChat, GroupChat, Channel
 
 
@@ -19,9 +19,12 @@ def add_creator_as_participant_and_admin(sender, instance, created, *args, **kwa
         if sender == GroupChat:
             instance.participants.add(instance.creator)
             instance.admins.add(instance.creator)
+            assign_perm("can_add_new_participants", instance.creator, instance)
         else:
             instance.subscribers.add(instance.creator)
             instance.moderators.add(instance.creator)
+            assign_perm("can_add_new_subscribers", instance.creator, instance)
+            assign_perm("can_send_messages", instance.creator, instance)
 
 
 @receiver(m2m_changed, sender=GroupChat.participants.through)

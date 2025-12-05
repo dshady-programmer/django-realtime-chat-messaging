@@ -32,11 +32,23 @@ class GroupChat(Room, AbstractGroupChat):
     join_approval_required = models.BooleanField(default=False)
     group_locked = models.BooleanField(default=False) # in the case of "only admins can send messages"
 
+    permissions = [
+        ('can_add_new_participants', "Can add new participants")
+    ]
+
 class Channel(Room, AbstractChannel):
     subscribers = models.ManyToManyField(User, related_name="channels_subscribed")
     is_public = models.BooleanField(default=False)
     avatar = models.URLField(null=True, blank=True)
     moderators = models.ManyToManyField(User, related_name="channels_moderated")
+    
+    class Meta:
+        permissions = [
+            ("can_add_new_subscribers", "Can add new subscribers"), 
+            ("can_send_messages", "Can send messages"),
+        ]
+
+    
 
 
 class Message(AbstractMessage):
