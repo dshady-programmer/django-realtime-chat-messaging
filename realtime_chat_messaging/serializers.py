@@ -1,0 +1,116 @@
+from .models import (
+        Channel, ChatNotification, GroupChat, 
+        OneToOneChat, Message, MessageMediaAsset,
+        ReadReceipt, Reaction, User, Room
+    )
+
+from rest_framework import serializers
+from rest_polymorphic.serializers import PolymorphicSerializer
+from django_rest_framework_recursive.fields import RecursiveField
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        exclude = ["password"]
+
+
+class OneToOneChatSerializer(serializers.ModelSerializer):
+    participants = UserSerializer(many=True, read_only=True)
+    class Meta:
+        model = OneToOneChat
+        fields = ["participants"]
+
+class GroupChatSerializer(serializers.Serializer):
+    creator = UserSerializer(read_only=True)
+    participants = UserSerializer(read_only=True, many=True)
+    admins = UserSerializer(read_only=True, many=True)
+    class Meta:
+        model = GroupChat
+        fields = "__all__"
+
+class ChannelSerializer(serializers.ModelSerializer):
+    creator = UserSerializer(read_only=True)
+    subscribers = UserSerializer(read_only=True, many=True)
+    moderators = UserSerializer(read_only=True, many=True)
+    class Meta:
+        model = Channel
+        fields = "__all__"
+
+
+class ProjectPolymorphicSerializer(PolymorphicSerializer):
+    model_serializer_mapping = {
+        OneToOneChat: OneToOneChatSerializer,
+        GroupChat: GroupChatSerializer,
+        Channel: ChannelSerializer,
+    }
+
+class ReadReceiptSerializer(serializers.ModelSerializer):
+    reader = UserSerializer()
+    reader_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source="reader", 
+        write_only=True,
+        required=True,
+    )
+    class Meta:
+        model = ReadReceipt
+        fields = "__all__"
+
+
+class ReactionSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source="user", 
+        write_only=True,
+        required=True,
+    )
+    class Meta:
+        model = Reaction
+        fields = "__all__"
+
+
+class MessageMediaAssetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MessageMediaAsset
+        fields = "__all__"
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    room = ProjectPolymorphicSerializer(read_only=True)
+    room_id = serializers.PrimaryKeyRelatedField(
+        queryset=Room.objects.all(),
+        source="room",
+        write_only=True,
+        required=True
+    )
+    sender = UserSerializer()
+    sender_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source="sender", 
+        write_only=True,
+        required=True,
+    )
+    parent_message = RecursiveField(allow_null=True, read_only=True)
+    forwarded_from = RecursiveField(allow_null=True, read_only=True)
+    read_receipts = ReadReceiptSerializer(read_only=True, many=True)
+    reactions = ReactionSerializer(read_only=True, many=True)
+    attachments = MessageMediaAssetSerializer(read_only=True, many=True)
+    class Meta:
+        model = Message
+        fields = "__all__"
+        depth = 2
+
+
+class ChatNotificationSerializer(serializers.ModelSerializer):
+    message = MessageSerializer(read_only=True)
+    message_id = serializers.PrimaryKeyRelatedField(
+        queryset=Message.objects.all(),
+        source="message",
+        write_only=True,
+        required=True,
+    )
+
+    class Meta:
+        model = ChatNotification
+        fields = "__all__"

@@ -78,7 +78,7 @@ class ReadReceipt(models.Model):
         you can enable read receipts in settings
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="read")
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="read_receipts")
     reader = models.ForeignKey(User, on_delete=models.CASCADE)
     read_at = models.DateTimeField(auto_now_add=True)
 

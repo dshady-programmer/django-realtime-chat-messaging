@@ -2,3 +2,5 @@ django
 djangorestframework
 django-polymorphic
 django-guardian
+django-rest-polymorphic
+drf-recursive
