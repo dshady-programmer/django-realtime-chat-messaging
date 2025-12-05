@@ -5,6 +5,7 @@ from django.db.models import F,Q
 import uuid
 from polymorphic.models import PolymorphicModel
 from .types import ALLOWED_MIME_TYPES
+from .model_mixins import AbstractChannel, AbstractGroupChat, AbstractMessage, AbstractOneToOneChat
 
 User = get_user_model()
 
@@ -18,53 +19,28 @@ class Room(PolymorphicModel):
     preferences = models.JSONField(default=dict)
 
 
-class OneToOneChat(Room):
-    participant1 = models.ForeignKey(User, on_delete=models.CASCADE)
-    participant2 = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    class Meta:
-        constraints = [
-            
-            # models.CheckConstraint(
-            #     condition=~Q(participant1=F('participant2'))
-            #     name=""
-            # )
-            models.UniqueConstraint(
-                fields=["participant1", "participant2"],
-                name="unique_members"
-            )
-
-        ]
+class OneToOneChat(Room, AbstractOneToOneChat):
+    pass
 
 
-class GroupChat(Room):
-    name = models.CharField(max_length=64)
-    description = models.TextField()
-    creator = models.ForeignKey(User, on_delete=models.CASCADE)
-    admins = models.ManyToManyField(User)
-    participants = models.ManyToManyField(User, null=True, blank=True)
+
+class GroupChat(Room, AbstractGroupChat):
+    admins = models.ManyToManyField(User, related_name="groups_moderated")
+    participants = models.ManyToManyField(User, related_name="groups_in")
     max_participants = models.PositiveBigIntegerField(default=10)
     avatar = models.URLField(null=True, blank=True)
     join_approval_required = models.BooleanField(default=False)
 
-class Channel(Room):
-    name = models.CharField(max_length=64)
-    description = models.TextField()
-    creator = models.ForeignKey(User, on_delete=models.CASCADE)
-    subscribers = models.ManyToManyField(User, null=True, blank=True)
+class Channel(Room, AbstractChannel):
+    subscribers = models.ManyToManyField(User, related_name="channels_subscribed")
     is_public = models.BooleanField(default=False)
     avatar = models.URLField(null=True, blank=True)
+    moderators = models.ManyToManyField(User, related_name="channels_moderated")
 
-class Message(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="messages")
-    sender = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="messages")
-    content = models.TextField()
+class Message(AbstractMessage):
     parent_message = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, related_name="replies")
     is_forwarded = models.BooleanField(default=False)
     forwarded_from = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, related_name="forwarded")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
 
