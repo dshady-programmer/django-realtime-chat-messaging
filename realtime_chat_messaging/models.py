@@ -32,9 +32,10 @@ class GroupChat(Room, AbstractGroupChat):
     join_approval_required = models.BooleanField(default=False)
     group_locked = models.BooleanField(default=False) # in the case of "only admins can send messages"
 
-    permissions = [
-        ('can_add_new_participants', "Can add new participants")
-    ]
+    class Meta:
+        permissions = [
+            ("can_add_new_participants", "Can add new participants")
+        ]
 
 class Channel(Room, AbstractChannel):
     subscribers = models.ManyToManyField(User, related_name="channels_subscribed")
@@ -88,14 +89,14 @@ class ChatNotification(models.Model):
         you can enable notifications in settings.
     """
     NOTIFICATION_TYPE = (
-        ('reaction', 'REACTION'),
-        ('new_message', 'NEW_MESSAGE'),
-        ('reply', 'REPLY')
+        ('REACTION', 'Reaction'),
+        ('NEW_MESSAGE', 'New Message'),
+        ('REPLY', 'Reply')
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='notifications')
-    notification_type = models.CharField(max_length=64, choices=NOTIFICATION_TYPE, default=NOTIFICATION_TYPE[1][1])
+    notification_type = models.CharField(max_length=64, choices=NOTIFICATION_TYPE, default=NOTIFICATION_TYPE[1][0])
     is_read = models.BooleanField(default=False)
 
 

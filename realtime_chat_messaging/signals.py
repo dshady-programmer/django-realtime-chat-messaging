@@ -7,7 +7,7 @@ from .models import OneToOneChat, GroupChat, Channel
 
 @receiver(m2m_changed, sender=OneToOneChat.participants.through)
 def enforce_two_participants_on_one_to_one_chat(sender, instance, action, pk_set, *args, **kwargs):
-    if action == "post_add" or action == "post_remove":
+    if action == "post_add" or action == "post_remove" or action == "post_clear":
         if instance.participants.count() != 2:
             raise ValidationError("A one to one chat can only have 2 participants")
         

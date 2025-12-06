@@ -11,7 +11,7 @@ from django_rest_framework_recursive.fields import RecursiveField
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        exclude = ["password"]
+        fields = ["id","username", "email", "first_name", "last_name"]
 
 
 class OneToOneChatSerializer(serializers.ModelSerializer):
@@ -20,7 +20,7 @@ class OneToOneChatSerializer(serializers.ModelSerializer):
         model = OneToOneChat
         fields = ["participants"]
 
-class GroupChatSerializer(serializers.Serializer):
+class GroupChatSerializer(serializers.ModelSerializer):
     creator = UserSerializer(read_only=True)
     participants = UserSerializer(read_only=True, many=True)
     admins = UserSerializer(read_only=True, many=True)
@@ -37,7 +37,7 @@ class ChannelSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ProjectPolymorphicSerializer(PolymorphicSerializer):
+class RoomPolymorphicSerializer(PolymorphicSerializer):
     model_serializer_mapping = {
         OneToOneChat: OneToOneChatSerializer,
         GroupChat: GroupChatSerializer,
@@ -45,7 +45,7 @@ class ProjectPolymorphicSerializer(PolymorphicSerializer):
     }
 
 class ReadReceiptSerializer(serializers.ModelSerializer):
-    reader = UserSerializer()
+    reader = UserSerializer(read_only=True)
     reader_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         source="reader", 
@@ -58,7 +58,7 @@ class ReadReceiptSerializer(serializers.ModelSerializer):
 
 
 class ReactionSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
     user_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         source="user", 
@@ -77,14 +77,14 @@ class MessageMediaAssetSerializer(serializers.ModelSerializer):
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    room = ProjectPolymorphicSerializer(read_only=True)
+    room = RoomPolymorphicSerializer(read_only=True)
     room_id = serializers.PrimaryKeyRelatedField(
         queryset=Room.objects.all(),
         source="room",
         write_only=True,
         required=True
     )
-    sender = UserSerializer()
+    sender = UserSerializer(read_only=True)
     sender_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         source="sender", 
