@@ -326,6 +326,392 @@ class MessageSerializerTest(TestCase):
         self.assertEqual(len(data['attachments']), 1)
         self.assertEqual(data['attachments'][0]['media_url'], 'https://example.com/image.jpg')
 
+    def test_message_content_strips_dangerous_html(self):
+        """Test that dangerous HTML tags are stripped from content"""
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': '<script>alert("XSS")</script>Hello <b>World</b>'
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # Script tag should be stripped, but <b> should remain
+        # print("message content", message.content)
+        self.assertNotIn('<script>', message.content)
+        self.assertIn('<b>World</b>', message.content)
+        self.assertIn('Hello', message.content)
+
+    def test_message_content_allows_safe_html_tags(self):
+        """Test that allowed HTML tags are preserved"""
+        safe_content = 'Hello <b>bold</b> and <i>italic</i> and <strong>strong</strong> text'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': safe_content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # All allowed tags should be preserved
+        self.assertIn('<b>bold</b>', message.content)
+        self.assertIn('<i>italic</i>', message.content)
+        self.assertIn('<strong>strong</strong>', message.content)
+
+    def test_message_content_sanitizes_anchor_attributes(self):
+        """Test that anchor tags with allowed attributes are preserved"""
+        content = 'Check <a href="https://example.com" title="Example" target="_blank">this link</a>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # Anchor tag with allowed attributes should be preserved
+        self.assertIn('<a href="https://example.com"', message.content)
+        self.assertIn('this link</a>', message.content)
+
+    def test_message_content_strips_disallowed_attributes(self):
+        """Test that disallowed attributes are stripped from tags"""
+        content = '<a href="https://example.com" onclick="malicious()">Link</a>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # onclick should be stripped
+        self.assertNotIn('onclick', message.content)
+        # href should remain (it's allowed)
+        self.assertIn('href="https://example.com"', message.content)
+
+    def test_message_content_strips_completely_disallowed_tags(self):
+        """Test that completely disallowed tags are removed"""
+        content = 'Normal text <div>in div</div> <span>in span</span> <b>bold</b>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # div and span should be stripped (tags removed but content remains)
+        self.assertNotIn('<div>', message.content)
+        self.assertNotIn('<span>', message.content)
+        self.assertIn('in div', message.content)  # Content preserved
+        self.assertIn('in span', message.content)  # Content preserved
+        # b is allowed
+        self.assertIn('<b>bold</b>', message.content)
+
+    def test_message_content_allows_em_tag(self):
+        """Test that <em> tag is allowed"""
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': 'This is <em>emphasized</em> text'
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        self.assertIn('<em>emphasized</em>', message.content)
+
+    def test_message_content_allows_multiple_anchor_attributes(self):
+        """Test anchor tag with all allowed attributes"""
+        content = '<a href="https://example.com" title="Click me" target="_blank">Full link</a>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # All three allowed attributes should be present
+        self.assertIn('href="https://example.com"', message.content)
+        self.assertIn('title="Click me"', message.content)
+        self.assertIn('target="_blank"', message.content)
+
+    def test_message_content_anchor_with_only_href(self):
+        """Test anchor tag with only href attribute"""
+        content = '<a href="https://example.com">Simple link</a>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        self.assertIn('href="https://example.com"', message.content)
+        self.assertIn('Simple link</a>', message.content)
+
+    def test_message_content_nested_allowed_tags(self):
+        """Test nested allowed HTML tags"""
+        content = '<b>Bold with <i>italic inside</i> and <strong>strong too</strong></b>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # All nested tags should be preserved
+        self.assertIn('<b>', message.content)
+        self.assertIn('<i>italic inside</i>', message.content)
+        self.assertIn('<strong>strong too</strong>', message.content)
+
+    def test_message_content_multiple_links(self):
+        """Test content with multiple anchor tags"""
+        content = 'Visit <a href="https://site1.com">Site 1</a> and <a href="https://site2.com" title="Second">Site 2</a>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        self.assertIn('href="https://site1.com"', message.content)
+        self.assertIn('href="https://site2.com"', message.content)
+        self.assertIn('title="Second"', message.content)
+
+    def test_message_content_strips_style_attribute(self):
+        """Test that style attribute is stripped from all tags"""
+        content = '<b style="color: red;">Red bold</b> <i style="font-size: 20px;">Big italic</i>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # style attribute should be stripped from all tags
+        self.assertNotIn('style=', message.content)
+        # But tags themselves should remain
+        self.assertIn('<b>', message.content)
+        self.assertIn('<i>', message.content)
+        self.assertIn('Red bold', message.content)
+        self.assertIn('Big italic', message.content)
+
+    def test_message_content_strips_class_and_id(self):
+        """Test that class and id attributes are stripped"""
+        content = '<b class="highlight" id="msg1">Bold text</b>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        self.assertNotIn('class=', message.content)
+        self.assertNotIn('id=', message.content)
+        self.assertIn('<b>', message.content)
+        self.assertIn('Bold text', message.content)
+
+    def test_message_content_strips_javascript_in_href(self):
+        """Test that javascript: in href is stripped"""
+        content = '<a href="javascript:alert(\'XSS\')">Malicious link</a>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # javascript: protocol should be removed/sanitized
+        # print("message content", message.content)
+        self.assertNotIn('javascript:', message.content.lower())
+
+    def test_message_content_all_allowed_tags_together(self):
+        """Test all allowed tags in one message"""
+        content = '<b>Bold</b> <i>Italic</i> <strong>Strong</strong> <em>Emphasis</em> <a href="https://test.com">Link</a>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # All allowed tags should be present
+        self.assertIn('<b>Bold</b>', message.content)
+        self.assertIn('<i>Italic</i>', message.content)
+        self.assertIn('<strong>Strong</strong>', message.content)
+        self.assertIn('<em>Emphasis</em>', message.content)
+        self.assertIn('<a href="https://test.com">Link</a>', message.content)
+
+    def test_message_content_plain_text_unchanged(self):
+        """Test that plain text without HTML remains unchanged"""
+        content = 'This is just plain text with no HTML tags at all.'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        self.assertEqual(message.content, content)
+
+    def test_message_content_strips_img_tag(self):
+        """Test that img tag is stripped"""
+        content = 'Text with <img src="malicious.jpg" onerror="alert(1)"> image'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        # print("message content", message.content)
+        self.assertNotIn('<img', message.content)
+        self.assertNotIn('onerror', message.content)
+        self.assertIn('Text with', message.content)
+        self.assertIn('image', message.content)
+
+    def test_message_content_strips_iframe(self):
+        """Test that iframe tag is stripped"""
+        content = 'Content <iframe src="evil.com"></iframe> here'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        self.assertNotIn('<iframe', message.content)
+        self.assertNotIn('evil.com', message.content)
+        self.assertIn('Content', message.content)
+        self.assertIn('here', message.content)
+
+    def test_message_content_strips_event_handlers(self):
+        """Test that all event handlers are stripped"""
+        content = '''
+            <b onclick="bad()">Click</b>
+            <i onmouseover="worse()">Hover</i>
+            <a href="#" onload="evil()">Load</a>
+        '''
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # All event handlers should be stripped
+        self.assertNotIn('onclick', message.content)
+        self.assertNotIn('onmouseover', message.content)
+        self.assertNotIn('onload', message.content)
+        # But tags and content should remain
+        self.assertIn('Click', message.content)
+        self.assertIn('Hover', message.content)
+        self.assertIn('Load', message.content)
+
+    def test_message_content_empty_anchor_tag(self):
+        """Test anchor tag with no href"""
+        content = '<a>Link without href</a>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # Anchor tag should still be preserved even without href
+        self.assertIn('<a>', message.content)
+        self.assertIn('Link without href', message.content)
+
+    def test_message_content_case_insensitive_tags(self):
+        """Test that tags work regardless of case"""
+        content = '<B>Bold</B> <I>Italic</I> <STRONG>Strong</STRONG>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # Content should be preserved (bleach normalizes to lowercase)
+        self.assertIn('Bold', message.content)
+        self.assertIn('Italic', message.content)
+        self.assertIn('Strong', message.content)
+
+    def test_message_content_whitespace_preserved(self):
+        """Test that whitespace in content is preserved"""
+        content = '<b>Bold</b>    <i>Italic</i>\n<strong>Strong</strong>'
+        data = {
+            'room_id': self.room.id,
+            'sender_id': self.user1.id,
+            'content': content
+        }
+        
+        serializer = MessageSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+        message = serializer.save()
+        
+        # Whitespace should be preserved
+        self.assertIn('    ', message.content)
+        self.assertIn('\n', message.content)
+
+
+
+
+
+
+
 
 class ReadReceiptSerializerTest(TestCase):
     """Test ReadReceiptSerializer"""
@@ -382,6 +768,7 @@ class ReadReceiptSerializerTest(TestCase):
         
         self.assertEqual(receipt.reader, self.user1)
         self.assertEqual(receipt.message, self.message)
+    
 
 
 class ReactionSerializerTest(TestCase):

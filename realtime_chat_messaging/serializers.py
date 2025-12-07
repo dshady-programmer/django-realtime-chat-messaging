@@ -7,6 +7,7 @@ from .models import (
 from rest_framework import serializers
 from rest_polymorphic.serializers import PolymorphicSerializer
 from django_rest_framework_recursive.fields import RecursiveField
+import bleach
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -101,6 +102,13 @@ class MessageSerializer(serializers.ModelSerializer):
         fields = "__all__"
         depth = 2
 
+    def validate_content(self, value):
+        ALLOWED_TAGS = ['b', 'i', 'strong', 'em', 'a']
+        ALLOWED_ATTRS = {'a': ['href', 'title', 'target']}
+
+        # Clean HTML to allow only certain tags/attributes
+        clean_value = bleach.clean(value, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, strip=True)
+        return clean_value
 
 class ChatNotificationSerializer(serializers.ModelSerializer):
     message = MessageSerializer(read_only=True)

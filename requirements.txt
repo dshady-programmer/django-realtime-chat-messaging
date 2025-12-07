@@ -4,3 +4,4 @@ django-polymorphic
 django-guardian
 django-rest-polymorphic
 drf-recursive
+bleach
