@@ -39,11 +39,54 @@ class ChannelSerializer(serializers.ModelSerializer):
 
 
 class RoomPolymorphicSerializer(PolymorphicSerializer):
+    resource_type_field_name = "type"
     model_serializer_mapping = {
         OneToOneChat: OneToOneChatSerializer,
         GroupChat: GroupChatSerializer,
         Channel: ChannelSerializer,
     }
+
+    def create(self, _):
+        user = self.context.user
+        resource_type = self.initial_data.get("type")
+        extra_fields = self.initial_data.pop('extra_fields')
+        data = {
+            **self.initial_data,
+            **extra_fields
+        }
+        serializer_map = {
+            "OneToOne": OneToOneChatSerializer,
+            "Group": GroupChatSerializer,
+            "Channel": ChannelSerializer,
+        }
+
+        serializer_class = serializer_map.get(resource_type)
+        if not serializer_class:
+            raise serializers.ValidationError("Invalid type")
+
+        
+        serializer = serializer_class(
+            data=data,
+            context=self.context,
+        )
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        
+        if resource_type == "OneToOne":
+            participants = data("participants")
+            instance.participants.set([*participants,user ])
+        elif resource_type == "Group":
+            participants = data("participants")
+            instance.participants.add(*participants)
+  
+        else:
+            subscribers = data("subscribers")
+            instance.subscribers.add(*subscribers)
+            
+        if resource_type in ['Group', 'Channel']:
+            instance.creator = user 
+            instance.save()
+        return instance
 
 class ReadReceiptSerializer(serializers.ModelSerializer):
     reader = UserSerializer(read_only=True)
@@ -122,3 +165,4 @@ class ChatNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChatNotification
         fields = "__all__"
+        exclude = ["recipients"]

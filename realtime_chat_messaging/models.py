@@ -87,6 +87,16 @@ class ChatNotification(models.Model):
     """
     Optional:
         you can enable notifications in settings.
+
+    ChatNotification serves as a way to track undelivered messages, you can integrate with push notification services like firebase, aws sns etc..
+
+    How it works: 
+        When a message is sent to a room (OneToOneChat, GroupChat, Channel) a chat notication is created
+        recipients would all the participants for OneToOneChat, GroupChat, Channel
+        For each message read event that happens the user who opens the message would be removed from the recipient list 
+        When there's no more user left in the recipients list, the notification would be deleted.
+
+        This way notifications aren't created for every user, instead notifications are created per message basis
     """
     NOTIFICATION_TYPE = (
         ('REACTION', 'Reaction'),
@@ -94,10 +104,10 @@ class ChatNotification(models.Model):
         ('REPLY', 'Reply')
     )
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    recipients = models.ManyToManyField(User, related_name='unread_messages')
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='notifications')
     notification_type = models.CharField(max_length=64, choices=NOTIFICATION_TYPE, default=NOTIFICATION_TYPE[1][0])
-    is_read = models.BooleanField(default=False)
+
 
 
 class Reaction(models.Model):
@@ -106,6 +116,7 @@ class Reaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reactions")
     reaction_content = models.TextField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
+
 
 
 class MessageMediaAsset(models.Model):
@@ -171,5 +182,7 @@ class MessageMediaAsset(models.Model):
 
 
     """
+
+
 
 

@@ -2,7 +2,7 @@ from django.dispatch import receiver
 from django.db.models.signals import m2m_changed, post_save
 from django.core.exceptions import ValidationError
 from guardian.shortcuts import assign_perm
-from .models import OneToOneChat, GroupChat, Channel
+from .models import OneToOneChat, GroupChat, Channel, ChatNotification
 
 
 @receiver(m2m_changed, sender=OneToOneChat.participants.through)
@@ -33,6 +33,19 @@ def delete_channels_and_groups_with_no_participants(sender, instance, action, pk
     if action == "post_remove" or action == "post_clear":
         if (hasattr(instance, "participants") and instance.participants.count() < 1) or (hasattr(instance, "subscribers") and instance.subscribers.count() < 1):
             instance.delete()
+
+
+"""
+delete chatnotification when recipients length is 0
+"""
+@receiver(m2m_changed, sender=ChatNotification.recipients.through)
+@receiver(m2m_changed, sender=ChatNotification.recipients.through)
+def delete_channels_and_groups_with_no_participants(sender, instance, action, pk_set, **kwargs):
+    if action == "post_remove" or action == "post_clear":
+        if instance.recipients.count < 1:
+            instance.delete()
+
+
 
 
 
