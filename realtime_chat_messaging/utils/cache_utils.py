@@ -22,6 +22,21 @@ def update_user_groups(user_id: str, groups: list):
 
 
 @sync_to_async
+def add_group_to_user_groups(user_id: str, group: str):
+    key = f"user:{user_id}:groups"
+    value = cache.get(key)
+    if not value:
+        groups = []
+    else:
+        groups = json.loads(value)
+    if group not in groups:
+        groups.append(group)
+    cache.set(key, json.dumps(groups), timeout=None)
+    
+
+
+
+@sync_to_async
 def set_channel_name(user_id: str, channel_name: str):
     key = f"user:{user_id}:channel_name"
     cache.set(key, channel_name, timeout=None)

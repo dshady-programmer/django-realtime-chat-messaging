@@ -27,7 +27,7 @@ class OneToOneChat(Room, AbstractOneToOneChat):
 class GroupChat(Room, AbstractGroupChat):
     admins = models.ManyToManyField(User, related_name="groups_moderated")
     participants = models.ManyToManyField(User, related_name="groups_in")
-    max_participants = models.PositiveBigIntegerField(default=10)
+    max_participants = models.PositiveBigIntegerField(default=100)
     avatar = models.URLField(null=True, blank=True)
     join_approval_required = models.BooleanField(default=False)
     group_locked = models.BooleanField(default=False) # in the case of "only admins can send messages"
@@ -42,6 +42,7 @@ class Channel(Room, AbstractChannel):
     is_public = models.BooleanField(default=False)
     avatar = models.URLField(null=True, blank=True)
     moderators = models.ManyToManyField(User, related_name="channels_moderated")
+    max_subscribers = models.PositiveBigIntegerField(default=300)
     
     class Meta:
         permissions = [
@@ -82,6 +83,11 @@ class ReadReceipt(models.Model):
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="read_receipts")
     reader = models.ForeignKey(User, on_delete=models.CASCADE)
     read_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['message', 'reader'], name='unique_read_receipts'),
+        ]
 
 class ChatNotification(models.Model):
     """

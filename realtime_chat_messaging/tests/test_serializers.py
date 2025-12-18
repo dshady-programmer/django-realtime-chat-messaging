@@ -249,6 +249,7 @@ class MessageSerializerTest(TestCase):
     def test_message_room_nested(self):
         """Test that room is nested with polymorphic data"""
         serializer = MessageSerializer(self.message)
+
         data = serializer.data
         
         self.assertIn('participants', data['room'])
@@ -914,7 +915,7 @@ class ChatNotificationSerializerTest(TestCase):
             content='Test message'
         )
         self.notification = ChatNotification.objects.create(
-            recipient=self.user2,
+            recipients=self.user2,
             message=self.message,
             notification_type='NEW_MESSAGE'
         )
