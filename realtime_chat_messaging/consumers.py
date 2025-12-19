@@ -23,6 +23,7 @@ from .utils.handlers import  (
 from .utils.decorators import (
     event_handler
 )
+from .permissions.decorators import (can_access_message, can_send_message_to_room)
 User = get_user_model()
 
 # 4001: Authentication failed.
@@ -189,6 +190,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         )
 
     @event_handler
+    @can_send_message_to_room
     async def receive_message_send_event(self, data):
         """
         receive_message_send_event
@@ -211,6 +213,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             
 
     @event_handler
+    @can_access_message
     async def receive_message_acknowledged_event(self, data):
         """
         receive_message_acknowledged_event
@@ -225,6 +228,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({"status": "successful"}))
 
     @event_handler
+    @can_access_message
     async def receive_message_read_event(self, data):
         """
         receive_message_read_event
