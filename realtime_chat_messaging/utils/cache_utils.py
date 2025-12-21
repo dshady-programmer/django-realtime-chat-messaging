@@ -33,6 +33,18 @@ def add_group_to_user_groups(user_id: str, group: str):
         groups.append(group)
     cache.set(key, json.dumps(groups), timeout=None)
     
+@sync_to_async
+def remove_group_from_user_groups(user_id: str, group: str):
+    key = f"user:{user_id}:groups"
+    value = cache.get(key)
+    if not value:
+        groups = []
+    else:
+        groups = json.loads(value)
+    if group in groups:
+        groups.remove(group)
+    cache.set(key, json.dumps(groups), timeout=None)
+    
 
 
 

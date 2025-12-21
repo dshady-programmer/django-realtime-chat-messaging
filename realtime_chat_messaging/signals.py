@@ -25,10 +25,12 @@ def add_creator_as_participant_and_admin(sender, instance, created, *args, **kwa
             instance.participants.add(instance.creator)
             instance.admins.add(instance.creator)
             assign_perm("can_add_new_participants", instance.creator, instance)
+            assign_perm("can_remove_participants", instance.creator, instance)
         else:
             instance.subscribers.add(instance.creator)
             instance.moderators.add(instance.creator)
             assign_perm("can_add_new_subscribers", instance.creator, instance)
+            assign_perm("can_remove_subscribers", instance.creator, instance)
             assign_perm("can_send_messages", instance.creator, instance)
 
 

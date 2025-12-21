@@ -19,11 +19,61 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id","username", "email", "first_name", "last_name"]
 
 
+class OneToOneChatListSerializer(serializers.ModelSerializer):
+    peer = serializers.SerializerMethodField(read_only=True)
+    last_message = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = OneToOneChat
+        exclude = ["participants", "preferences"]
+    
+    def get_peer(self, instance):
+        user = self.context.get('user')
+        if not user:
+            raise Exception("user context is required")
+        peers = instance.participants.exclude(id=user.id)
+        return UserSerializer(peers.first()).data
+
+    def get_last_message(self, instance):
+        return MessageSerializer(instance.last_message).data
+
+
+
+class GroupChatListSerializer(serializers.ModelSerializer):
+    creator = UserSerializer(read_only=True)
+    last_message = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = GroupChat
+        exclude = ['participants', 'admins', 'preferences']
+
+    def get_last_message(self, instance):
+        return MessageSerializer(instance.last_message).data
+
+class ChannelListSerializer(serializers.ModelSerializer):
+    creator = UserSerializer(read_only=True)
+    last_message = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = Channel
+        exclude = ['subscribers', 'moderators', 'preferences']
+    
+    def get_last_message(self, instance):
+        return MessageSerializer(instance.last_message).data
+
+
+class RoomListPolymorphicSerializer(PolymorphicSerializer):
+    resource_type_field_name = "type"
+    model_serializer_mapping = {
+        OneToOneChat: OneToOneChatListSerializer,
+        GroupChat: GroupChatListSerializer,
+        Channel: ChannelListSerializer,
+    }
+
+
+
 class OneToOneChatSerializer(serializers.ModelSerializer):
     participants = UserSerializer(many=True, read_only=True)
     class Meta:
         model = OneToOneChat
-        fields = "__all__"
+        exclude = ['last_message']
 
 class GroupChatSerializer(serializers.ModelSerializer):
     creator = UserSerializer(read_only=True)
@@ -31,7 +81,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
     admins = UserSerializer(read_only=True, many=True)
     class Meta:
         model = GroupChat
-        fields = "__all__"
+        exclude = ['last_message']
 
 class ChannelSerializer(serializers.ModelSerializer):
     creator = UserSerializer(read_only=True)
@@ -39,7 +89,7 @@ class ChannelSerializer(serializers.ModelSerializer):
     moderators = UserSerializer(read_only=True, many=True)
     class Meta:
         model = Channel
-        fields = "__all__"
+        exclude = ['last_message']
 
 
 class RoomPolymorphicSerializer(PolymorphicSerializer):
@@ -121,6 +171,10 @@ class ReactionSerializer(serializers.ModelSerializer):
         write_only=True,
         required=True,
     )
+    message = serializers.PrimaryKeyRelatedField(
+        queryset=Message.objects.all(), required=True,
+        write_only=True
+        )
     class Meta:
         model = Reaction
         fields = "__all__"
@@ -146,6 +200,18 @@ class MessageSerializer(serializers.ModelSerializer):
         source="sender", 
         write_only=True,
         required=True,
+    )
+    parent_message_id = serializers.PrimaryKeyRelatedField(
+        queryset=Message.objects.all(),
+        source="parent_message",
+        write_only=True,
+        required=False
+    )
+    forwarded_from_id = serializers.PrimaryKeyRelatedField(
+        queryset=Message.objects.all(),
+        source="forwarded_from",
+        write_only=True,
+        required=False
     )
     parent_message = RecursiveField(allow_null=True, read_only=True)
     forwarded_from = RecursiveField(allow_null=True, read_only=True)

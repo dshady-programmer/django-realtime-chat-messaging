@@ -17,6 +17,8 @@ class Room(PolymorphicModel):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     preferences = models.JSONField(default=dict)
+    last_message = models.ForeignKey('Message', on_delete=models.SET_NULL, related_name="message_room", null=True, blank=True, default=None)
+    
 
 
 class OneToOneChat(Room, AbstractOneToOneChat):
@@ -34,7 +36,8 @@ class GroupChat(Room, AbstractGroupChat):
 
     class Meta:
         permissions = [
-            ("can_add_new_participants", "Can add new participants")
+            ("can_add_new_participants", "Can add new participants"),
+            ("can_remove_participants", "Can remove participants")
         ]
 
 class Channel(Room, AbstractChannel):
@@ -47,6 +50,7 @@ class Channel(Room, AbstractChannel):
     class Meta:
         permissions = [
             ("can_add_new_subscribers", "Can add new subscribers"), 
+            ("can_remove_subscribers", "Can remove subscribers"), 
             ("can_send_messages", "Can send messages"),
         ]
 
@@ -122,7 +126,10 @@ class Reaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reactions")
     reaction_content = models.TextField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['message', 'user'], name='unique_reaction'),
+        ]
 
 
 class MessageMediaAsset(models.Model):
