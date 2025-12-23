@@ -1,8 +1,8 @@
 from django.dispatch import receiver 
-from django.db.models.signals import m2m_changed, post_save
+from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.core.exceptions import ValidationError
 from guardian.shortcuts import assign_perm
-from .models import OneToOneChat, GroupChat, Channel, ChatNotification
+from .models import OneToOneChat, GroupChat, Channel, ChatNotification,Reaction
 
 
 @receiver(m2m_changed, sender=OneToOneChat.participants.through)
@@ -62,6 +62,16 @@ def delete_channels_and_groups_with_no_participants(sender, instance, action, pk
 
 
 
+"""update message reaction"""
+@receiver(pre_save, sender=Reaction)
+def overwrite_message_reaction(sender, instance, *args, **kwargs):
+    if not instance.reaction_content:
+        raise ValidationError("reaction_content can't be empty")
+    r = Reaction.objects.filter(user=instance.user, message=instance.message)
+    if r.exists() and r.first().reaction_content != instance.reaction_content:
+        r.delete()
+
+        
 
 
     

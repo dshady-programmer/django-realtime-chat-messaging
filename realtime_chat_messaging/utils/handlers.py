@@ -5,7 +5,7 @@ from realtime_chat_messaging.serializers import ChatNotificationSerializer, Mess
 from collections import defaultdict
 from .chat_notifications import update_chat_notification, create_chat_notification
 from django.db.models import Prefetch, Q
-
+from django.core.paginator import Paginator
 
 
 @database_sync_to_async
@@ -91,6 +91,37 @@ def message_acknowledged(user, message_id):
         many = True
 
     update_chat_notification(message_id, user, many)
+
+@database_sync_to_async
+def modify_message(user, data):
+    action = data.get('action')
+    message_ids = data.get('message_id')
+    if action == "delete":
+        if not isinstance(message_ids, list):
+            message_ids = [message_ids]
+        Message.objects.filter(pk__in=message_ids).delete()
+        return {"status": "successful", "action": "delete", "message_ids": message_ids}
+    elif action == "update":
+        message_id = None
+        if isinstance(message_ids, list):
+            if len(message_ids) > 1:
+                raise Exception("You can only update one message at a time")
+            message_id = message_ids[0]
+        else:
+            message_id = message_ids
+        message = get_object_or_404(Message, pk=message_id)
+        content = data.get('extra_fields').get('content')
+        if content:
+            serializer = MessageSerializer(instance=message, data={"content": content}, partial=True)
+            serializer.is_valid(raise_exception=True)
+            instance = serializer.save()
+            serialized_message = MessageSerializer(instance)
+            return {"status": "successful", "action": "update", "message": serialized_message.data}
+        else:
+            raise Exception("Content should be provided for update action")
+
+    else:
+        raise Exception("Invalid action type")
     
 
 @database_sync_to_async
@@ -238,3 +269,48 @@ def join_room(user, room_id):
     
     serialized_room = RoomPolymorphicSerializer(room).data
     return serialized_room
+
+@database_sync_to_async
+def retreive_messages(room, data):
+    messages = Message.objects.filter(room=room).prefetch_related('read_receipts', 'reactions', 'attachments').order_by('-created_at')
+    paginate = data.get('paginate')
+    response = {}
+    if paginate:
+        page = paginate.get('page')
+        size = paginate.get('size')
+        if not page or not size:
+            raise Exception('page and size required')
+        try:
+            page = int(page)
+            size = int(size)
+        except:
+            raise Exception("Invalid types")
+        
+        paginator = Paginator(messages, size)
+        get_page = paginator.get_page(page)
+        
+        has_next = get_page.has_next()
+        has_previous = get_page.has_previous()
+        next_page_number = get_page.next_page_number() if has_next else None
+        prev_page_number = get_page.previous_page_number() if has_previous else None 
+
+        response.update({
+            "has_next": has_next, 
+            "has_previous": has_previous, 
+            "next_page_number": next_page_number, 
+            "prev_page_number": prev_page_number,
+            "page": page,
+            "size": size    
+        })
+        messages = get_page.object_list
+
+    serialized_messages = MessageSerializer(messages, many=True)
+
+    response["data"] = {
+        "room_id": str(room.id),
+        "messages": serialized_messages.data
+    }
+
+    return response
+    
+        

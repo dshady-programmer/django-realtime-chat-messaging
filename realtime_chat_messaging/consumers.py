@@ -27,7 +27,9 @@ from .utils.handlers import  (
     react_to_message,
     remove_members_from_room,
     leave_room, 
-    join_room
+    join_room, 
+    retreive_messages,
+    modify_message
 )
 from .utils.decorators import (
     event_handler
@@ -35,7 +37,7 @@ from .utils.decorators import (
 from .permissions.decorators import (
     can_access_message, can_access_room,
     can_add_members_to_room, can_remove_members_from_room,
-    can_send_message_to_room
+    can_send_message_to_room, can_modify_message
 
 )
 User = get_user_model()
@@ -134,13 +136,17 @@ frontend events:
 
 chat.notifications
 message.dispatch
+messagetyping.dispatch
+messagemodification.dispatch
 readreceipt.dispatch
 roomcreate.dispatch
 roomlist.dispatch
+roommessages.dispatch
 roominfo.dispatch
 roomaddmembers.dispatch
 roomremovemembers.dispatch
 roomexit.dispatch
+
 
 """
 class ChatMessagingConsumer(AsyncWebsocketConsumer):
@@ -182,13 +188,14 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             "message.acknowledged": self.receive_message_acknowledged_event,
             "message.read": self.receive_message_read_event,
             "message.react": self.receive_message_reaction_event, 
-            # "message.typing": _,
+            "message.typing": self.receive_message_typing_event,
+            "message.modify": self.receive_message_modify_event,
             "room.create": self.receive_room_create_event,
             "room.list": self.receive_get_rooms,
             "room.info": self.receive_get_room_info,
             "room.add_members": self.receive_add_members_to_room,
             "room.remove_members": self.receive_remove_members_from_room,
-            # "room.message": _,
+            "room.messages": self.receive_message_list,
             "room.join": self.receive_join_room_event,
             "room.leave": self.receive_leave_room_event,
             # "room.modify": _, # add or remove members/subscribers (for the user with permission), add or remove admins/moderators (for the user),  change name/description/preferences,
@@ -292,6 +299,75 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         group_string = GROUP_STRING.format(group_id=message['room']['id'])
         # print(group_string)
         await self.send_group(group_string, "message.dispatch", message)
+
+
+
+
+
+    @event_handler
+    @can_send_message_to_room
+    async def receive_message_typing_event(self, data, room):
+        """
+        receive_message_typing_event
+        
+        data: {
+            room_id: string
+        }
+        """
+        group_string = GROUP_STRING.format(group_id=room.id)
+        # print(group_string)
+        await self.send_group(group_string, "messagetyping.dispatch", {"username": self.user.username})
+
+
+    @event_handler
+    @can_modify_message
+    @can_access_message
+    async def receive_message_modify_event(self, data, room):
+        """
+        receive_message_modify_event
+        
+        data: {
+            action: "update" / "delete"
+            message_id: string/int (update) / [string/int, string/int] (for delete)
+            extra_fields: [
+                content: text (for update action, provide fields to modify)
+            ]
+        }
+        """
+
+        response = await modify_message(self.user, data)
+        if response:
+            group_string = GROUP_STRING.format(group_id=room.id)
+            await self.send_group(group_string, "messagemodification.dispatch", response)
+
+
+
+    @event_handler
+    @can_access_room
+    async def receive_message_list(self, data, room):
+        """
+        receive_message_list
+        
+        data: {
+            room_id: string 
+            paginate: { 
+                <pagination is optional>
+                page: <page_number>,
+                size: <page_size>
+            
+            }
+        }
+        """
+        
+        response = await retreive_messages(room, data)
+    
+
+        user_group = USER_OWN_GROUP.format(user_id=self.user.id)
+        await self.send_group(user_group, "roommessages.dispatch", response)
+        
+
+
+
 
 
     @event_handler
@@ -447,11 +523,6 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         group = GROUP_STRING.format(group_id=serialized_room["id"])
         await self.add_channel_to_group(group)
         await self.send_group(group, "roomaddmembers.dispatch", {"room": serialized_room, "new_members": [self.user.username]})
-
-
-
-
-        
 
 
 
