@@ -108,7 +108,10 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
         resource_type = eval(self.initial_data.get("type"))
 
         extra_fields = self.initial_data.pop('extra_fields') if 'extra_fields' in self.initial_data else {}
-
+        preferences = extra_fields.get('preferences')
+        if preferences and not isinstance(preferences, dict):
+            raise serializer.ValidationError("preferences must be a python dictionary/javascript object")
+            
         data = {
             **self.initial_data,
             **extra_fields

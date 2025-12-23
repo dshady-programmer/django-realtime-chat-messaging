@@ -82,7 +82,7 @@ Room Management (8 events):
     fetch_room_details, 
     add_participant, 
     remove_participant, 
-    update_room
+    update_room (not done)
 Messages (6 events): 
     send_message, 
     edit_message, 
@@ -106,6 +106,13 @@ Notifications (2 events):
 Presence (2 events): 
     typing_indicator, 
     update_presence
+
+pending:
+  modify_room
+    update room,
+    update room preferences,
+    update room member permissions
+    
 
 """
 """
@@ -138,6 +145,7 @@ chat.notifications
 message.dispatch
 messagetyping.dispatch
 messagemodification.dispatch
+reaction.dispatch
 readreceipt.dispatch
 roomcreate.dispatch
 roomlist.dispatch
@@ -290,15 +298,17 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         receive_message_reaction_event
         
         data: {
+            type: 'add'/'remove'
             message_id: string <id>,
             reaction_content: text
         }
         """
         
-        message = await react_to_message(data, self.user)
-        group_string = GROUP_STRING.format(group_id=message['room']['id'])
+        response = await react_to_message(data, self.user)
+        room_id = response['message']['room']['id']
+        group_string = GROUP_STRING.format(group_id=room_id)
         # print(group_string)
-        await self.send_group(group_string, "message.dispatch", message)
+        await self.send_group(group_string, "reaction.dispatch", response)
 
 
 
@@ -383,6 +393,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             description: string(optional, for groupchat and channel only)
             extra_fields: {
                 ... 
+                preferences: {} (if passing preferences, it must be a dict)
             } ( extra fields must match with the model fields)
 
 

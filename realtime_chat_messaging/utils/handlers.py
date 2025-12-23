@@ -1,6 +1,6 @@
 from channels.db import database_sync_to_async
 from django.shortcuts import get_object_or_404
-from realtime_chat_messaging.models import Message, ReadReceipt, ChatNotification, Room, GroupChat, User, Channel
+from realtime_chat_messaging.models import Message, ReadReceipt, ChatNotification, Room, GroupChat, User, Channel, Reaction
 from realtime_chat_messaging.serializers import ChatNotificationSerializer, MessageSerializer, RoomPolymorphicSerializer, RoomListPolymorphicSerializer, ReactionSerializer
 from collections import defaultdict
 from .chat_notifications import update_chat_notification, create_chat_notification
@@ -74,15 +74,38 @@ def create_message(data, user):
 
 @database_sync_to_async
 def react_to_message(data, user):
-    data["user_id"] = user.id
-    message_id = data.pop("message_id")
-    data["message"] = message_id
-    serializer = ReactionSerializer(data=data)
-    serializer.is_valid(raise_exception=True)
-    instance = serializer.save()
-    create_chat_notification(instance.message, "REACTION", user)
-    message_serializer = MessageSerializer(instance.message)
-    return message_serializer.data
+    type = data.pop('type')
+    response = None
+    if type == 'remove':
+        message_id = data.pop('message_id')
+        reaction = Reaction.objects.filter(message__id=message_id, user=self.user)
+        status = None
+        if reaction.exists():
+            reaction.delete()
+            status = "successful"
+        else:
+            status = "failed"
+        message = get_object_or_404(Message, pk=message_id)
+        serialized_message = MessageSerializer(message).data
+        response = {
+            "status": status,
+            "message": serialized_message,
+            "action": type
+        }
+
+    elif type == 'add':
+        data["user_id"] = user.id
+        message_id = data.pop("message_id")
+        data["message"] = message_id
+        serializer = ReactionSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        create_chat_notification(instance.message, "REACTION", user)
+        message_serializer = MessageSerializer(instance.message)
+        response = {"status": "successful", "type": type, "message": message_serializer.data}
+    else:
+        raise Exception('invalid reaction type')
+    return response 
 
 @database_sync_to_async
 def message_acknowledged(user, message_id):
