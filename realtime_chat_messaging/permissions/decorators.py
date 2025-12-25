@@ -4,7 +4,8 @@ from .helpers import (
     have_send_message_permission, 
     have_message_permission, 
     have_room_permissions_to_add_or_remove_members,
-    is_message_sender
+    is_message_sender,
+    have_admin_privileges
 )
 
 
@@ -97,3 +98,20 @@ def can_remove_members_from_room(method):
         else:
             raise Exception("User is not authorized to remove members from this room")
     return wrapper
+
+
+
+def is_room_admin(method):
+    @wraps(method)
+    async def wrapper(*args, **kwargs):
+        self = args[0]
+        data = args[1]
+        room_id = data.get('room_id')
+        is_permitted, room = await have_admin_privileges(self.user, room_id)
+        if is_permitted:
+            return await method(*args, **kwargs, room=room)
+        else:
+            raise Exception("User is not an admin of this rooom")
+    return wrapper
+
+

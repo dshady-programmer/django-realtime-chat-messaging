@@ -189,10 +189,6 @@ class MessageMediaAsset(models.Model):
             "bitrate": 96000
         }
 
-        {
-            "pages": 43
-        }
-
 
     """
 

@@ -1,12 +1,21 @@
 from channels.db import database_sync_to_async
 from django.shortcuts import get_object_or_404
-from realtime_chat_messaging.models import Message, ReadReceipt, ChatNotification, Room, GroupChat, User, Channel, Reaction
-from realtime_chat_messaging.serializers import ChatNotificationSerializer, MessageSerializer, RoomPolymorphicSerializer, RoomListPolymorphicSerializer, ReactionSerializer
+from realtime_chat_messaging.models import (
+    Message, ReadReceipt, 
+    ChatNotification, Room, 
+    GroupChat, User, 
+    Channel, OneToOneChat, Reaction
+)
+from realtime_chat_messaging.serializers import (
+    ChatNotificationSerializer, MessageSerializer, 
+    RoomPolymorphicSerializer, RoomListPolymorphicSerializer, 
+    ReactionSerializer, MessageMediaAssetSerializer
+)
 from collections import defaultdict
 from .chat_notifications import update_chat_notification, create_chat_notification
 from django.db.models import Prefetch, Q
 from django.core.paginator import Paginator
-
+from guardian.shortcuts import remove_perm, assign_perm
 
 @database_sync_to_async
 def get_and_group_chat_notifications(user):
@@ -41,8 +50,10 @@ def create_message(data, user):
     # Needed serializer primarykeyrelatedfield.
     connection.ensure_connection() 
     message_type = 'NEW_MESSAGE'
-
+    media = None
     extra_fields = data.get('extra_fields', {})
+    if extra_fields.get('media'):
+        media = extra_fields.pop('media')
     new_data = {
         "room_id": data["room_id"],
         "sender_id": user.id,
@@ -62,11 +73,17 @@ def create_message(data, user):
     elif "is_forwarded" in new_data and "forwarded_from_id" not in new_data:
         new_data.pop('is_forwarded')
 
+    
+
     serializer = MessageSerializer(data=new_data)
     serializer.is_valid(raise_exception=True)
     message = serializer.save()
     message.room.last_message = message
     message.room.save()
+    if media:
+        media_asset = MessageMediaAssetSerializer(data = media)
+        media_asset.is_valid(raise_exception=True)
+        media_asset.save()
     create_chat_notification(message, message_type, user)
     message_serializer = MessageSerializer(message)
     return message_serializer.data
@@ -111,6 +128,7 @@ def react_to_message(data, user):
 def message_acknowledged(user, message_id):
     many = False
     if isinstance(message_id, list):
+        message_id = list(set(message_id))
         many = True
 
     update_chat_notification(message_id, user, many)
@@ -150,7 +168,7 @@ def modify_message(user, data):
 @database_sync_to_async
 def create_read_receipt(user, message_id):
     if isinstance(message_id, list):
-        messages = Message.objects.filter(id__in=message_id).exclude(sender=user)
+        messages = Message.objects.filter(id__in=message_id).exclude(sender=user).distinct()
         room_ids = set()
         receipts = []
         for message in messages:
@@ -208,7 +226,7 @@ def add_members_to_room(user_ids, room):
     connection.ensure_connection() 
     existing_room_members = None
     members = None
-
+    user_ids = list(set(user_ids))
     if isinstance(room, GroupChat):
         members = room.participants
         existing_room_members = set(members.all())
@@ -233,7 +251,7 @@ def remove_members_from_room(user_ids, room, session_user):
     connection.ensure_connection() 
     existing_room_members = None
     members = None
-
+    user_ids = list(set(user_ids))
     if isinstance(room, GroupChat):
         members = room.participants
         existing_room_members = set(members.all())
@@ -337,3 +355,88 @@ def retreive_messages(room, data):
     return response
     
         
+
+@database_sync_to_async
+def modify_room(user, data, room):
+    action = data.get('action')
+    field_data = data.get('data')
+
+    if not action:
+        raise Exception("Action must be provided")
+    if not field_data:
+        raise Exception("data must be provided")
+    if action == "update":
+        if type(room) in [GroupChat, Channel]:
+            if "name" in field_data:
+                room.name = field_data.get("name")
+            if "description" in field_data:
+                room.description = field_data.get("description")
+        if "preference" in field_data:
+            room.preference = field_data.get("preference")
+        room.save()
+    if not isinstance(room, OneToOneChat) and action in [
+        "add_permission", "remove_permission",
+        "add_moderator", "add_admin", 
+        "remove_moderator", "remove_admin"
+    ]:
+        member_ids = field_data.get('users')
+
+        if not member_ids:
+            raise Exception("User ids must be provided")
+        if not isinstance(member_ids, list):
+            raise Exception("User ids must be a list/array")
+        member_ids = list(set(member_ids))
+        
+        if room.creator.id in member_ids:
+            member_ids.remove(room.creator.id)
+        members = User.objects.filter(pk__in=member_ids)
+        if action in ["add_permission", "remove_permission"]:
+            VALID_GROUP_CHAT_PERMS = ["can_add_new_participants", "can_remove_participants"]
+            VALID_CHANNEL_PERMS = ["can_add_new_subscribers", "can_remove_subscribers", "can_send_messages"]
+            permissions = field_data.get('permission')
+            if not permissions:
+                raise Exception("Permission to add or remove should be passed")
+            if not isinstance(permissions, list):
+                raise Exception("Permission must be a list")
+            permissions = list(set(permissions))
+            
+            if isinstance(room, GroupChat):
+                for perm in permissions:
+                    if perm not in VALID_GROUP_CHAT_PERMS:
+                        raise Exception(f"Permission '{perm}' is not a valid group chat permission")
+            else:
+                for perm in permissions:
+                    if perm not in VALID_CHANNEL_PERMS:
+                        raise Exception(f"Permission '{perm}' is not a valid channel permission")
+            for member in members:
+                for perm in permissions:
+                    if action == "add_permission":
+                        assign_perm(perm, member, room)
+                    else:
+                        remove_perm(perm, member, room)
+        elif action in ["add_admin", "remove_admin"]:
+            if not isinstance(room, GroupChat):
+                raise Exception("Room should be a group chat to modify the admin")
+            if action == "add_admin":
+                room.admins.add(*members)
+            else:
+                room.admins.remove(*members)
+        else:
+            if not isinstance(room, Channel):
+                raise Exception("Room should be a channel to modify the admin")
+            if action == "add_moderator":
+                room.moderators.add(*members)
+            else:
+                room.moderators.remove(*members)
+    return RoomPolymorphicSerializer(room).data
+
+            
+            
+        
+
+            
+        
+    
+
+            
+

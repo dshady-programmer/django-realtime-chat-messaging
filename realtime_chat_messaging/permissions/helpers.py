@@ -49,6 +49,8 @@ def have_message_permission(user, message_id):
     
     if not isinstance(message_id, list):
         message_id = [message_id]
+    else:
+        message_id = list(set(message_id))
 
     for id in message_id:
         message = get_object_or_404(Message, pk=id)
@@ -73,7 +75,8 @@ def is_message_sender(user, message_id):
 
     if not isinstance(message_id, list):
         message_id = [message_id]
-    
+    else:
+        message_id = list(set(message_id))
     # all message ids to be deleted should come from the same room
     # This mimics highlighting multiple messages for deletion
     if len(message_id) < 1:
@@ -151,5 +154,21 @@ def have_send_message_permission(user, data):
             is_permitted = room.participants.filter(pk=user.pk).exists()
     else:
         is_permitted = room.participants.filter(pk=user.pk).exists()
+
+    return is_permitted, room
+
+
+@database_sync_to_async
+def have_admin_privileges(user, room_id):
+    from django.db import connection
+    connection.ensure_connection()
+    is_permitted = True
+    room = get_object_or_404(Room, pk = room_id)
+    if isinstance(room, GroupChat):
+        room = GroupChat.objects.prefetch_related('participants', 'admins').get(pk=room.pk)
+        is_permitted = user in room.participants.all() and (room.creator == user or user in room.admins.all())
+    elif isinstance(room, Channel):
+        room = Channel.objects.prefetch_related('subscribers', 'moderators').get(pk=room.pk)
+        is_permitted = user in room.subscribers.all() and (room.creator == user or user in room.moderators.all())
 
     return is_permitted, room

@@ -1,8 +1,8 @@
 from django.dispatch import receiver 
 from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.core.exceptions import ValidationError
-from guardian.shortcuts import assign_perm
-from .models import OneToOneChat, GroupChat, Channel, ChatNotification,Reaction
+from guardian.shortcuts import assign_perm,remove_perm
+from .models import OneToOneChat, GroupChat, Channel, ChatNotification,Reaction, User
 
 
 @receiver(m2m_changed, sender=OneToOneChat.participants.through)
@@ -47,6 +47,34 @@ def delete_channels_and_groups_with_no_participants(sender, instance, action, pk
         else:
             if instance.subscribers.count + len(pk_set) > instance.max_subscribers:
                 raise ValidationError("Maximum number of channel subscribers exceeded")
+
+
+
+@receiver(m2m_changed, sender=GroupChat.admins.through)
+@receiver(m2m_changed, sender=Channel.moderators.through)
+def add_permissions_to_admin_and_moderators(sender, instance, action, pk_set, **kwargs):
+    if action == "pre_remove" or action == "pre_clear":
+        users = User.objects.filter(pk__in=list(pk_set))
+        for user in users:
+            if sender == GroupChat.admins.through:
+                remove_perm('can_add_new_participants', user, instance)
+                remove_perm('can_remove_participants', user, instance)
+            else:
+                remove_perm('can_add_new_subscribers', user, instance)
+                remove_perm('can_remove_subscribers', user, instance)
+                remove_perm('can_send_messages', user, instance)
+
+    if action == "pre_add":
+        users = User.objects.filter(pk__in=list(pk_set))
+        for user in users:
+            if sender == GroupChat.admins.through:
+                assign_perm('can_add_new_participants', user, instance)
+                assign_perm('can_remove_participants', user, instance)
+            else:
+                assign_perm('can_add_new_subscribers', user, instance)
+                assign_perm('can_remove_subscribers', user, instance)
+                assign_perm('can_send_messages', user, instance)
+
 
 
 

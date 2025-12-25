@@ -29,7 +29,8 @@ from .utils.handlers import  (
     leave_room, 
     join_room, 
     retreive_messages,
-    modify_message
+    modify_message,
+    modify_room
 )
 from .utils.decorators import (
     event_handler
@@ -37,7 +38,9 @@ from .utils.decorators import (
 from .permissions.decorators import (
     can_access_message, can_access_room,
     can_add_members_to_room, can_remove_members_from_room,
-    can_send_message_to_room, can_modify_message
+    can_send_message_to_room, can_modify_message,
+    is_room_admin
+    
 
 )
 User = get_user_model()
@@ -51,24 +54,6 @@ USER_OWN_GROUP = "user-{user_id}"
 GROUP_STRING = "group-{group_id}"
 
 
-"""
-Events on the frontend
-
-user_profile
-undelivered_messages
-retrieve_peer_conversation
-delivered_messages
-follow_event
-unfollow_event
-group_create
-group_join
-group_leave
-incoming_message
-message_delivered
-message_seen
-message_typing
-
-"""
 
 """
 Connection: 
@@ -89,8 +74,7 @@ Messages (6 events):
     delete_message, 
     fetch_messages, 
     forward_message, 
-    reply_to_message
-Media (2 events): 
+    reply_to_message 
     upload_media, 
     fetch_media
 Reactions (3 events): 
@@ -154,6 +138,7 @@ roominfo.dispatch
 roomaddmembers.dispatch
 roomremovemembers.dispatch
 roomexit.dispatch
+roomupdate.dispatch
 
 
 """
@@ -206,7 +191,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             "room.messages": self.receive_message_list,
             "room.join": self.receive_join_room_event,
             "room.leave": self.receive_leave_room_event,
-            # "room.modify": _, # add or remove members/subscribers (for the user with permission), add or remove admins/moderators (for the user),  change name/description/preferences,
+            # "room.modify": _, add or remove admins/moderators (for the user),  change name/description/preferences,
             # "online_presence": _
 
 
@@ -240,6 +225,15 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
                 ... 
                 is_forwarded: Boolean,
                 forwarded_from_id: <only if is_forwarded is true>
+
+                media: {
+                  media_url: string
+                  media_type: 'audio/image/video/file'
+                  file_size: int
+                  mime_type: valid_mime_type (check types.py)
+                  metadata: {}
+                }
+                
             }
         }
         note: extra field value must contain model fields validated by the provided serializer
@@ -535,6 +529,27 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         await self.add_channel_to_group(group)
         await self.send_group(group, "roomaddmembers.dispatch", {"room": serialized_room, "new_members": [self.user.username]})
 
+
+
+    @event_handler
+    @is_room_admin
+    async def receive_modify_room_event(self, data):
+        """
+        receive_modify_room_event
+        
+        data: {
+            room_id: ""
+            action: "update" / "add_permission" /  "remove_permission" / "add_moderator" / "add_admin" / "remove_moderator" / "remove_admin"
+            data: {
+                ...
+            }
+        }
+        """
+        room = await modify_room(self.user, data, room)
+        group = GROUP_STRING.format(group_id=room.id)
+        await self.send_group(group, "roomupdate.dispatch", room)
+
+        
 
 
 
