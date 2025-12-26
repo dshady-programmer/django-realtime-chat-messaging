@@ -192,6 +192,9 @@ class ReactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = "__all__"
+        validators = []
+    
+
 
 
 class MessageMediaAssetSerializer(serializers.ModelSerializer):
