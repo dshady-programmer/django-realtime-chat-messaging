@@ -105,7 +105,16 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
     def create(self, _):
         user = self.context.get("user")
         # print('self.initial', self.initial_data)
-        resource_type = eval(self.initial_data.get("type"))
+        # resource_type = eval(self.initial_data.get("type")) # unsafe  
+        mapping = {
+            "OneToOneChat": OneToOneChat,
+            "GroupChat": GroupChat,
+            "Channel": Channel,
+        }
+        resource_type_str = self.initial_data.get("type")
+        resource_type = mapping.get(resource_type_str)
+        if not resource_type:
+            raise serializers.ValidationError("Invalid type")
 
         extra_fields = self.initial_data.pop('extra_fields') if 'extra_fields' in self.initial_data else {}
         preferences = extra_fields.get('preferences')
@@ -144,12 +153,14 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
     
             else:
                 subscribers = data.get("subscribers")
+                if not subscribers:
+                    raise Exception("Channel must have at least one subscriber")
                 subscribers = User.objects.filter(id__in=subscribers)
                 instance.subscribers.add(*subscribers)
                 
         except Exception as e:
             instance.delete()
-            raise serializers.ValidationError(str(e))
+            raise serializers.ValidationError(e)
         else:
             return instance
 
@@ -184,9 +195,15 @@ class ReactionSerializer(serializers.ModelSerializer):
 
 
 class MessageMediaAssetSerializer(serializers.ModelSerializer):
+    message_id = serializers.PrimaryKeyRelatedField(
+        queryset=Message.objects.all(),
+        source="message", 
+        write_only=True,
+        required=True,
+    )
     class Meta:
         model = MessageMediaAsset
-        fields = "__all__"
+        exclude = ['message']
 
 
 class MessageSerializer(serializers.ModelSerializer):

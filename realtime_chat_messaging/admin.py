@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import  Message, Room, GroupChat, Channel, OneToOneChat, ReadReceipt, Reaction, ChatNotification
+from .models import  Message, Room, GroupChat, Channel, OneToOneChat, ReadReceipt, Reaction, ChatNotification, MessageMediaAsset
 
 
 admin.site.register(Message)
@@ -12,3 +12,4 @@ admin.site.register(OneToOneChat)
 admin.site.register(ReadReceipt)
 admin.site.register(Reaction)
 admin.site.register(ChatNotification)
+admin.site.register(MessageMediaAsset)

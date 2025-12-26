@@ -226,13 +226,16 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
                 is_forwarded: Boolean,
                 forwarded_from_id: <only if is_forwarded is true>
 
-                media: {
-                  media_url: string
-                  media_type: 'audio/image/video/file'
-                  file_size: int
-                  mime_type: valid_mime_type (check types.py)
-                  metadata: {}
-                }
+                media: [
+                    {
+                        media_url: string
+                        media_type: 'audio/image/video/file'
+                        file_size: int
+                        mime_type: valid_mime_type (check types.py)
+                        metadata: {}
+                    }, 
+                    ...
+                ]
                 
             }
         }

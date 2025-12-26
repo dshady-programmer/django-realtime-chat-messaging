@@ -48,16 +48,19 @@ def create_message(data, user):
     from django.db import connection
     # Ensures that a database connection is available and open for the current thread (async context). 
     # Needed serializer primarykeyrelatedfield.
+
     connection.ensure_connection() 
     message_type = 'NEW_MESSAGE'
     media = None
     extra_fields = data.get('extra_fields', {})
     if extra_fields.get('media'):
         media = extra_fields.pop('media')
+        if not isinstance(media, list):
+            raise Exception("Media must be a list of media files")
     new_data = {
         "room_id": data["room_id"],
         "sender_id": user.id,
-        "content": data["content"],
+        "content": "Media Files" if media else data["content"],
         **extra_fields
     }
     if "parent_message" in data:
@@ -73,6 +76,7 @@ def create_message(data, user):
     elif "is_forwarded" in new_data and "forwarded_from_id" not in new_data:
         new_data.pop('is_forwarded')
 
+
     
 
     serializer = MessageSerializer(data=new_data)
@@ -81,9 +85,12 @@ def create_message(data, user):
     message.room.last_message = message
     message.room.save()
     if media:
-        media_asset = MessageMediaAssetSerializer(data = media)
+        for file in media:
+            file.update({"message_id": message.id})   
+        media_asset = MessageMediaAssetSerializer(data = media, many=True)
         media_asset.is_valid(raise_exception=True)
-        media_asset.save()
+        media = media_asset.save()
+    
     create_chat_notification(message, message_type, user)
     message_serializer = MessageSerializer(message)
     return message_serializer.data
@@ -316,7 +323,7 @@ def retreive_messages(room, data):
     messages = Message.objects.filter(room=room).prefetch_related('read_receipts', 'reactions', 'attachments').order_by('-created_at')
     paginate = data.get('paginate')
     response = {}
-    if paginate:
+    if paginate and isinstance(paginate, dict):
         page = paginate.get('page')
         size = paginate.get('size')
         if not page or not size:

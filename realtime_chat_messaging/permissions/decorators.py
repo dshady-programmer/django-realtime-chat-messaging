@@ -45,7 +45,7 @@ def can_send_message_to_room(method):
         self = args[0]
         data = args[1]
 
-        is_permitted, room = await have_send_message_permission(self,user, data)
+        is_permitted, room = await have_send_message_permission(self.user, data)
         if is_permitted:
             return await method(*args, **kwargs, room=room)
         else:

@@ -34,3 +34,17 @@ ALLOWED_MIME_TYPES = [
     "text/plain",
     "text/csv",
 ]
+
+
+MEDIATYPE_CHOICES = [
+    ("image", "Image"),
+    ("video", "Video"),  # includes video notes 
+    ("audio", "Audio"),  # includes voice notes
+    ("file", "File"),
+]
+
+NOTIFICATION_TYPE = (
+    ('REACTION', 'Reaction'),
+    ('NEW_MESSAGE', 'New Message'),
+    ('REPLY', 'Reply')
+)

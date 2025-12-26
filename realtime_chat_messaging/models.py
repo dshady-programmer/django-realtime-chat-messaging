@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import F,Q
 import uuid
 from polymorphic.models import PolymorphicModel
-from .types import ALLOWED_MIME_TYPES
+from .types import ALLOWED_MIME_TYPES, MEDIATYPE_CHOICES, NOTIFICATION_TYPE
 from .model_mixins import AbstractChannel, AbstractGroupChat, AbstractMessage, AbstractOneToOneChat
 
 User = get_user_model()
@@ -108,11 +108,7 @@ class ChatNotification(models.Model):
 
         This way notifications aren't created for every user, instead notifications are created per message basis
     """
-    NOTIFICATION_TYPE = (
-        ('REACTION', 'Reaction'),
-        ('NEW_MESSAGE', 'New Message'),
-        ('REPLY', 'Reply')
-    )
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     recipients = models.ManyToManyField(User, related_name='unread_messages')
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='notifications')
@@ -133,19 +129,16 @@ class Reaction(models.Model):
 
 
 class MessageMediaAsset(models.Model):
-    MEDIATYPE_CHOICES = [
-        ("image", "Image"),
-        ("video", "Video"),  # includes video notes 
-        ("audio", "Audio"),  # includes voice notes
-        ("file", "File"),
-    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="attachments")
-    media_url = models.TextField() # This is the external link — not the file itself
+    media_url = models.CharField() # This is the external link — not the file itself
     media_type = models.CharField(max_length=64, choices=MEDIATYPE_CHOICES)
     file_size = models.PositiveBigIntegerField(default=0)
-    mime_type = models.CharField(blank=True, null=True)
+    mime_type = models.CharField(default="image/jpeg")
+    caption = models.CharField(blank=True, null=True)
     metadata = models.JSONField(default=dict)
+    
 
     class Meta:
          constraints = [
