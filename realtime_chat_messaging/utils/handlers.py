@@ -98,11 +98,11 @@ def create_message(data, user):
 
 @database_sync_to_async
 def react_to_message(data, user):
-    type = data.pop('type')
+    type = data.pop('type') if 'type' in data else None
     response = None
     if type == 'remove':
         message_id = data.pop('message_id')
-        reaction = Reaction.objects.filter(message__id=message_id, user=self.user)
+        reaction = Reaction.objects.filter(message__id=message_id, user=user)
         status = None
         if reaction.exists():
             reaction.delete()

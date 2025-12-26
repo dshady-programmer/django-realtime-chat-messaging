@@ -20,7 +20,7 @@ def can_modify_message(method):
             return await method(*args, **kwargs, room=room)
         else:
             raise Exception("User is not authorized to modify this message")
-
+    return wrapper
 
 
 def can_access_message(method):
