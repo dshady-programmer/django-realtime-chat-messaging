@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from realtime_chat_messaging.models import Message,Room, GroupChat, Channel
+from realtime_chat_messaging.models import Message, Room, GroupChat, Channel
 from channels.db import database_sync_to_async
 from django.core.exceptions import ValidationError
 

@@ -4,6 +4,8 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from guardian.utils import get_anonymous_user
 from django.contrib.auth import get_user_model 
+from realtime_chat_messaging.conf import realtime_chat_settings
+from operator import itemgetter
 import json
 from .utils.cache_utils import (
     fetch_user_groups,
@@ -15,7 +17,20 @@ from .utils.cache_utils import (
     add_group_to_user_groups,
     remove_group_from_user_groups
 )
-from .utils.handlers import  (
+
+from .permissions.decorators import (
+    can_access_message, can_access_room,
+    can_add_members_to_room, can_remove_members_from_room,
+    can_send_message_to_room, can_modify_message,
+    is_room_admin
+
+)
+User = get_user_model()
+event_mapper = realtime_chat_settings.EVENT_MAPPER
+handlers = realtime_chat_settings.EVENT_HANDLERS
+ExceptionHandler = realtime_chat_settings.EXCEPTION_HANDLERS_CLASS
+
+(
     get_and_group_chat_notifications,
     create_message, 
     message_acknowledged,
@@ -31,19 +46,23 @@ from .utils.handlers import  (
     retreive_messages,
     modify_message,
     modify_room
-)
-from .utils.decorators import (
-    event_handler
-)
-from .permissions.decorators import (
-    can_access_message, can_access_room,
-    can_add_members_to_room, can_remove_members_from_room,
-    can_send_message_to_room, can_modify_message,
-    is_room_admin
-    
-
-)
-User = get_user_model()
+) = itemgetter(
+        "get_and_group_chat_notifications",
+        "create_message", 
+        "message_acknowledged",
+        "create_read_receipt",
+        "create_room",
+        "list_rooms",
+        "retreive_room",
+        "add_members_to_room",
+        "react_to_message",
+        "remove_members_from_room",
+        "leave_room", 
+        "join_room", 
+        "retreive_messages",
+        "modify_message",
+        "modify_room"
+    )(handlers)
 
 # 4001: Authentication failed.
 # 4002: Permission failed.
@@ -180,33 +199,14 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
         event_type = data.get("event_type")
-        map_event_type_to_handlers = {
-            "message.send": self.receive_message_send_event,
-            "message.acknowledged": self.receive_message_acknowledged_event,
-            "message.read": self.receive_message_read_event,
-            "message.react": self.receive_message_reaction_event, 
-            "message.typing": self.receive_message_typing_event,
-            "message.modify": self.receive_message_modify_event,
-            "room.create": self.receive_room_create_event,
-            "room.list": self.receive_get_rooms,
-            "room.info": self.receive_get_room_info,
-            "room.add_members": self.receive_add_members_to_room,
-            "room.remove_members": self.receive_remove_members_from_room,
-            "room.messages": self.receive_message_list,
-            "room.join": self.receive_join_room_event,
-            "room.leave": self.receive_leave_room_event,
-            "room.modify": self.receive_modify_room_event, # add or remove admins/moderators (for the user),  change name/description/preferences,
-            # "online_presence": _
-
-
-        }
+        map_event_type_to_handlers = event_mapper(self)
         try:
             await map_event_type_to_handlers[event_type](data.get("data"))
         except KeyError:
             error_msg = {"error": "invalid event type"}
             await self.send(text_data=json.dumps(error_msg))
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     async def dispatch_chat_notifications(self):
         chat_notifications = await get_and_group_chat_notifications(self.user)
         await self.send_group(
@@ -215,7 +215,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             chat_notifications,
         )
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     @can_send_message_to_room
     async def receive_message_send_event(self, data, room):
         """
@@ -253,12 +253,14 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         await self.send_group(group_string, "message.dispatch", message)
             
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     @can_access_message
     async def receive_message_acknowledged_event(self, data):
         """
         receive_message_acknowledged_event
         
+        this also mean message is delivered to the recipient...
+
         data: {
             message_id: string/int or List<string/int>,
         }
@@ -268,7 +270,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
         await self.send(text_data=json.dumps({"status": "successful"}))
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     @can_access_message
     async def receive_message_read_event(self, data):
         """
@@ -292,7 +294,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
                 group = GROUP_STRING.format(group_id=room_id)
                 await self.send_group(group, "readreceipt.dispatch", message)
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     @can_access_message
     async def receive_message_reaction_event(self, data):
         """
@@ -315,7 +317,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
 
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     @can_send_message_to_room
     async def receive_message_typing_event(self, data, room):
         """
@@ -330,7 +332,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         await self.send_group(group_string, "messagetyping.dispatch", {"username": self.user.username})
 
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     @can_modify_message
     @can_access_message
     async def receive_message_modify_event(self, data, room):
@@ -353,7 +355,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
 
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     @can_access_room
     async def receive_message_list(self, data, room):
         """
@@ -381,7 +383,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
 
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     async def receive_room_create_event(self, data):
         """
         receive_room_create_event
@@ -422,7 +424,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
         
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     async def receive_get_rooms(self, _):
         """
         receive_get_rooms
@@ -438,7 +440,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         )
 
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     @can_access_room
     async def receive_get_room_info(self, data, room):
         """
@@ -458,7 +460,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         )
 
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     @can_add_members_to_room
     async def receive_add_members_to_room(self, data, room):
         """
@@ -473,11 +475,10 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         users_added, serialized_room, new_member_usernames = await add_members_to_room(data.get('members'), room)
         group = GROUP_STRING.format(group_id=room.id)
         for user in users_added:
-         
             await self.add_channel_to_group(group, user.id)
-        await self.send_group(group, "roomaddmembers.dispatch", {"room": serialized_room, "new_members": new_member_usernames})
+        await self.send_group(group, "roomaddmembers.dispatch", {"room": serialized_room, "new_members": new_member_usernames, "added_by": self.user.username})
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     @can_remove_members_from_room
     async def receive_remove_members_from_room(self, data, room):
         """
@@ -498,7 +499,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
 
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     @can_access_room
     async def receive_leave_room_event(self, data, room):
         """
@@ -517,10 +518,10 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
         await self.send_group(user_group, "roomexit.dispatch", {"room": serialized_room, "message": f"You left {room.name}"})
 
-        await self.send_group(group, "roomremovemembers.dispatch", {"room": serialized_room, "removed_members": [self.user.username], "removed_by": "self"})
+        await self.send_group(group, "roomremovemembers.dispatch", {"room": serialized_room, "removed_members": [self.user.username], "removed_by": "self"}) # frontend should handle displaying the right information when removed_by is self ("username left") or and when it isn't ("username1 removed username2")
 
     
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     async def receive_join_room_event(self, data):
         """
         receive_join_room_event
@@ -534,11 +535,11 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
         group = GROUP_STRING.format(group_id=serialized_room["id"])
         await self.add_channel_to_group(group)
-        await self.send_group(group, "roomaddmembers.dispatch", {"room": serialized_room, "new_members": [self.user.username]})
+        await self.send_group(group, "roomaddmembers.dispatch", {"room": serialized_room, "new_members": [self.user.username], "added_by": "self"}) # same logic used in room leave/remove applies here
 
 
 
-    @event_handler
+    @ExceptionHandler.exception_handler_decorator
     @is_room_admin
     async def receive_modify_room_event(self, data, room):
         """

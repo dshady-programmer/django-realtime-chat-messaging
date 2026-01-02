@@ -1,22 +1,38 @@
 from channels.db import database_sync_to_async
 from django.shortcuts import get_object_or_404
-from realtime_chat_messaging.models import (
-    Message, ReadReceipt, 
-    ChatNotification, Room, 
-    GroupChat, User, 
-    Channel, OneToOneChat, Reaction
-)
-from realtime_chat_messaging.serializers import (
-    ChatNotificationSerializer, MessageSerializer, 
-    RoomPolymorphicSerializer, RoomListPolymorphicSerializer, 
-    ReactionSerializer, MessageMediaAssetSerializer
-)
+from operator import itemgetter
+from realtime_chat_messaging.conf import realtime_chat_settings
 from django.core.exceptions import ValidationError
 from collections import defaultdict
 from .chat_notifications import update_chat_notification, create_chat_notification
 from django.db.models import Prefetch, Q
 from django.core.paginator import Paginator
 from guardian.shortcuts import remove_perm, assign_perm
+
+serializers = realtime_chat_settings.SERIALIZERS
+models = realtime_chat_settings.MODELS 
+
+(   Message, ReadReceipt, 
+    ChatNotification, Room, 
+    GroupChat, User, 
+    Channel, OneToOneChat, Reaction
+) = itemgetter(  
+    "Message", "ReadReceipt", 
+    "ChatNotification", "Room", 
+    "GroupChat", "User", 
+    "Channel", "OneToOneChat", "Reaction"
+    )(models)
+
+
+(
+    ChatNotificationSerializer, MessageSerializer, 
+    RoomPolymorphicSerializer, RoomListPolymorphicSerializer, 
+    ReactionSerializer, MessageMediaAssetSerializer
+) = itemgetter(
+    "ChatNotificationSerializer", "MessageSerializer", 
+    "RoomPolymorphicSerializer", "RoomListPolymorphicSerializer", 
+    "ReactionSerializer", "MessageMediaAssetSerializer"
+    )(serializers)
 
 @database_sync_to_async
 def get_and_group_chat_notifications(user):
