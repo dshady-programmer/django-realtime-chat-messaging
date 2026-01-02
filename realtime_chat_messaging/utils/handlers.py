@@ -11,6 +11,7 @@ from realtime_chat_messaging.serializers import (
     RoomPolymorphicSerializer, RoomListPolymorphicSerializer, 
     ReactionSerializer, MessageMediaAssetSerializer
 )
+from django.core.exceptions import ValidationError
 from collections import defaultdict
 from .chat_notifications import update_chat_notification, create_chat_notification
 from django.db.models import Prefetch, Q
@@ -56,7 +57,7 @@ def create_message(data, user):
     if extra_fields.get('media'):
         media = extra_fields.pop('media')
         if not isinstance(media, list):
-            raise Exception("Media must be a list of media files")
+            raise ValidationError("Media must be a list of media files")
     new_data = {
         "room_id": data["room_id"],
         "sender_id": user.id,
@@ -128,7 +129,7 @@ def react_to_message(data, user):
         message_serializer = MessageSerializer(instance.message)
         response = {"status": "successful", "type": type, "message": message_serializer.data}
     else:
-        raise Exception('invalid reaction type')
+        raise ValidationError('invalid reaction type')
     return response 
 
 @database_sync_to_async
@@ -153,7 +154,7 @@ def modify_message(user, data):
         message_id = None
         if isinstance(message_ids, list):
             if len(message_ids) > 1:
-                raise Exception("You can only update one message at a time")
+                raise ValidationError("You can only update one message at a time")
             message_id = message_ids[0]
         else:
             message_id = message_ids
@@ -166,10 +167,10 @@ def modify_message(user, data):
             serialized_message = MessageSerializer(instance)
             return {"status": "successful", "action": "update", "message": serialized_message.data}
         else:
-            raise Exception("Content should be provided for update action")
+            raise ValidationError("Content should be provided for update action")
 
     else:
-        raise Exception("Invalid action type")
+        raise ValidationError("Invalid action type")
     
 
 @database_sync_to_async
@@ -291,7 +292,7 @@ def leave_room(user, room):
     elif isinstance(room, Channel):
         members = room.subscribers
     else:
-        raise Exception("You can only leave a channel/group chat")
+        raise ValidationError("You can only leave a channel/group chat")
 
     members.remove(user)
 
@@ -306,14 +307,14 @@ def join_room(user, room_id):
 
     if isinstance(room, GroupChat):
         # User should implement a custom functionality for this or leave the exception
-        raise Exception("Ask an admin to add you to the group")
+        raise ValidationError("Ask an admin to add you to the group")
     elif isinstance(room, Channel):
         if room.is_public:
             room.subscribers.add(user)
         else:
-            raise Exception("Channel is private, ask a moderator to add you to the channel")
+            raise ValidationError("Channel is private, ask a moderator to add you to the channel")
     else:
-        raise Exception("You can only join a channel/group chat")
+        raise ValidationError("You can only join a channel/group chat")
     
     serialized_room = RoomPolymorphicSerializer(room).data
     return serialized_room
@@ -327,12 +328,12 @@ def retreive_messages(room, data):
         page = paginate.get('page')
         size = paginate.get('size')
         if not page or not size:
-            raise Exception('page and size required')
+            raise ValidationError('page and size required')
         try:
             page = int(page)
             size = int(size)
         except:
-            raise Exception("Invalid types")
+            raise ValidationError("Invalid types")
         
         paginator = Paginator(messages, size)
         get_page = paginator.get_page(page)
@@ -369,9 +370,16 @@ def modify_room(user, data, room):
     field_data = data.get('data')
 
     if not action:
-        raise Exception("Action must be provided")
+        raise ValidationError("Action must be provided")
+
+    if action not in [
+        "update", "add_permission", "remove_permission",
+        "add_moderator", "add_admin", 
+        "remove_moderator", "remove_admin"
+        ]:
+        raise ValidationError("Invalid action type")
     if not field_data:
-        raise Exception("data must be provided")
+        raise ValidationError("data must be provided")
     if action == "update":
         if type(room) in [GroupChat, Channel]:
             if "name" in field_data:
@@ -389,9 +397,9 @@ def modify_room(user, data, room):
         member_ids = field_data.get('users')
 
         if not member_ids:
-            raise Exception("User ids must be provided")
+            raise ValidationError("User ids must be provided")
         if not isinstance(member_ids, list):
-            raise Exception("User ids must be a list/array")
+            raise ValidationError("User ids must be a list/array")
         member_ids = list(set(member_ids))
         
         if room.creator.id in member_ids:
@@ -402,19 +410,19 @@ def modify_room(user, data, room):
             VALID_CHANNEL_PERMS = ["can_add_new_subscribers", "can_remove_subscribers", "can_send_messages"]
             permissions = field_data.get('permission')
             if not permissions:
-                raise Exception("Permission to add or remove should be passed")
+                raise ValidationError("Permission to add or remove should be passed")
             if not isinstance(permissions, list):
-                raise Exception("Permission must be a list")
+                raise ValidationError("Permission must be a list")
             permissions = list(set(permissions))
             
             if isinstance(room, GroupChat):
                 for perm in permissions:
                     if perm not in VALID_GROUP_CHAT_PERMS:
-                        raise Exception(f"Permission '{perm}' is not a valid group chat permission")
+                        raise ValidationError(f"Permission '{perm}' is not a valid group chat permission")
             else:
                 for perm in permissions:
                     if perm not in VALID_CHANNEL_PERMS:
-                        raise Exception(f"Permission '{perm}' is not a valid channel permission")
+                        raise ValidationError(f"Permission '{perm}' is not a valid channel permission")
             for member in members:
                 for perm in permissions:
                     if action == "add_permission":
@@ -423,14 +431,14 @@ def modify_room(user, data, room):
                         remove_perm(perm, member, room)
         elif action in ["add_admin", "remove_admin"]:
             if not isinstance(room, GroupChat):
-                raise Exception("Room should be a group chat to modify the admin")
+                raise ValidationError("Room should be a group chat to modify the admin")
             if action == "add_admin":
                 room.admins.add(*members)
             else:
                 room.admins.remove(*members)
         else:
             if not isinstance(room, Channel):
-                raise Exception("Room should be a channel to modify the admin")
+                raise ValidationError("Room should be a channel to modify the admin")
             if action == "add_moderator":
                 room.moderators.add(*members)
             else:

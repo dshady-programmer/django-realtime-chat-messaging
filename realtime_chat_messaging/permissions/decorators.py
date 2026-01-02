@@ -1,4 +1,5 @@
 from functools import wraps
+from django.core.exceptions import PermissionDenied
 from .helpers import ( 
     have_room_permission,
     have_send_message_permission, 
@@ -19,7 +20,7 @@ def can_modify_message(method):
         if is_permitted:
             return await method(*args, **kwargs, room=room)
         else:
-            raise Exception("User is not authorized to modify this message")
+            raise PermissionDenied("User is not authorized to modify this message")
     return wrapper
 
 
@@ -35,7 +36,7 @@ def can_access_message(method):
         if is_permitted:
             return await method(*args, **kwargs)
         else:
-            raise Exception("User is not authorized to access this message")
+            raise PermissionDenied("User is not authorized to access this message")
         
     return wrapper
 
@@ -49,7 +50,7 @@ def can_send_message_to_room(method):
         if is_permitted:
             return await method(*args, **kwargs, room=room)
         else:
-            raise Exception("User is not authorized to send message to this room")
+            raise PermissionDenied("User is not authorized to send message to this room")
     return wrapper
 
 
@@ -64,7 +65,7 @@ def can_access_room(method):
         if is_permitted:
             return await method(*args, **kwargs, room=room)
         else:
-            raise Exception("User is not authorized access this room")
+            raise PermissionDenied("User is not authorized access this room")
         
     return wrapper
 
@@ -80,7 +81,7 @@ def can_add_members_to_room(method):
         if is_permitted:
             return await method(*args, **kwargs, room=room)
         else:
-            raise Exception("User is not authorized to add new members to this room")
+            raise PermissionDenied("User is not authorized to add new members to this room")
     return wrapper
 
 
@@ -96,7 +97,7 @@ def can_remove_members_from_room(method):
         if is_permitted:
             return await method(*args, **kwargs, room=room)
         else:
-            raise Exception("User is not authorized to remove members from this room")
+            raise PermissionDenied("User is not authorized to remove members from this room")
     return wrapper
 
 
@@ -111,7 +112,7 @@ def is_room_admin(method):
         if is_permitted:
             return await method(*args, **kwargs, room=room)
         else:
-            raise Exception("User is not an admin of this rooom")
+            raise PermissionDenied("User is not an admin of this room")
     return wrapper
 
 

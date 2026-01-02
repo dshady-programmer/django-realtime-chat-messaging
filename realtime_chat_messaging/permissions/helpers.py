@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from realtime_chat_messaging.models import Message,Room, GroupChat, Channel
 from channels.db import database_sync_to_async
+from django.core.exceptions import ValidationError
 
 
 
@@ -10,7 +11,7 @@ def have_room_permission(user, room_id):
     from django.db import connection
     connection.ensure_connection() 
     if type(room_id) not in [str, int]:
-        raise Exception("Invalid room_id type")
+        raise ValidationError("Invalid room_id type")
 
     room = get_object_or_404(Room, id=room_id)
     is_permitted = False
@@ -32,7 +33,7 @@ def have_message_permission(user, message_id):
     connection.ensure_connection() 
     
     if type(message_id) not in [list, str, int]:
-        raise Exception("Invalid message_id type")
+        raise ValidationError("Invalid message_id type")
     
     is_permitted = True
 
@@ -68,7 +69,7 @@ def is_message_sender(user, message_id):
     connection.ensure_connection() 
 
     if type(message_id) not in [list, str, int]:
-        raise Exception("Invalid message_id type")
+        raise ValidationError("Invalid message_id type")
     is_permitted = True
 
 
@@ -80,7 +81,7 @@ def is_message_sender(user, message_id):
     # all message ids to be deleted should come from the same room
     # This mimics highlighting multiple messages for deletion
     if len(message_id) < 1:
-        raise Exception("Atleast one message_id is required for modification")
+        raise ValidationError("Atleast one message_id is required for modification")
     message_rooms = set()
     for id in message_id:
         message = get_object_or_404(Message, pk=id)
@@ -89,7 +90,7 @@ def is_message_sender(user, message_id):
         if not is_permitted:
             break
     if len(message_rooms) > 1:
-        raise Exception("All messages marked for modification must come from the same room")
+        raise ValidationError("All messages marked for modification must come from the same room")
     return is_permitted, message_rooms.pop()
 
 
@@ -101,7 +102,7 @@ def have_room_permissions_to_add_or_remove_members(user, room_id, perm_phrase):
     from django.db import connection
     connection.ensure_connection() 
     if type(room_id) not in [str, int]:
-        raise Exception("Invalid room_id type")
+        raise ValidationError("Invalid room_id type")
     is_permitted = False
     room = get_object_or_404(Room, pk = room_id)
     if isinstance(room, GroupChat):
@@ -111,7 +112,7 @@ def have_room_permissions_to_add_or_remove_members(user, room_id, perm_phrase):
         room = Channel.objects.prefetch_related('subscribers', 'moderators').get(pk=room.pk)
         is_permitted = user in room.subscribers.all() and (user.has_perm(f"can_{perm_phrase}_subscribers", room) or room.creator == user or user in room.moderators.all())
     else:
-        raise Exception("Invalid room, Can only add or remove members from Groups/Channels")
+        raise ValidationError("Invalid room, Can only add or remove members from Groups/Channels")
     return is_permitted, room
 
 
@@ -130,11 +131,11 @@ def have_send_message_permission(user, data):
 
     if room_id:
         if type(room_id) not in [str, int]:
-            raise Exception("Invalid room_id type")
+            raise ValidationError("Invalid room_id type")
         room = get_object_or_404(Room, pk=room_id)
     else:
         if type(message_id) not in [str, int]:
-            raise Exception("Invalid message_id type")
+            raise ValidationError("Invalid message_id type")
         message = get_object_or_404(Message, pk=message_id)
         room = message.room
     

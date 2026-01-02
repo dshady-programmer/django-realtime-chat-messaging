@@ -47,6 +47,10 @@ User = get_user_model()
 
 # 4001: Authentication failed.
 # 4002: Permission failed.
+# 4003: Validation error.
+# 4004: Resource not found.
+# 4005: Integrity error.
+# 4006: Internal server error.
 
 
 # Events
@@ -67,7 +71,7 @@ Room Management (8 events):
     fetch_room_details, 
     add_participant, 
     remove_participant, 
-    update_room (not done)
+    update_room
 Messages (6 events): 
     send_message, 
     edit_message, 
@@ -191,7 +195,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             "room.messages": self.receive_message_list,
             "room.join": self.receive_join_room_event,
             "room.leave": self.receive_leave_room_event,
-            # "room.modify": _, add or remove admins/moderators (for the user),  change name/description/preferences,
+            "room.modify": self.receive_modify_room_event, # add or remove admins/moderators (for the user),  change name/description/preferences,
             # "online_presence": _
 
 
@@ -536,7 +540,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
     @event_handler
     @is_room_admin
-    async def receive_modify_room_event(self, data):
+    async def receive_modify_room_event(self, data, room):
         """
         receive_modify_room_event
         
@@ -548,9 +552,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             }
         }
         """
-        room = await modify_room(self.user, data, room)
+        room_data = await modify_room(self.user, data, room)
         group = GROUP_STRING.format(group_id=room.id)
-        await self.send_group(group, "roomupdate.dispatch", room)
+        await self.send_group(group, "roomupdate.dispatch", room_data)
 
         
 

@@ -247,8 +247,8 @@ class MessageSerializer(serializers.ModelSerializer):
         depth = 2
 
     def validate_content(self, value):
-        ALLOWED_TAGS = ['b', 'i', 'strong', 'em', 'a']
-        ALLOWED_ATTRS = {'a': ['href', 'title', 'target']}
+        ALLOWED_TAGS = ['b', 'i', 'strong', 'em', 'a', 'span', 'p', 'ul', 'ol', 'li', 'br']
+        ALLOWED_ATTRS = {'a': ['href', 'title', 'target'], '*': ['class', 'id']}
 
         # Clean HTML to allow only certain tags/attributes
         clean_value = bleach.clean(value, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRS, strip=True)
