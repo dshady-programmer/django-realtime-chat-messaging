@@ -1,0 +1,835 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Start Guide &mdash; Django Realtime Chat Messaging 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=7ecde127" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Understanding Room Types" href="understanding-room-types.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Django Realtime Chat Messaging
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#system-requirements">System Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-the-package">Installing the Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#using-pip">Using pip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#using-poetry">Using Poetry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#using-pipenv">Using pipenv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#development-installation">Development Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-redis">Installing Redis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#ubuntu-debian">Ubuntu/Debian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#macos">macOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#verifying-installation">Verifying Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#test-redis-connection">Test Redis Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#test-package-import">Test Package Import</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#virtual-environment-setup">Virtual Environment Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies-overview">Dependencies Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#common-installation-issues">Common Installation Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependency-version-compatibility">Dependency Version Compatibility</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#tested-configurations">Tested Configurations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#upgrading">Upgrading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#uninstalling">Uninstalling</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-add-to-installed-apps">Step 1: Add to INSTALLED_APPS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-configure-asgi-application">Step 2: Configure ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-set-asgi-application">Step 3: Set ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-configure-channel-layers">Step 4: Configure Channel Layers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#development-setup-in-memory">Development Setup (In-Memory)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#production-setup-redis">Production Setup (Redis)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-configure-guardian">Step 5: Configure Guardian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-6-run-migrations">Step 6: Run Migrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-7-create-superuser-optional">Step 7: Create Superuser (Optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-8-start-the-development-server">Step 8: Start the Development Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-your-setup">Testing Your Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#verify-channel-layer-connection">Verify Channel Layer Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#websocket-connection-url">WebSocket Connection URL</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-your-first-chat-room">Creating Your First Chat Room</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#via-django-shell">Via Django Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#via-django-admin">Via Django Admin</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#frontend-integration-preview">Frontend Integration Preview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-s-next">What’s Next?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#server-won-t-start">Server Won’t Start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#websocket-connection-fails">WebSocket Connection Fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#redis-connection-issues">Redis Connection Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#migration-errors">Migration Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#appregistrynotready-error">AppRegistryNotReady Error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#authentication-failed-4001">Authentication Failed (4001)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#production-deployment-preview">Production Deployment Preview</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="understanding-room-types.html">Understanding Room Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#the-three-room-types">The Three Room Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#onetoonechat-direct-messaging">OneToOneChat: Direct Messaging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#model-structure">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#creating-a-onetoonechat">Creating a OneToOneChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#permissions">Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#groupchat-multi-user-discussions">GroupChat: Multi-User Discussions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#id1">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#creating-a-groupchat">Creating a GroupChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#group-locking">Group Locking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#permissions-hierarchy">Permissions Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#granting-custom-permissions">Granting Custom Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#channel-broadcast-communication">Channel: Broadcast Communication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#id2">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#creating-a-channel">Creating a Channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#public-vs-private-channels">Public vs Private Channels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#id3">Permissions Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#granting-posting-permissions">Granting Posting Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#choosing-the-right-room-type">Choosing the Right Room Type</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#decision-tree">Decision Tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#comparison-table">Comparison Table</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#common-patterns">Common Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#whatsapp-style-setup">WhatsApp-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#slack-style-setup">Slack-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#discord-style-setup">Discord-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#telegram-style-setup">Telegram-Style Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#advanced-polymorphic-queries">Advanced: Polymorphic Queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#room-lifecycle">Room Lifecycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#creation">Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#deletion">Deletion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#signals-in-action">Signals in Action</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="authentication-setup.html">Authentication Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#authentication-requirement">Authentication Requirement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#available-authentication-methods">Available Authentication Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#method-1-session-authentication-default">Method 1: Session Authentication (Default)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#how-it-works">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#frontend-usage">Frontend Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#pros-and-cons">Pros and Cons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#method-2-jwt-authentication">Method 2: JWT Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id1">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id2">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id3">Frontend Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#token-refresh-handling">Token Refresh Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id4">Pros and Cons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#method-3-token-authentication">Method 3: Token Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id5">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id6">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id7">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id8">Frontend Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#method-4-custom-authentication">Method 4: Custom Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id9">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id10">Frontend Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#testing-authentication">Testing Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#test-in-django-shell">Test in Django Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#test-with-browser-devtools">Test with Browser DevTools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#security-best-practices">Security Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#session-authentication">Session Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#jwt-authentication">JWT Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#general-security">General Security</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#connection-closes-immediately-code-4001">Connection Closes Immediately (Code 4001)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#invalid-token-format">Invalid Token Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#cors-issues">CORS Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#session-not-persisting">Session Not Persisting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">WebSocket API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="websocket/message-events.html">Message Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#event-structure">Event Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#message-sending">Message Sending</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-send">message.send</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#message-modification">Message Modification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-modify">message.modify</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#message-reactions">Message Reactions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-react">message.react</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#typing-indicators">Typing Indicators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-typing">message.typing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#read-receipts">Read Receipts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-read">message.read</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#message-delivery">Message Delivery</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-acknowledged">message.acknowledged</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#retrieving-messages">Retrieving Messages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#room-messages">room.messages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="websocket/room-events.html">Room Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#room-creation">Room Creation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-create">room.create</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#onetoonechat-creation">OneToOneChat Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#groupchat-creation">GroupChat Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#channel-creation">Channel Creation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#room-listing">Room Listing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-list">room.list</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#room-details">Room Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-info">room.info</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#joining-rooms">Joining Rooms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-join">room.join</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#leaving-rooms">Leaving Rooms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-leave">room.leave</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#room-modification">Room Modification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-modify">room.modify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#update-room-details">Update Room Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#add-remove-permissions">Add/Remove Permissions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#add-remove-admins-groupchat">Add/Remove Admins (GroupChat)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#add-remove-moderators-channel">Add/Remove Moderators (Channel)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#permission-requirements">Permission Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#error-responses">Error Responses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#connection-issues">Connection Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#websocket-connection-fails">WebSocket Connection Fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#connection-closes-immediately-code-4001">Connection Closes Immediately (Code 4001)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#appregistrynotready-error">AppRegistryNotReady Error</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#redis-connection-errors">Redis Connection Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#cannot-connect-to-redis">Cannot Connect to Redis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#redis-authentication-failed">Redis Authentication Failed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#migration-issues">Migration Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#table-does-not-exist">Table Does Not Exist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#migration-conflicts">Migration Conflicts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#permission-errors">Permission Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#permission-denied-4002">Permission Denied (4002)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#cannot-add-members-to-room">Cannot Add Members to Room</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#validation-errors">Validation Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#maximum-participants-exceeded">Maximum Participants Exceeded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#forwarded-messages-can-t-be-replies">Forwarded Messages Can’t Be Replies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#onetoonechat-must-have-2-participants">OneToOneChat Must Have 2 Participants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#duplicate-onetoonechat">Duplicate OneToOneChat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#message-issues">Message Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#messages-not-appearing">Messages Not Appearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#soft-deleted-messages-still-showing">Soft Deleted Messages Still Showing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#html-tags-being-stripped">HTML Tags Being Stripped</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#performance-issues">Performance Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#slow-message-loading">Slow Message Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#many-rooms-causing-lag">Many Rooms Causing Lag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#redis-memory-issues">Redis Memory Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#concurrent-connection-issues">Concurrent Connection Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#multiple-devices-not-working">Multiple Devices Not Working</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#debugging-tools">Debugging Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#enable-django-logging">Enable Django Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#browser-devtools">Browser DevTools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#django-shell-testing">Django Shell Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#getting-more-help">Getting More Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#common-error-reference">Common Error Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Django Realtime Chat Messaging</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quick Start Guide</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/shady-cj/django-realtime-chat-messaging/blob/main/docs/source/quickstart.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quick-start-guide">
+<h1>Quick Start Guide<a class="headerlink" href="#quick-start-guide" title="Link to this heading"></a></h1>
+<p>Get Django Realtime Chat Messaging up and running in 10 minutes. This guide walks you through the minimal setup needed for a working chat system.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<p>Before starting, ensure you have:</p>
+<ul class="simple">
+<li><p>Completed <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a></p></li>
+<li><p>Redis running (test with <code class="docutils literal notranslate"><span class="pre">redis-cli</span> <span class="pre">ping</span></code>)</p></li>
+<li><p>A Django project (Django 3.2+)</p></li>
+</ul>
+</section>
+<section id="step-1-add-to-installed-apps">
+<h2>Step 1: Add to INSTALLED_APPS<a class="headerlink" href="#step-1-add-to-installed-apps" title="Link to this heading"></a></h2>
+<p>Add the required apps to your <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;django.contrib.admin&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;django.contrib.auth&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;django.contrib.contenttypes&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;django.contrib.sessions&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;django.contrib.messages&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;django.contrib.staticfiles&#39;</span><span class="p">,</span>
+
+    <span class="c1"># Third-party apps</span>
+    <span class="s1">&#39;channels&#39;</span><span class="p">,</span>                     <span class="c1"># Required for WebSocket support</span>
+    <span class="s1">&#39;realtime_chat_messaging&#39;</span><span class="p">,</span>      <span class="c1"># Our package</span>
+    <span class="s1">&#39;guardian&#39;</span><span class="p">,</span>                     <span class="c1"># Object-level permissions</span>
+    <span class="s1">&#39;polymorphic&#39;</span><span class="p">,</span>                  <span class="c1"># Polymorphic models</span>
+    <span class="s1">&#39;rest_framework&#39;</span><span class="p">,</span>               <span class="c1"># REST framework</span>
+
+    <span class="c1"># Your apps</span>
+    <span class="s1">&#39;myapp&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-configure-asgi-application">
+<h2>Step 2: Configure ASGI Application<a class="headerlink" href="#step-2-configure-asgi-application" title="Link to this heading"></a></h2>
+<p>Django Channels requires ASGI configuration. Create or modify <code class="docutils literal notranslate"><span class="pre">asgi.py</span></code> in your project directory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ASGI config for your project.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">django</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;DJANGO_SETTINGS_MODULE&#39;</span><span class="p">,</span> <span class="s1">&#39;yourproject.settings&#39;</span><span class="p">)</span>
+
+<span class="c1"># Initialize Django - IMPORTANT for Daphne</span>
+<span class="n">django</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.asgi</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_asgi_application</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">channels.routing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProtocolTypeRouter</span><span class="p">,</span> <span class="n">URLRouter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">channels.security.websocket</span><span class="w"> </span><span class="kn">import</span> <span class="n">AllowedHostsOriginValidator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">channels.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">AuthMiddlewareStack</span>
+
+<span class="c1"># Import WebSocket routing from the package</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.routing</span><span class="w"> </span><span class="kn">import</span> <span class="n">websocket_urlpatterns</span>
+
+<span class="c1"># Initialize Django ASGI application</span>
+<span class="n">django_asgi_app</span> <span class="o">=</span> <span class="n">get_asgi_application</span><span class="p">()</span>
+
+<span class="n">application</span> <span class="o">=</span> <span class="n">ProtocolTypeRouter</span><span class="p">({</span>
+    <span class="s2">&quot;http&quot;</span><span class="p">:</span> <span class="n">django_asgi_app</span><span class="p">,</span>
+    <span class="s2">&quot;websocket&quot;</span><span class="p">:</span> <span class="n">AllowedHostsOriginValidator</span><span class="p">(</span>
+        <span class="n">AuthMiddlewareStack</span><span class="p">(</span>
+            <span class="n">URLRouter</span><span class="p">(</span><span class="n">websocket_urlpatterns</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">django.setup()</span></code> call is <strong>required</strong> when running with Daphne directly. It prevents <code class="docutils literal notranslate"><span class="pre">AppRegistryNotReady</span></code> errors. Not needed when using <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">runserver</span></code>.</p>
+</div>
+</section>
+<section id="step-3-set-asgi-application">
+<h2>Step 3: Set ASGI Application<a class="headerlink" href="#step-3-set-asgi-application" title="Link to this heading"></a></h2>
+<p>In your <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>, specify the ASGI application:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ASGI_APPLICATION</span> <span class="o">=</span> <span class="s1">&#39;yourproject.asgi.application&#39;</span>
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">yourproject</span></code> with your actual project name.</p>
+</section>
+<section id="step-4-configure-channel-layers">
+<h2>Step 4: Configure Channel Layers<a class="headerlink" href="#step-4-configure-channel-layers" title="Link to this heading"></a></h2>
+<section id="development-setup-in-memory">
+<h3>Development Setup (In-Memory)<a class="headerlink" href="#development-setup-in-memory" title="Link to this heading"></a></h3>
+<p>For quick development and testing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># settings.py</span>
+<span class="n">CHANNEL_LAYERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;BACKEND&#39;</span><span class="p">:</span> <span class="s1">&#39;channels.layers.InMemoryChannelLayer&#39;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>In-memory backend doesn’t support multiple server processes. Messages won’t sync across workers. Use only for development.</p>
+</div>
+</section>
+<section id="production-setup-redis">
+<h3>Production Setup (Redis)<a class="headerlink" href="#production-setup-redis" title="Link to this heading"></a></h3>
+<p>For production or multi-worker development:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># settings.py</span>
+<span class="n">CHANNEL_LAYERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;BACKEND&#39;</span><span class="p">:</span> <span class="s1">&#39;channels_redis.core.RedisChannelLayer&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CONFIG&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;hosts&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">6379</span><span class="p">)],</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>With Redis authentication:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CHANNEL_LAYERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;BACKEND&#39;</span><span class="p">:</span> <span class="s1">&#39;channels_redis.core.RedisChannelLayer&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CONFIG&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;hosts&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;redis://:password@localhost:6379/0&#39;</span><span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Using environment variables (recommended):</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">CHANNEL_LAYERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;BACKEND&#39;</span><span class="p">:</span> <span class="s1">&#39;channels_redis.core.RedisChannelLayer&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CONFIG&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;hosts&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REDIS_URL&#39;</span><span class="p">,</span> <span class="s1">&#39;redis://localhost:6379&#39;</span><span class="p">)],</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="step-5-configure-guardian">
+<h2>Step 5: Configure Guardian<a class="headerlink" href="#step-5-configure-guardian" title="Link to this heading"></a></h2>
+<p>Add guardian to authentication backends:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># settings.py</span>
+<span class="n">AUTHENTICATION_BACKENDS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s1">&#39;django.contrib.auth.backends.ModelBackend&#39;</span><span class="p">,</span>  <span class="c1"># Default</span>
+    <span class="s1">&#39;guardian.backends.ObjectPermissionBackend&#39;</span><span class="p">,</span>  <span class="c1"># Guardian</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-6-run-migrations">
+<h2>Step 6: Run Migrations<a class="headerlink" href="#step-6-run-migrations" title="Link to this heading"></a></h2>
+<p>Create the necessary database tables:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>migrate
+</pre></div>
+</div>
+<p>This creates tables for:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Room</span></code> (polymorphic base)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OneToOneChat</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GroupChat</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Channel</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Message</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ReadReceipt</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ChatNotification</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reaction</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MessageMediaAsset</span></code></p></li>
+</ul>
+</section>
+<section id="step-7-create-superuser-optional">
+<h2>Step 7: Create Superuser (Optional)<a class="headerlink" href="#step-7-create-superuser-optional" title="Link to this heading"></a></h2>
+<p>Create an admin user to test with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>createsuperuser
+</pre></div>
+</div>
+</section>
+<section id="step-8-start-the-development-server">
+<h2>Step 8: Start the Development Server<a class="headerlink" href="#step-8-start-the-development-server" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>runserver
+</pre></div>
+</div>
+<p>The server will start on <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8000</span></code></p>
+</section>
+<section id="testing-your-setup">
+<h2>Testing Your Setup<a class="headerlink" href="#testing-your-setup" title="Link to this heading"></a></h2>
+<section id="verify-channel-layer-connection">
+<h3>Verify Channel Layer Connection<a class="headerlink" href="#verify-channel-layer-connection" title="Link to this heading"></a></h3>
+<p>Test that the channel layer is working:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In Django shell</span>
+<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">shell</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">channels.layers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_channel_layer</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">asgiref.sync</span><span class="w"> </span><span class="kn">import</span> <span class="n">async_to_sync</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">channel_layer</span> <span class="o">=</span> <span class="n">get_channel_layer</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">async_to_sync</span><span class="p">(</span><span class="n">channel_layer</span><span class="o">.</span><span class="n">send</span><span class="p">)(</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;test.message&#39;</span><span class="p">})</span>
+<span class="go"># Should complete without errors</span>
+</pre></div>
+</div>
+</section>
+<section id="websocket-connection-url">
+<h3>WebSocket Connection URL<a class="headerlink" href="#websocket-connection-url" title="Link to this heading"></a></h3>
+<p>Your WebSocket endpoint is available at:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ws://127.0.0.1:8000/messaging/
+</pre></div>
+</div>
+<p>For HTTPS/WSS in production:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>wss://yourdomain.com/messaging/
+</pre></div>
+</div>
+</section>
+</section>
+<section id="creating-your-first-chat-room">
+<h2>Creating Your First Chat Room<a class="headerlink" href="#creating-your-first-chat-room" title="Link to this heading"></a></h2>
+<section id="via-django-shell">
+<h3>Via Django Shell<a class="headerlink" href="#via-django-shell" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">shell</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_user_model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OneToOneChat</span><span class="p">,</span> <span class="n">GroupChat</span><span class="p">,</span> <span class="n">Channel</span>
+
+<span class="n">User</span> <span class="o">=</span> <span class="n">get_user_model</span><span class="p">()</span>
+
+<span class="c1"># Create two users</span>
+<span class="n">user1</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span><span class="s1">&#39;alice&#39;</span><span class="p">,</span> <span class="s1">&#39;alice@example.com&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">)</span>
+<span class="n">user2</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span><span class="s1">&#39;bob&#39;</span><span class="p">,</span> <span class="s1">&#39;bob@example.com&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">)</span>
+
+<span class="c1"># Create a one-to-one chat</span>
+<span class="n">chat</span> <span class="o">=</span> <span class="n">OneToOneChat</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+<span class="n">chat</span><span class="o">.</span><span class="n">participants</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user1</span><span class="p">,</span> <span class="n">user2</span><span class="p">)</span>
+
+<span class="c1"># Create a group chat</span>
+<span class="n">group</span> <span class="o">=</span> <span class="n">GroupChat</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Project Team&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Team discussion&quot;</span><span class="p">,</span>
+    <span class="n">creator</span><span class="o">=</span><span class="n">user1</span>
+<span class="p">)</span>
+<span class="n">group</span><span class="o">.</span><span class="n">participants</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user2</span><span class="p">)</span>  <span class="c1"># user1 added automatically</span>
+
+<span class="c1"># Create a public channel</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="n">Channel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Announcements&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Company updates&quot;</span><span class="p">,</span>
+    <span class="n">creator</span><span class="o">=</span><span class="n">user1</span><span class="p">,</span>
+    <span class="n">is_public</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="n">channel</span><span class="o">.</span><span class="n">subscribers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user2</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="via-django-admin">
+<h3>Via Django Admin<a class="headerlink" href="#via-django-admin" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Navigate to <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8000/admin/</span></code></p></li>
+<li><p>Log in with your superuser credentials</p></li>
+<li><p>Go to <strong>Realtime Chat Messaging</strong> section</p></li>
+<li><p>Click <strong>Add</strong> next to the room type you want to create</p></li>
+<li><p>Fill in the details and save</p></li>
+</ol>
+</section>
+</section>
+<section id="frontend-integration-preview">
+<h2>Frontend Integration Preview<a class="headerlink" href="#frontend-integration-preview" title="Link to this heading"></a></h2>
+<p>Here’s a minimal JavaScript example to connect and send a message:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Connect to WebSocket</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s1">&#39;ws://127.0.0.1:8000/messaging/&#39;</span><span class="p">);</span>
+
+<span class="nx">ws</span><span class="p">.</span><span class="nx">onopen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Connected!&#39;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Send a message</span>
+<span class="w">    </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;message.send&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;your-room-uuid-here&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Hello, World!&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}));</span>
+<span class="p">};</span>
+
+<span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Received:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">response</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="nx">ws</span><span class="p">.</span><span class="nx">onerror</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;WebSocket error:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This example assumes you’re using session-based authentication. See <a class="reference internal" href="authentication-setup.html"><span class="doc">Authentication Setup</span></a> for JWT and other authentication methods.</p>
+</div>
+</section>
+<section id="what-s-next">
+<h2>What’s Next?<a class="headerlink" href="#what-s-next" title="Link to this heading"></a></h2>
+<p>Now that you have the basics working, explore:</p>
+<p><strong>Core Concepts</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="understanding-room-types.html"><span class="doc">Understanding Room Types</span></a> - Learn about OneToOne, Group, and Channel differences</p></li>
+<li><p><a class="reference internal" href="authentication-setup.html"><span class="doc">Authentication Setup</span></a> - Configure JWT, session, or custom authentication</p></li>
+</ul>
+<p><strong>Use Case Guides</strong></p>
+<ul class="simple">
+<li><p><span class="xref std std-doc">guides/whatsapp-style</span> - Build WhatsApp-like one-to-one chat</p></li>
+<li><p><span class="xref std std-doc">guides/slack-style</span> - Implement Slack-style team communication</p></li>
+<li><p><span class="xref std std-doc">guides/discord-style</span> - Create Discord-style public channels</p></li>
+</ul>
+<p><strong>WebSocket Events</strong></p>
+<ul class="simple">
+<li><p><a class="reference internal" href="websocket/message-events.html"><span class="doc">Message Events</span></a> - Sending, editing, reacting to messages</p></li>
+<li><p><a class="reference internal" href="websocket/room-events.html"><span class="doc">Room Events</span></a> - Creating, joining, managing rooms</p></li>
+<li><p><span class="xref std std-doc">websocket/member-management</span> - Adding and removing users</p></li>
+</ul>
+<p><strong>Customization</strong></p>
+<ul class="simple">
+<li><p><span class="xref std std-doc">customization/overview</span> - Overview of customization options</p></li>
+<li><p><span class="xref std std-doc">customization/settings-reference</span> - Complete settings reference</p></li>
+</ul>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="server-won-t-start">
+<h3>Server Won’t Start<a class="headerlink" href="#server-won-t-start" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">django.core.exceptions.ImproperlyConfigured:</span> <span class="pre">ASGI_APPLICATION</span> <span class="pre">not</span> <span class="pre">set</span></code></p>
+<p><strong>Solution</strong>: Add <code class="docutils literal notranslate"><span class="pre">ASGI_APPLICATION</span> <span class="pre">=</span> <span class="pre">'yourproject.asgi.application'</span></code> to settings.py</p>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">ImportError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'channels'</span></code></p>
+<p><strong>Solution</strong>: Install channels: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">channels</span></code></p>
+</section>
+<section id="websocket-connection-fails">
+<h3>WebSocket Connection Fails<a class="headerlink" href="#websocket-connection-fails" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: WebSocket connection to ws://… failed</p>
+<p><strong>Solutions</strong>:</p>
+<ol class="arabic simple">
+<li><p>Verify server is running: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">runserver</span></code></p></li>
+<li><p>Check ASGI configuration in <code class="docutils literal notranslate"><span class="pre">asgi.py</span></code></p></li>
+<li><p>Ensure <code class="docutils literal notranslate"><span class="pre">ASGI_APPLICATION</span></code> points to correct module</p></li>
+<li><p>Check browser console for detailed error messages</p></li>
+</ol>
+</section>
+<section id="redis-connection-issues">
+<h3>Redis Connection Issues<a class="headerlink" href="#redis-connection-issues" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">redis.exceptions.ConnectionError:</span> <span class="pre">Error</span> <span class="pre">111</span> <span class="pre">connecting</span> <span class="pre">to</span> <span class="pre">localhost:6379</span></code></p>
+<p><strong>Solution</strong>: Start Redis server:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if Redis is running</span>
+redis-cli<span class="w"> </span>ping
+
+<span class="c1"># Start Redis if not running</span>
+redis-server
+</pre></div>
+</div>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">WRONGPASS</span> <span class="pre">invalid</span> <span class="pre">username-password</span> <span class="pre">pair</span></code></p>
+<p><strong>Solution</strong>: Update Redis configuration with correct password:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CHANNEL_LAYERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;BACKEND&#39;</span><span class="p">:</span> <span class="s1">&#39;channels_redis.core.RedisChannelLayer&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CONFIG&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;hosts&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;redis://:your_password@localhost:6379/0&#39;</span><span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="migration-errors">
+<h3>Migration Errors<a class="headerlink" href="#migration-errors" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">django.db.utils.OperationalError:</span> <span class="pre">no</span> <span class="pre">such</span> <span class="pre">table:</span> <span class="pre">realtime_chat_messaging_room</span></code></p>
+<p><strong>Solution</strong>: Run migrations:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>migrate<span class="w"> </span>realtime_chat_messaging
+</pre></div>
+</div>
+</section>
+<section id="appregistrynotready-error">
+<h3>AppRegistryNotReady Error<a class="headerlink" href="#appregistrynotready-error" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">django.core.exceptions.AppRegistryNotReady:</span> <span class="pre">Apps</span> <span class="pre">aren't</span> <span class="pre">loaded</span> <span class="pre">yet</span></code></p>
+<p><strong>Solution</strong>: Add <code class="docutils literal notranslate"><span class="pre">django.setup()</span></code> to your <code class="docutils literal notranslate"><span class="pre">asgi.py</span></code> file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">django</span>
+<span class="n">django</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+<span class="c1"># ... rest of asgi.py</span>
+</pre></div>
+</div>
+<p>This is <strong>required</strong> when running Daphne directly in production.</p>
+</section>
+<section id="authentication-failed-4001">
+<h3>Authentication Failed (4001)<a class="headerlink" href="#authentication-failed-4001" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: WebSocket closes immediately with code 4001</p>
+<p><strong>Solution</strong>: User is not authenticated. Ensure:</p>
+<ol class="arabic simple">
+<li><p>User is logged in</p></li>
+<li><p>Authentication middleware is configured in <code class="docutils literal notranslate"><span class="pre">asgi.py</span></code></p></li>
+<li><p>Session/token is being sent with WebSocket connection</p></li>
+</ol>
+<p>For detailed authentication setup, see <a class="reference internal" href="authentication-setup.html"><span class="doc">Authentication Setup</span></a>.</p>
+</section>
+</section>
+<section id="production-deployment-preview">
+<h2>Production Deployment Preview<a class="headerlink" href="#production-deployment-preview" title="Link to this heading"></a></h2>
+<p>For production, use an ASGI server like Daphne or Uvicorn:</p>
+<p><strong>With Daphne:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>daphne
+daphne<span class="w"> </span>-b<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>-p<span class="w"> </span><span class="m">8000</span><span class="w"> </span>yourproject.asgi:application
+</pre></div>
+</div>
+<p><strong>With Uvicorn:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>uvicorn
+uvicorn<span class="w"> </span>yourproject.asgi:application<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span>
+</pre></div>
+</div>
+<p>See <span class="xref std std-doc">advanced/deployment</span> for complete production deployment guide.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="understanding-room-types.html" class="btn btn-neutral float-right" title="Understanding Room Types" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erinfolami Peter (shady-cj).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

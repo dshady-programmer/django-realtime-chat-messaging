@@ -54,7 +54,7 @@ def have_message_permission(user, message_id):
         message_id = list(set(message_id))
 
     for id in message_id:
-        message = get_object_or_404(Message, pk=id)
+        message = get_object_or_404(Message.objects.filter(is_deleted=False), pk=id)
         is_permitted = is_member(message)
         if not is_permitted:
             break

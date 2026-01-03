@@ -1,0 +1,945 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings Reference &mdash; Django Realtime Chat Messaging 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=7ecde127" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Django Realtime Chat Messaging
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#system-requirements">System Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-the-package">Installing the Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#using-pip">Using pip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#using-poetry">Using Poetry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#using-pipenv">Using pipenv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#development-installation">Development Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-redis">Installing Redis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#ubuntu-debian">Ubuntu/Debian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#macos">macOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#verifying-installation">Verifying Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#test-redis-connection">Test Redis Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#test-package-import">Test Package Import</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#virtual-environment-setup">Virtual Environment Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies-overview">Dependencies Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#common-installation-issues">Common Installation Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependency-version-compatibility">Dependency Version Compatibility</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#tested-configurations">Tested Configurations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#upgrading">Upgrading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#uninstalling">Uninstalling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-1-add-to-installed-apps">Step 1: Add to INSTALLED_APPS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-2-configure-asgi-application">Step 2: Configure ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-3-set-asgi-application">Step 3: Set ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-4-configure-channel-layers">Step 4: Configure Channel Layers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#development-setup-in-memory">Development Setup (In-Memory)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#production-setup-redis">Production Setup (Redis)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-5-configure-guardian">Step 5: Configure Guardian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-6-run-migrations">Step 6: Run Migrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-7-create-superuser-optional">Step 7: Create Superuser (Optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-8-start-the-development-server">Step 8: Start the Development Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#testing-your-setup">Testing Your Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#verify-channel-layer-connection">Verify Channel Layer Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#websocket-connection-url">WebSocket Connection URL</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#creating-your-first-chat-room">Creating Your First Chat Room</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#via-django-shell">Via Django Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#via-django-admin">Via Django Admin</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#frontend-integration-preview">Frontend Integration Preview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#what-s-next">What’s Next?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#server-won-t-start">Server Won’t Start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#websocket-connection-fails">WebSocket Connection Fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#redis-connection-issues">Redis Connection Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#migration-errors">Migration Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#appregistrynotready-error">AppRegistryNotReady Error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#authentication-failed-4001">Authentication Failed (4001)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#production-deployment-preview">Production Deployment Preview</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="understanding-room-types.html">Understanding Room Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#the-three-room-types">The Three Room Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#onetoonechat-direct-messaging">OneToOneChat: Direct Messaging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#model-structure">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#creating-a-onetoonechat">Creating a OneToOneChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#permissions">Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#groupchat-multi-user-discussions">GroupChat: Multi-User Discussions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#id1">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#creating-a-groupchat">Creating a GroupChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#group-locking">Group Locking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#permissions-hierarchy">Permissions Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#granting-custom-permissions">Granting Custom Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#channel-broadcast-communication">Channel: Broadcast Communication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#id2">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#creating-a-channel">Creating a Channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#public-vs-private-channels">Public vs Private Channels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#id3">Permissions Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#granting-posting-permissions">Granting Posting Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#choosing-the-right-room-type">Choosing the Right Room Type</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#decision-tree">Decision Tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#comparison-table">Comparison Table</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#common-patterns">Common Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#whatsapp-style-setup">WhatsApp-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#slack-style-setup">Slack-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#discord-style-setup">Discord-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#telegram-style-setup">Telegram-Style Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#advanced-polymorphic-queries">Advanced: Polymorphic Queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#room-lifecycle">Room Lifecycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#creation">Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#deletion">Deletion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#signals-in-action">Signals in Action</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="authentication-setup.html">Authentication Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#authentication-requirement">Authentication Requirement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#available-authentication-methods">Available Authentication Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#method-1-session-authentication-default">Method 1: Session Authentication (Default)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#how-it-works">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#frontend-usage">Frontend Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#pros-and-cons">Pros and Cons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#method-2-jwt-authentication">Method 2: JWT Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id1">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id2">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id3">Frontend Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#token-refresh-handling">Token Refresh Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id4">Pros and Cons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#method-3-token-authentication">Method 3: Token Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id5">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id6">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id7">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id8">Frontend Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#method-4-custom-authentication">Method 4: Custom Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id9">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id10">Frontend Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#testing-authentication">Testing Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#test-in-django-shell">Test in Django Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#test-with-browser-devtools">Test with Browser DevTools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#security-best-practices">Security Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#session-authentication">Session Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#jwt-authentication">JWT Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#general-security">General Security</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#connection-closes-immediately-code-4001">Connection Closes Immediately (Code 4001)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#invalid-token-format">Invalid Token Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#cors-issues">CORS Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#session-not-persisting">Session Not Persisting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">WebSocket API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="websocket/message-events.html">Message Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#event-structure">Event Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#message-sending">Message Sending</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-send">message.send</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#message-modification">Message Modification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-modify">message.modify</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#message-reactions">Message Reactions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-react">message.react</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#typing-indicators">Typing Indicators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-typing">message.typing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#read-receipts">Read Receipts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-read">message.read</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#message-delivery">Message Delivery</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-acknowledged">message.acknowledged</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#retrieving-messages">Retrieving Messages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#room-messages">room.messages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="websocket/room-events.html">Room Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#room-creation">Room Creation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-create">room.create</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#onetoonechat-creation">OneToOneChat Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#groupchat-creation">GroupChat Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#channel-creation">Channel Creation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#room-listing">Room Listing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-list">room.list</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#room-details">Room Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-info">room.info</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#joining-rooms">Joining Rooms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-join">room.join</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#leaving-rooms">Leaving Rooms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-leave">room.leave</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#room-modification">Room Modification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-modify">room.modify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#update-room-details">Update Room Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#add-remove-permissions">Add/Remove Permissions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#add-remove-admins-groupchat">Add/Remove Admins (GroupChat)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#add-remove-moderators-channel">Add/Remove Moderators (Channel)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#permission-requirements">Permission Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#error-responses">Error Responses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#connection-issues">Connection Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#websocket-connection-fails">WebSocket Connection Fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#connection-closes-immediately-code-4001">Connection Closes Immediately (Code 4001)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#appregistrynotready-error">AppRegistryNotReady Error</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#redis-connection-errors">Redis Connection Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#cannot-connect-to-redis">Cannot Connect to Redis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#redis-authentication-failed">Redis Authentication Failed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#migration-issues">Migration Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#table-does-not-exist">Table Does Not Exist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#migration-conflicts">Migration Conflicts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#permission-errors">Permission Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#permission-denied-4002">Permission Denied (4002)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#cannot-add-members-to-room">Cannot Add Members to Room</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#validation-errors">Validation Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#maximum-participants-exceeded">Maximum Participants Exceeded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#forwarded-messages-can-t-be-replies">Forwarded Messages Can’t Be Replies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#onetoonechat-must-have-2-participants">OneToOneChat Must Have 2 Participants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#duplicate-onetoonechat">Duplicate OneToOneChat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#message-issues">Message Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#messages-not-appearing">Messages Not Appearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#soft-deleted-messages-still-showing">Soft Deleted Messages Still Showing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#html-tags-being-stripped">HTML Tags Being Stripped</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#performance-issues">Performance Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#slow-message-loading">Slow Message Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#many-rooms-causing-lag">Many Rooms Causing Lag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#redis-memory-issues">Redis Memory Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#concurrent-connection-issues">Concurrent Connection Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#multiple-devices-not-working">Multiple Devices Not Working</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#debugging-tools">Debugging Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#enable-django-logging">Enable Django Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#browser-devtools">Browser DevTools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#django-shell-testing">Django Shell Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#getting-more-help">Getting More Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#common-error-reference">Common Error Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Django Realtime Chat Messaging</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Settings Reference</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/shady-cj/django-realtime-chat-messaging/blob/main/docs/source/configuration.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="settings-reference">
+<h1>Settings Reference<a class="headerlink" href="#settings-reference" title="Link to this heading"></a></h1>
+<p>Complete reference for all configuration options in Django Realtime Chat Messaging. All settings are prefixed with <code class="docutils literal notranslate"><span class="pre">REALTIME_CHAT_MESSAGING</span></code> and placed in your <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>.</p>
+<section id="basic-configuration">
+<h2>Basic Configuration<a class="headerlink" href="#basic-configuration" title="Link to this heading"></a></h2>
+<p>Settings are configured as a dictionary:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># settings.py</span>
+<span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;MESSAGE_SOFT_DELETE&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">&#39;SERIALIZERS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;UserSerializer&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.serializers.CustomUserSerializer&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="c1"># ... other settings</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="core-settings">
+<h2>Core Settings<a class="headerlink" href="#core-settings" title="Link to this heading"></a></h2>
+<section id="message-soft-delete">
+<h3>MESSAGE_SOFT_DELETE<a class="headerlink" href="#message-soft-delete" title="Link to this heading"></a></h3>
+<p>Controls whether message deletion is soft (marks as deleted) or hard (removes from database).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;MESSAGE_SOFT_DELETE&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd>
+<dt class="field-even">Default<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+</dd>
+<dt class="field-odd">Description<span class="colon">:</span></dt>
+<dd class="field-odd"><p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, deleted messages are marked with <code class="docutils literal notranslate"><span class="pre">is_deleted=True</span></code> but remain in database. When <code class="docutils literal notranslate"><span class="pre">False</span></code>, messages are permanently deleted.</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When using soft delete, your frontend must filter out <code class="docutils literal notranslate"><span class="pre">is_deleted=True</span></code> messages. The package returns all messages regardless of deletion status.</p>
+</div>
+<p><strong>Use Cases:</strong></p>
+<ul class="simple">
+<li><p>Compliance/audit requirements (keep all message history)</p></li>
+<li><p>User “undo” functionality</p></li>
+<li><p>Message recovery features</p></li>
+</ul>
+<p><strong>Example with soft delete:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Messages are marked as deleted</span>
+<span class="n">message</span><span class="o">.</span><span class="n">is_deleted</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">message</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="c1"># Filter in queries</span>
+<span class="n">active_messages</span> <span class="o">=</span> <span class="n">Message</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">is_deleted</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="customization-settings">
+<h2>Customization Settings<a class="headerlink" href="#customization-settings" title="Link to this heading"></a></h2>
+<section id="serializers">
+<h3>SERIALIZERS<a class="headerlink" href="#serializers" title="Link to this heading"></a></h3>
+<p>Override default serializers for custom behavior.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;SERIALIZERS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;UserSerializer&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.serializers.CustomUserSerializer&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;MessageSerializer&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.serializers.CustomMessageSerializer&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-even">Default<span class="colon">:</span></dt>
+<dd class="field-even"><p>Uses package’s built-in serializers</p>
+</dd>
+<dt class="field-odd">Description<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Map of serializer names to custom serializer classes (as strings).</p>
+</dd>
+</dl>
+<p><strong>Available Serializer Keys:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">UserSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OneToOneChatListSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GroupChatListSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ChannelListSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RoomListPolymorphicSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OneToOneChatSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GroupChatSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ChannelSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RoomPolymorphicSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ReadReceiptSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ReactionSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MessageMediaAssetSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MessageSerializer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ChatNotificationSerializer</span></code></p></li>
+</ul>
+<p><strong>Example: Custom User Serializer</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># myapp/serializers.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_user_model</span>
+
+<span class="n">User</span> <span class="o">=</span> <span class="n">get_user_model</span><span class="p">()</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomUserSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">avatar_url</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">is_online</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;email&#39;</span><span class="p">,</span> <span class="s1">&#39;avatar_url&#39;</span><span class="p">,</span> <span class="s1">&#39;is_online&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_avatar_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">avatar</span><span class="o">.</span><span class="n">url</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;profile&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+<span class="c1"># settings.py</span>
+<span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;SERIALIZERS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;UserSerializer&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.serializers.CustomUserSerializer&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="models">
+<h3>MODELS<a class="headerlink" href="#models" title="Link to this heading"></a></h3>
+<p>Override default models for custom functionality.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;MODELS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;Message&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.models.CustomMessage&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-even">Default<span class="colon">:</span></dt>
+<dd class="field-even"><p>Uses package’s built-in models</p>
+</dd>
+<dt class="field-odd">Description<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Map of model names to custom model classes (as strings).</p>
+</dd>
+</dl>
+<p><strong>Available Model Keys:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Room</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OneToOneChat</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GroupChat</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Channel</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Message</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ReadReceipt</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ChatNotification</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Reaction</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MessageMediaAsset</span></code></p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>When overriding models, you typically need to override related serializers and potentially permissions. See <span class="xref std std-doc">customization/abstract-models</span> for details.</p>
+</div>
+</section>
+<section id="event-handlers">
+<h3>EVENT_HANDLERS<a class="headerlink" href="#event-handlers" title="Link to this heading"></a></h3>
+<p>Override default event handlers for custom business logic.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;EVENT_HANDLERS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;create_message&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.handlers.custom_create_message&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-even">Default<span class="colon">:</span></dt>
+<dd class="field-even"><p>Uses package’s built-in handlers</p>
+</dd>
+<dt class="field-odd">Description<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Map of handler names to custom handler functions (as strings).</p>
+</dd>
+</dl>
+<p><strong>Available Handler Keys:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_and_group_chat_notifications</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_message</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">react_to_message</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">message_acknowledged</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modify_message</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_read_receipt</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_room</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">list_rooms</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">retreive_room</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">add_members_to_room</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">remove_members_from_room</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">leave_room</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">join_room</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">retreive_messages</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modify_room</span></code></p></li>
+</ul>
+<p><strong>Example: Custom Message Creation with File Upload</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># myapp/handlers.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">channels.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">database_sync_to_async</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.utils.event_handlers</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_message</span> <span class="k">as</span> <span class="n">default_create_message</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
+
+<span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_create_message</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+    <span class="c1"># Handle file upload to S3</span>
+    <span class="k">if</span> <span class="s1">&#39;file&#39;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">&#39;s3&#39;</span><span class="p">)</span>
+        <span class="n">file_url</span> <span class="o">=</span> <span class="n">upload_to_s3</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">])</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;extra_fields&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;extra_fields&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;extra_fields&#39;</span><span class="p">][</span><span class="s1">&#39;media&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{</span>
+            <span class="s1">&#39;media_url&#39;</span><span class="p">:</span> <span class="n">file_url</span><span class="p">,</span>
+            <span class="s1">&#39;media_type&#39;</span><span class="p">:</span> <span class="s1">&#39;file&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;file_size&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">size</span><span class="p">,</span>
+            <span class="s1">&#39;mime_type&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;file&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span>
+        <span class="p">}]</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Call default handler</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">default_create_message</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
+
+<span class="c1"># settings.py</span>
+<span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;EVENT_HANDLERS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;create_message&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.handlers.custom_create_message&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="permissions">
+<h3>PERMISSIONS<a class="headerlink" href="#permissions" title="Link to this heading"></a></h3>
+<p>Override permission checking functions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;PERMISSIONS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;have_room_permission&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.permissions.custom_room_permission&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd>
+<dt class="field-even">Default<span class="colon">:</span></dt>
+<dd class="field-even"><p>Uses package’s built-in permissions</p>
+</dd>
+<dt class="field-odd">Description<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Map of permission check names to custom functions (as strings).</p>
+</dd>
+</dl>
+<p><strong>Available Permission Keys:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">have_room_permission</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">have_message_permission</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_message_sender</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">have_room_permissions_to_add_or_remove_members</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">have_send_message_permission</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">have_admin_privileges</span></code></p></li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Custom permission functions must have the same signature as the default functions and return the same types. See <span class="xref std std-doc">customization/permissions</span> for details.</p>
+</div>
+<p><strong>Example: Custom Permission with Paid Tier</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># myapp/permissions.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">channels.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">database_sync_to_async</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.permissions.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">have_room_permission</span> <span class="k">as</span> <span class="n">default_check</span>
+
+<span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_room_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="c1"># Check default permission</span>
+    <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="k">await</span> <span class="n">default_check</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_permitted</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="c1"># Additional check: premium rooms require subscription</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s1">&#39;is_premium&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">room</span><span class="o">.</span><span class="n">is_premium</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">is_subscribed</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+
+<span class="c1"># settings.py</span>
+<span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;PERMISSIONS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;have_room_permission&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.permissions.custom_room_permission&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="event-mapper">
+<h3>EVENT_MAPPER<a class="headerlink" href="#event-mapper" title="Link to this heading"></a></h3>
+<p>Extend or override the event-to-handler mapping.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;EVENT_MAPPER&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.consumers.custom_event_mapper&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">str</span></code> (callable path)</p>
+</dd>
+<dt class="field-even">Default<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">realtime_chat_messaging.variables.consumers.map_event_type_to_handlers</span></code></p>
+</dd>
+<dt class="field-odd">Description<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Function that returns a dictionary mapping event types to handler methods.</p>
+</dd>
+</dl>
+<p><strong>Example: Adding Custom Events</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># myapp/consumers.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.variables.consumers</span><span class="w"> </span><span class="kn">import</span> <span class="n">map_event_type_to_handlers</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_event_mapper</span><span class="p">(</span><span class="n">consumer_instance</span><span class="p">):</span>
+    <span class="c1"># Get default mappings</span>
+    <span class="n">handlers</span> <span class="o">=</span> <span class="n">map_event_type_to_handlers</span><span class="p">(</span><span class="n">consumer_instance</span><span class="p">)</span>
+
+    <span class="c1"># Add custom events</span>
+    <span class="n">handlers</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+        <span class="s1">&#39;user.status&#39;</span><span class="p">:</span> <span class="n">consumer_instance</span><span class="o">.</span><span class="n">handle_user_status</span><span class="p">,</span>
+        <span class="s1">&#39;message.pin&#39;</span><span class="p">:</span> <span class="n">consumer_instance</span><span class="o">.</span><span class="n">handle_message_pin</span><span class="p">,</span>
+    <span class="p">})</span>
+
+    <span class="c1"># Override existing event</span>
+    <span class="n">handlers</span><span class="p">[</span><span class="s1">&#39;message.typing&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">consumer_instance</span><span class="o">.</span><span class="n">custom_typing_handler</span>
+
+    <span class="k">return</span> <span class="n">handlers</span>
+
+<span class="c1"># settings.py</span>
+<span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;EVENT_MAPPER&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.consumers.custom_event_mapper&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># myapp/consumers.py (extend the consumer)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.consumers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChatMessagingConsumer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.utils.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExceptionHandler</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomChatConsumer</span><span class="p">(</span><span class="n">ChatMessagingConsumer</span><span class="p">):</span>
+    <span class="nd">@ExceptionHandler</span><span class="o">.</span><span class="n">exception_handler_decorator</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_user_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># Custom implementation</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@ExceptionHandler</span><span class="o">.</span><span class="n">exception_handler_decorator</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_message_pin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># Custom implementation</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="exception-handler-class">
+<h3>EXCEPTION_HANDLER_CLASS<a class="headerlink" href="#exception-handler-class" title="Link to this heading"></a></h3>
+<p>Override the exception handler class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;EXCEPTION_HANDLER_CLASS&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.handlers.CustomExceptionHandler&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">str</span></code> (class path)</p>
+</dd>
+<dt class="field-even">Default<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">realtime_chat_messaging.utils.exception_handlers.ExceptionHandler</span></code></p>
+</dd>
+<dt class="field-odd">Description<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Custom exception handler class for WebSocket errors.</p>
+</dd>
+</dl>
+<p><strong>Example: Custom Exception Handler with Logging</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># myapp/handlers.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.utils.exception_handlers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExceptionHandler</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sentry_sdk</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomExceptionHandler</span><span class="p">(</span><span class="n">ExceptionHandler</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">send_error</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">consumer</span><span class="p">,</span> <span class="n">detail</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="mi">4003</span><span class="p">):</span>
+        <span class="c1"># Log to external service</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;WebSocket error in </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">sentry_sdk</span><span class="o">.</span><span class="n">capture_exception</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+
+        <span class="c1"># Call parent method</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">send_error</span><span class="p">(</span><span class="n">consumer</span><span class="p">,</span> <span class="n">detail</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">code</span><span class="p">)</span>
+
+<span class="c1"># settings.py</span>
+<span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;EXCEPTION_HANDLER_CLASS&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.handlers.CustomExceptionHandler&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration-examples">
+<h2>Configuration Examples<a class="headerlink" href="#configuration-examples" title="Link to this heading"></a></h2>
+<section id="minimal-configuration">
+<h3>Minimal Configuration<a class="headerlink" href="#minimal-configuration" title="Link to this heading"></a></h3>
+<p>Using all defaults:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># No REALTIME_CHAT_MESSAGING needed - uses all defaults</span>
+</pre></div>
+</div>
+</section>
+<section id="basic-customization">
+<h3>Basic Customization<a class="headerlink" href="#basic-customization" title="Link to this heading"></a></h3>
+<p>Adding soft delete and custom user serializer:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;MESSAGE_SOFT_DELETE&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">&#39;SERIALIZERS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;UserSerializer&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.serializers.CustomUserSerializer&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-customization">
+<h3>Advanced Customization<a class="headerlink" href="#advanced-customization" title="Link to this heading"></a></h3>
+<p>Full customization with multiple overrides:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;MESSAGE_SOFT_DELETE&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+
+    <span class="s1">&#39;SERIALIZERS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;UserSerializer&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.serializers.CustomUserSerializer&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;MessageSerializer&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.serializers.CustomMessageSerializer&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+
+    <span class="s1">&#39;EVENT_HANDLERS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;create_message&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.handlers.custom_create_message&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;create_room&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.handlers.custom_create_room&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+
+    <span class="s1">&#39;PERMISSIONS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;have_room_permission&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.permissions.custom_room_permission&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+
+    <span class="s1">&#39;EVENT_MAPPER&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.consumers.custom_event_mapper&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;EXCEPTION_HANDLER_CLASS&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.handlers.CustomExceptionHandler&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="environment-specific-configuration">
+<h2>Environment-Specific Configuration<a class="headerlink" href="#environment-specific-configuration" title="Link to this heading"></a></h2>
+<section id="development">
+<h3>Development<a class="headerlink" href="#development" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># settings.py</span>
+<span class="k">if</span> <span class="n">DEBUG</span><span class="p">:</span>
+    <span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;MESSAGE_SOFT_DELETE&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># Keep all messages for debugging</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="production">
+<h3>Production<a class="headerlink" href="#production" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># settings.py</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">DEBUG</span><span class="p">:</span>
+    <span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;MESSAGE_SOFT_DELETE&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Hard delete to save space</span>
+        <span class="s1">&#39;EXCEPTION_HANDLER_CLASS&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.handlers.ProductionExceptionHandler&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="common-patterns">
+<h2>Common Patterns<a class="headerlink" href="#common-patterns" title="Link to this heading"></a></h2>
+<section id="whatsapp-style-configuration">
+<h3>WhatsApp-Style Configuration<a class="headerlink" href="#whatsapp-style-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;MESSAGE_SOFT_DELETE&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># Messages can be &quot;deleted for me&quot;</span>
+    <span class="s1">&#39;SERIALIZERS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;MessageSerializer&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.serializers.WhatsAppMessageSerializer&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="slack-style-configuration">
+<h3>Slack-Style Configuration<a class="headerlink" href="#slack-style-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;MESSAGE_SOFT_DELETE&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Messages truly deleted</span>
+    <span class="s1">&#39;EVENT_HANDLERS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;create_message&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.handlers.slack_style_message_handler&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="validating-configuration">
+<h2>Validating Configuration<a class="headerlink" href="#validating-configuration" title="Link to this heading"></a></h2>
+<p>The package automatically validates settings on startup. Invalid configurations will raise <code class="docutils literal notranslate"><span class="pre">ImproperlyConfigured</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># This will raise an error</span>
+<span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;SERIALIZERS&#39;</span><span class="p">:</span> <span class="s1">&#39;not-a-dict&#39;</span><span class="p">,</span>  <span class="c1"># Error: must be a dictionary</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Start with defaults</strong>: Only override what you need</p></li>
+<li><p><strong>Test customizations</strong>: Each override should have tests</p></li>
+<li><p><strong>Document your overrides</strong>: Comment why you override defaults</p></li>
+<li><p><strong>Keep consistency</strong>: If you override a serializer, consider related serializers</p></li>
+<li><p><strong>Version control</strong>: Track configuration changes carefully</p></li>
+</ol>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><span class="xref std std-doc">customization/serializers</span> - Learn to customize serializers</p></li>
+<li><p><span class="xref std std-doc">customization/event-handlers</span> - Override event handlers</p></li>
+<li><p><span class="xref std std-doc">customization/permissions</span> - Implement custom permissions</p></li>
+<li><p><span class="xref std std-doc">customization/abstract-models</span> - Extend models</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erinfolami Peter (shady-cj).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

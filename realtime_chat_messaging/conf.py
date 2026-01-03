@@ -2,13 +2,14 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test.signals import setting_changed
 
-from .defaults import DEFAULTS
+from .defaults import get_defaults
 
 SETTINGS_NAMESPACE = "REALTIME_CHAT_MESSAGING"
 
 
 class Settings:
     def __init__(self):
+        self.DEFAULTS = get_defaults()
         self._user_settings = None
 
     def reload(self):
@@ -21,10 +22,10 @@ class Settings:
         return self._user_settings
 
     def __getattr__(self, name):
-        if name not in DEFAULTS:
+        if name not in self.DEFAULTS:
             raise AttributeError(f"Invalid setting: {name}")
 
-        val = self.user_settings.get(name, DEFAULTS[name])
+        val = self.user_settings.get(name, self.DEFAULTS[name])
 
         # update the class instance.
         setattr(self, name, val)

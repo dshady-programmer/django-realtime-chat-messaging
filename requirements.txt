@@ -10,3 +10,4 @@ channels-redis
 daphne
 django-channels-jwt-auth-middleware
 djangorestframework-simplejwt
+pytest

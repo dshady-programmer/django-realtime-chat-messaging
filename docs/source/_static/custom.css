@@ -1,0 +1,55 @@
+/* Custom CSS for Django Realtime Chat Messaging docs */
+
+/* Make code blocks more readable */
+.highlight {
+    background: #f8f9fa;
+    border-left: 3px solid #2980b9;
+    padding: 10px;
+}
+
+/* Improve table styling */
+table.docutils {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table.docutils th {
+    background-color: #2980b9;
+    color: white;
+    padding: 10px;
+}
+
+table.docutils td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+/* Style warnings and notes */
+.admonition {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-left: 4px solid;
+}
+
+.admonition.warning {
+    border-color: #f0ad4e;
+    background-color: #fcf8e3;
+}
+
+.admonition.note {
+    border-color: #5bc0de;
+    background-color: #d9edf7;
+}
+
+.admonition.important {
+    border-color: #d9534f;
+    background-color: #f2dede;
+}
+
+/* Improve code inline */
+code {
+    background-color: #f5f5f5;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 90%;
+}

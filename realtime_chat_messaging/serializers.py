@@ -241,6 +241,7 @@ class MessageSerializer(serializers.ModelSerializer):
     read_receipts = ReadReceiptSerializer(read_only=True, many=True)
     reactions = ReactionSerializer(read_only=True, many=True)
     attachments = MessageMediaAssetSerializer(read_only=True, many=True)
+    delivered_to = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Message
         fields = "__all__"
@@ -256,6 +257,11 @@ class MessageSerializer(serializers.ModelSerializer):
     
     def get_room(self, instance):
         return {"id": str(instance.room.id)}
+    
+    def get_delivered_to(self, instance):
+        return list(
+            instance.delivered_to.values_list("username", flat=True)
+        ) # returns [username1, username2]
 
     
 class ChatNotificationSerializer(serializers.ModelSerializer):

@@ -36,7 +36,7 @@ def add_creator_as_participant_and_admin(sender, instance, created, *args, **kwa
 
 @receiver(m2m_changed, sender=GroupChat.participants.through)
 @receiver(m2m_changed, sender=Channel.subscribers.through)
-def delete_channels_and_groups_with_no_participants(sender, instance, action, pk_set, **kwargs):
+def delete_channels_and_groups_with_no_participants_and_max_participants_enforcement(sender, instance, action, pk_set, **kwargs):
     if action == "post_remove" or action == "post_clear":
         if (hasattr(instance, "participants") and instance.participants.count() < 1) or (hasattr(instance, "subscribers") and instance.subscribers.count() < 1):
             instance.delete()

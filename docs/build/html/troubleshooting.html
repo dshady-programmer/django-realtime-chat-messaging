@@ -1,0 +1,1068 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Troubleshooting &mdash; Django Realtime Chat Messaging 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=7ecde127" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Room Events" href="websocket/room-events.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Django Realtime Chat Messaging
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#system-requirements">System Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-the-package">Installing the Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#using-pip">Using pip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#using-poetry">Using Poetry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#using-pipenv">Using pipenv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#development-installation">Development Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-redis">Installing Redis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#ubuntu-debian">Ubuntu/Debian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#macos">macOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#verifying-installation">Verifying Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#test-redis-connection">Test Redis Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#test-package-import">Test Package Import</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#virtual-environment-setup">Virtual Environment Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies-overview">Dependencies Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#common-installation-issues">Common Installation Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependency-version-compatibility">Dependency Version Compatibility</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#tested-configurations">Tested Configurations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#upgrading">Upgrading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#uninstalling">Uninstalling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-1-add-to-installed-apps">Step 1: Add to INSTALLED_APPS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-2-configure-asgi-application">Step 2: Configure ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-3-set-asgi-application">Step 3: Set ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-4-configure-channel-layers">Step 4: Configure Channel Layers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#development-setup-in-memory">Development Setup (In-Memory)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#production-setup-redis">Production Setup (Redis)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-5-configure-guardian">Step 5: Configure Guardian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-6-run-migrations">Step 6: Run Migrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-7-create-superuser-optional">Step 7: Create Superuser (Optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-8-start-the-development-server">Step 8: Start the Development Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#testing-your-setup">Testing Your Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#verify-channel-layer-connection">Verify Channel Layer Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#websocket-connection-url">WebSocket Connection URL</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#creating-your-first-chat-room">Creating Your First Chat Room</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#via-django-shell">Via Django Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#via-django-admin">Via Django Admin</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#frontend-integration-preview">Frontend Integration Preview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#what-s-next">What’s Next?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#server-won-t-start">Server Won’t Start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#websocket-connection-fails">WebSocket Connection Fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#redis-connection-issues">Redis Connection Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#migration-errors">Migration Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#appregistrynotready-error">AppRegistryNotReady Error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#authentication-failed-4001">Authentication Failed (4001)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#production-deployment-preview">Production Deployment Preview</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="understanding-room-types.html">Understanding Room Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#the-three-room-types">The Three Room Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#onetoonechat-direct-messaging">OneToOneChat: Direct Messaging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#model-structure">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#creating-a-onetoonechat">Creating a OneToOneChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#permissions">Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#groupchat-multi-user-discussions">GroupChat: Multi-User Discussions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#id1">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#creating-a-groupchat">Creating a GroupChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#group-locking">Group Locking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#permissions-hierarchy">Permissions Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#granting-custom-permissions">Granting Custom Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#channel-broadcast-communication">Channel: Broadcast Communication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#id2">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#creating-a-channel">Creating a Channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#public-vs-private-channels">Public vs Private Channels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#id3">Permissions Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#granting-posting-permissions">Granting Posting Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#choosing-the-right-room-type">Choosing the Right Room Type</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#decision-tree">Decision Tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#comparison-table">Comparison Table</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#common-patterns">Common Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#whatsapp-style-setup">WhatsApp-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#slack-style-setup">Slack-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#discord-style-setup">Discord-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#telegram-style-setup">Telegram-Style Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#advanced-polymorphic-queries">Advanced: Polymorphic Queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#room-lifecycle">Room Lifecycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#creation">Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#deletion">Deletion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="understanding-room-types.html#signals-in-action">Signals in Action</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="understanding-room-types.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="authentication-setup.html">Authentication Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#authentication-requirement">Authentication Requirement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#available-authentication-methods">Available Authentication Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#method-1-session-authentication-default">Method 1: Session Authentication (Default)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#how-it-works">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#frontend-usage">Frontend Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#pros-and-cons">Pros and Cons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#method-2-jwt-authentication">Method 2: JWT Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id1">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id2">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id3">Frontend Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#token-refresh-handling">Token Refresh Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id4">Pros and Cons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#method-3-token-authentication">Method 3: Token Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id5">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id6">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id7">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id8">Frontend Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#method-4-custom-authentication">Method 4: Custom Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id9">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#id10">Frontend Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#testing-authentication">Testing Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#test-in-django-shell">Test in Django Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#test-with-browser-devtools">Test with Browser DevTools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#security-best-practices">Security Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#session-authentication">Session Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#jwt-authentication">JWT Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#general-security">General Security</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#connection-closes-immediately-code-4001">Connection Closes Immediately (Code 4001)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#invalid-token-format">Invalid Token Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#cors-issues">CORS Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="authentication-setup.html#session-not-persisting">Session Not Persisting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-setup.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">WebSocket API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="websocket/message-events.html">Message Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#event-structure">Event Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#message-sending">Message Sending</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-send">message.send</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#message-modification">Message Modification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-modify">message.modify</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#message-reactions">Message Reactions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-react">message.react</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#typing-indicators">Typing Indicators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-typing">message.typing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#read-receipts">Read Receipts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-read">message.read</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#message-delivery">Message Delivery</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#message-acknowledged">message.acknowledged</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#retrieving-messages">Retrieving Messages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/message-events.html#room-messages">room.messages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/message-events.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="websocket/room-events.html">Room Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#room-creation">Room Creation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-create">room.create</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#onetoonechat-creation">OneToOneChat Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#groupchat-creation">GroupChat Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#channel-creation">Channel Creation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#room-listing">Room Listing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-list">room.list</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#room-details">Room Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-info">room.info</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#joining-rooms">Joining Rooms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-join">room.join</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#leaving-rooms">Leaving Rooms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-leave">room.leave</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#room-modification">Room Modification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#room-modify">room.modify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#update-room-details">Update Room Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#add-remove-permissions">Add/Remove Permissions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#add-remove-admins-groupchat">Add/Remove Admins (GroupChat)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/room-events.html#add-remove-moderators-channel">Add/Remove Moderators (Channel)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#permission-requirements">Permission Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#error-responses">Error Responses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#connection-issues">Connection Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#websocket-connection-fails">WebSocket Connection Fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#connection-closes-immediately-code-4001">Connection Closes Immediately (Code 4001)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#appregistrynotready-error">AppRegistryNotReady Error</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#redis-connection-errors">Redis Connection Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cannot-connect-to-redis">Cannot Connect to Redis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#redis-authentication-failed">Redis Authentication Failed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#migration-issues">Migration Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#table-does-not-exist">Table Does Not Exist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#migration-conflicts">Migration Conflicts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#permission-errors">Permission Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#permission-denied-4002">Permission Denied (4002)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cannot-add-members-to-room">Cannot Add Members to Room</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#validation-errors">Validation Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#maximum-participants-exceeded">Maximum Participants Exceeded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#forwarded-messages-can-t-be-replies">Forwarded Messages Can’t Be Replies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#onetoonechat-must-have-2-participants">OneToOneChat Must Have 2 Participants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#duplicate-onetoonechat">Duplicate OneToOneChat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#message-issues">Message Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#messages-not-appearing">Messages Not Appearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#soft-deleted-messages-still-showing">Soft Deleted Messages Still Showing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#html-tags-being-stripped">HTML Tags Being Stripped</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#performance-issues">Performance Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#slow-message-loading">Slow Message Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#many-rooms-causing-lag">Many Rooms Causing Lag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#redis-memory-issues">Redis Memory Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#concurrent-connection-issues">Concurrent Connection Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#multiple-devices-not-working">Multiple Devices Not Working</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging-tools">Debugging Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#enable-django-logging">Enable Django Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#browser-devtools">Browser DevTools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#django-shell-testing">Django Shell Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-more-help">Getting More Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-error-reference">Common Error Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Django Realtime Chat Messaging</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Troubleshooting</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/shady-cj/django-realtime-chat-messaging/blob/main/docs/source/troubleshooting.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="troubleshooting">
+<h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h1>
+<p>Common issues and solutions when working with Django Realtime Chat Messaging.</p>
+<section id="connection-issues">
+<h2>Connection Issues<a class="headerlink" href="#connection-issues" title="Link to this heading"></a></h2>
+<section id="websocket-connection-fails">
+<h3>WebSocket Connection Fails<a class="headerlink" href="#websocket-connection-fails" title="Link to this heading"></a></h3>
+<p><strong>Symptom</strong>: Cannot establish WebSocket connection</p>
+<p><strong>Possible Causes:</strong></p>
+<ol class="arabic">
+<li><p><strong>Server not running</strong></p>
+<p>Check if Django server is running:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>runserver
+</pre></div>
+</div>
+</li>
+<li><p><strong>Wrong WebSocket URL</strong></p>
+<p>Verify the URL matches your routing:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Correct for default setup</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s1">&#39;ws://127.0.0.1:8000/messaging/&#39;</span><span class="p">);</span>
+
+<span class="c1">// Check your routing.py for actual path</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>ASGI not configured</strong></p>
+<p>Ensure <code class="docutils literal notranslate"><span class="pre">ASGI_APPLICATION</span></code> is set in settings:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># settings.py</span>
+<span class="n">ASGI_APPLICATION</span> <span class="o">=</span> <span class="s1">&#39;yourproject.asgi.application&#39;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Firewall/Network issues</strong></p>
+<p>Test with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># In browser console</span>
+const<span class="w"> </span><span class="nv">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>new<span class="w"> </span>WebSocket<span class="o">(</span><span class="s1">&#39;ws://127.0.0.1:8000/messaging/&#39;</span><span class="o">)</span><span class="p">;</span>
+ws.onopen<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">()</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>console.log<span class="o">(</span><span class="s1">&#39;Connected&#39;</span><span class="o">)</span><span class="p">;</span>
+ws.onerror<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">(</span>e<span class="o">)</span><span class="w"> </span><span class="o">=</span>&gt;<span class="w"> </span>console.error<span class="o">(</span><span class="s1">&#39;Error:&#39;</span>,<span class="w"> </span>e<span class="o">)</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="connection-closes-immediately-code-4001">
+<h3>Connection Closes Immediately (Code 4001)<a class="headerlink" href="#connection-closes-immediately-code-4001" title="Link to this heading"></a></h3>
+<p><strong>Symptom</strong>: WebSocket connects then immediately closes with code 4001</p>
+<p><strong>Cause</strong>: Authentication failed - user is not authenticated or is anonymous</p>
+<p><strong>Solutions:</strong></p>
+<ol class="arabic">
+<li><p><strong>For Session Auth:</strong></p>
+<p>Ensure user is logged in:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if user is authenticated</span>
+<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">shell</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span><span class="w"> </span><span class="nn">django.contrib.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_user_model</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">User</span> <span class="o">=</span> <span class="n">get_user_model</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>  <span class="c1"># Verify users exist</span>
+</pre></div>
+</div>
+<p>Login before connecting:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Login first, then connect</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/login/&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">     </span><span class="nx">method</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="p">,</span>
+<span class="w">     </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="w"> </span><span class="nx">username</span><span class="p">,</span><span class="w"> </span><span class="nx">password</span><span class="w"> </span><span class="p">})</span>
+<span class="p">});</span>
+
+<span class="c1">// Now WebSocket will work</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s1">&#39;ws://127.0.0.1:8000/messaging/&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>For JWT Auth:</strong></p>
+<p>Verify token is valid and not expired:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">localStorage</span><span class="p">.</span><span class="nx">getItem</span><span class="p">(</span><span class="s1">&#39;access_token&#39;</span><span class="p">);</span>
+
+<span class="c1">// Check token expiry</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">atob</span><span class="p">(</span><span class="nx">token</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mf">1</span><span class="p">]));</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">isExpired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">payload</span><span class="p">.</span><span class="nx">exp</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">1000</span><span class="p">;</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">isExpired</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Refresh token first</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">refreshAccessToken</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Check Middleware Configuration:</strong></p>
+<p>Verify auth middleware in <code class="docutils literal notranslate"><span class="pre">asgi.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For session auth</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">channels.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">AuthMiddlewareStack</span>
+
+<span class="c1"># For JWT</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django_channels_jwt_auth_middleware.auth</span><span class="w"> </span><span class="kn">import</span> <span class="n">JWTAuthMiddlewareStack</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="appregistrynotready-error">
+<h3>AppRegistryNotReady Error<a class="headerlink" href="#appregistrynotready-error" title="Link to this heading"></a></h3>
+<p><strong>Symptom</strong>: <code class="docutils literal notranslate"><span class="pre">django.core.exceptions.AppRegistryNotReady:</span> <span class="pre">Apps</span> <span class="pre">aren't</span> <span class="pre">loaded</span> <span class="pre">yet</span></code></p>
+<p><strong>Cause</strong>: Django not initialized before importing models/middleware</p>
+<p><strong>Solution</strong>: Add <code class="docutils literal notranslate"><span class="pre">django.setup()</span></code> to <code class="docutils literal notranslate"><span class="pre">asgi.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">django</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;DJANGO_SETTINGS_MODULE&#39;</span><span class="p">,</span> <span class="s1">&#39;yourproject.settings&#39;</span><span class="p">)</span>
+<span class="n">django</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>  <span class="c1"># Add this line</span>
+
+<span class="c1"># Now safe to import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.asgi</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_asgi_application</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.routing</span><span class="w"> </span><span class="kn">import</span> <span class="n">websocket_urlpatterns</span>
+</pre></div>
+</div>
+<p>This is <strong>required</strong> when running with Daphne directly.</p>
+</section>
+</section>
+<section id="redis-connection-errors">
+<h2>Redis Connection Errors<a class="headerlink" href="#redis-connection-errors" title="Link to this heading"></a></h2>
+<section id="cannot-connect-to-redis">
+<h3>Cannot Connect to Redis<a class="headerlink" href="#cannot-connect-to-redis" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">redis.exceptions.ConnectionError:</span> <span class="pre">Error</span> <span class="pre">111</span> <span class="pre">connecting</span> <span class="pre">to</span> <span class="pre">localhost:6379</span></code></p>
+<p><strong>Solutions:</strong></p>
+<ol class="arabic">
+<li><p><strong>Start Redis:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if running</span>
+redis-cli<span class="w"> </span>ping
+
+<span class="c1"># Start Redis</span>
+<span class="c1"># Ubuntu/Debian</span>
+sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>redis
+
+<span class="c1"># macOS</span>
+brew<span class="w"> </span>services<span class="w"> </span>start<span class="w"> </span>redis
+
+<span class="c1"># Windows (WSL)</span>
+sudo<span class="w"> </span>service<span class="w"> </span>redis-server<span class="w"> </span>start
+
+<span class="c1"># Docker</span>
+docker<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>-p<span class="w"> </span><span class="m">6379</span>:6379<span class="w"> </span>redis:latest
+</pre></div>
+</div>
+</li>
+<li><p><strong>Check Redis Configuration:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># settings.py</span>
+<span class="n">CHANNEL_LAYERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;BACKEND&#39;</span><span class="p">:</span> <span class="s1">&#39;channels_redis.core.RedisChannelLayer&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CONFIG&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;hosts&quot;</span><span class="p">:</span> <span class="p">[(</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="mi">6379</span><span class="p">)],</span>  <span class="c1"># Verify host/port</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Test Redis Connection:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">redis</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">6379</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">r</span><span class="o">.</span><span class="n">ping</span><span class="p">()</span>  <span class="c1"># Should return True</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="redis-authentication-failed">
+<h3>Redis Authentication Failed<a class="headerlink" href="#redis-authentication-failed" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">WRONGPASS</span> <span class="pre">invalid</span> <span class="pre">username-password</span> <span class="pre">pair</span></code></p>
+<p><strong>Solution</strong>: Add password to Redis configuration:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CHANNEL_LAYERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;BACKEND&#39;</span><span class="p">:</span> <span class="s1">&#39;channels_redis.core.RedisChannelLayer&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;CONFIG&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;hosts&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;redis://:your_password@localhost:6379/0&#39;</span><span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="migration-issues">
+<h2>Migration Issues<a class="headerlink" href="#migration-issues" title="Link to this heading"></a></h2>
+<section id="table-does-not-exist">
+<h3>Table Does Not Exist<a class="headerlink" href="#table-does-not-exist" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">django.db.utils.OperationalError:</span> <span class="pre">no</span> <span class="pre">such</span> <span class="pre">table:</span> <span class="pre">realtime_chat_messaging_room</span></code></p>
+<p><strong>Solution</strong>: Run migrations:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>migrate<span class="w"> </span>realtime_chat_messaging
+</pre></div>
+</div>
+</section>
+<section id="migration-conflicts">
+<h3>Migration Conflicts<a class="headerlink" href="#migration-conflicts" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">Conflicting</span> <span class="pre">migrations</span> <span class="pre">detected</span></code></p>
+<p><strong>Solution</strong>: Remove conflicting migrations and re-run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>migrate<span class="w"> </span>realtime_chat_messaging<span class="w"> </span>zero
+python<span class="w"> </span>manage.py<span class="w"> </span>migrate<span class="w"> </span>realtime_chat_messaging
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This deletes all chat data. Only use in development.</p>
+</div>
+</section>
+</section>
+<section id="permission-errors">
+<h2>Permission Errors<a class="headerlink" href="#permission-errors" title="Link to this heading"></a></h2>
+<section id="permission-denied-4002">
+<h3>Permission Denied (4002)<a class="headerlink" href="#permission-denied-4002" title="Link to this heading"></a></h3>
+<p><strong>Symptom</strong>: WebSocket sends error with code 4002</p>
+<p><strong>Causes and Solutions:</strong></p>
+<ol class="arabic">
+<li><p><strong>User not in room:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Verify user is participant/subscriber</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Room</span>
+
+<span class="n">room</span> <span class="o">=</span> <span class="n">Room</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;room-uuid&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s1">&#39;participants&#39;</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">room</span><span class="o">.</span><span class="n">participants</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span>
+<span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s1">&#39;subscribers&#39;</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">room</span><span class="o">.</span><span class="n">subscribers</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Missing object permissions:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check guardian permissions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">guardian.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_perms</span>
+
+<span class="n">perms</span> <span class="o">=</span> <span class="n">get_perms</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">perms</span><span class="p">)</span>  <span class="c1"># Shows user&#39;s permissions for this room</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Channel posting restriction:</strong></p>
+<p>Channels require posting permission. Grant it:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Via WebSocket (as moderator)</span>
+<span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.modify&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;channel-uuid&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;add_permission&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">users</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">user_id</span><span class="p">],</span>
+<span class="w">            </span><span class="nx">permission</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;can_send_messages&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}));</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="cannot-add-members-to-room">
+<h3>Cannot Add Members to Room<a class="headerlink" href="#cannot-add-members-to-room" title="Link to this heading"></a></h3>
+<p><strong>Cause</strong>: User lacks <code class="docutils literal notranslate"><span class="pre">can_add_new_participants</span></code> or <code class="docutils literal notranslate"><span class="pre">can_add_new_subscribers</span></code> permission</p>
+<p><strong>Solution</strong>: Verify user is admin/moderator or has explicit permission:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if user can add members</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">guardian.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">has_perm</span>
+
+<span class="c1"># For GroupChat</span>
+<span class="n">can_add</span> <span class="o">=</span> <span class="n">has_perm</span><span class="p">(</span><span class="s1">&#39;can_add_new_participants&#39;</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">room</span><span class="p">)</span>
+
+<span class="c1"># For Channel</span>
+<span class="n">can_add</span> <span class="o">=</span> <span class="n">has_perm</span><span class="p">(</span><span class="s1">&#39;can_add_new_subscribers&#39;</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">room</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="validation-errors">
+<h2>Validation Errors<a class="headerlink" href="#validation-errors" title="Link to this heading"></a></h2>
+<section id="maximum-participants-exceeded">
+<h3>Maximum Participants Exceeded<a class="headerlink" href="#maximum-participants-exceeded" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">Maximum</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">group</span> <span class="pre">participants</span> <span class="pre">exceeded</span></code></p>
+<p><strong>Cause</strong>: Trying to add more members than <code class="docutils literal notranslate"><span class="pre">max_participants</span></code> allows</p>
+<p><strong>Solutions:</strong></p>
+<ol class="arabic">
+<li><p><strong>Increase limit:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">room</span><span class="o">.</span><span class="n">max_participants</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">room</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Remove inactive members:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.remove_members&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room-uuid&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">members</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">inactive_user_ids</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}));</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="forwarded-messages-can-t-be-replies">
+<h3>Forwarded Messages Can’t Be Replies<a class="headerlink" href="#forwarded-messages-can-t-be-replies" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: Database constraint violation</p>
+<p><strong>Cause</strong>: Trying to create a message that is both forwarded and a reply</p>
+<p><strong>Solution</strong>: Choose one - message can be either forwarded OR a reply, not both:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Correct - Reply</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Great point!&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">extra_fields</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">parent_message</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;reply-to-uuid&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Correct - Forward</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Check this out&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">extra_fields</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">is_forwarded</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">forwarded_from_id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;original-uuid&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// WRONG - Both (will fail)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Message&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">extra_fields</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">parent_message</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;reply-to-uuid&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">is_forwarded</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">forwarded_from_id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;original-uuid&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="onetoonechat-must-have-2-participants">
+<h3>OneToOneChat Must Have 2 Participants<a class="headerlink" href="#onetoonechat-must-have-2-participants" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">one</span> <span class="pre">to</span> <span class="pre">one</span> <span class="pre">chat</span> <span class="pre">can</span> <span class="pre">only</span> <span class="pre">have</span> <span class="pre">2</span> <span class="pre">participants</span></code></p>
+<p><strong>Cause</strong>: Signals enforce exactly 2 participants for OneToOneChat</p>
+<p><strong>Solution</strong>: Ensure exactly 2 users when creating:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;OneToOneChat&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">participants</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">user1_id</span><span class="p">,</span><span class="w"> </span><span class="nx">user2_id</span><span class="p">]</span><span class="w">  </span><span class="c1">// Exactly 2</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="duplicate-onetoonechat">
+<h3>Duplicate OneToOneChat<a class="headerlink" href="#duplicate-onetoonechat" title="Link to this heading"></a></h3>
+<p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">Chat</span> <span class="pre">already</span> <span class="pre">exists</span></code></p>
+<p><strong>Cause</strong>: System prevents duplicate chats between same pair of users</p>
+<p><strong>Solution</strong>: Query existing chat first:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">OneToOneChat</span>
+
+<span class="c1"># Find existing chat</span>
+<span class="n">chat</span> <span class="o">=</span> <span class="n">OneToOneChat</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+    <span class="n">participants</span><span class="o">=</span><span class="n">user1</span>
+<span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+    <span class="n">participants</span><span class="o">=</span><span class="n">user2</span>
+<span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">chat</span><span class="p">:</span>
+    <span class="c1"># Use existing chat</span>
+    <span class="k">return</span> <span class="n">chat</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Create new chat</span>
+    <span class="n">chat</span> <span class="o">=</span> <span class="n">OneToOneChat</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+    <span class="n">chat</span><span class="o">.</span><span class="n">participants</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">user1</span><span class="p">,</span> <span class="n">user2</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="message-issues">
+<h2>Message Issues<a class="headerlink" href="#message-issues" title="Link to this heading"></a></h2>
+<section id="messages-not-appearing">
+<h3>Messages Not Appearing<a class="headerlink" href="#messages-not-appearing" title="Link to this heading"></a></h3>
+<p><strong>Symptoms</strong>: Send message event succeeds but others don’t receive it</p>
+<p><strong>Debugging Steps:</strong></p>
+<ol class="arabic">
+<li><p><strong>Check room membership:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Verify all users are in the room</span>
+<span class="n">room</span><span class="o">.</span><span class="n">participants</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>  <span class="c1"># or room.subscribers.all()</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Check channel layer:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">channels.layers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_channel_layer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">asgiref.sync</span><span class="w"> </span><span class="kn">import</span> <span class="n">async_to_sync</span>
+
+<span class="n">channel_layer</span> <span class="o">=</span> <span class="n">get_channel_layer</span><span class="p">()</span>
+<span class="n">async_to_sync</span><span class="p">(</span><span class="n">channel_layer</span><span class="o">.</span><span class="n">group_send</span><span class="p">)(</span>
+    <span class="s1">&#39;group-room-uuid&#39;</span><span class="p">,</span>
+    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;test.message&#39;</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="s1">&#39;test&#39;</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Check WebSocket connections:</strong></p>
+<p>All users must be connected to receive broadcasts.</p>
+</li>
+<li><p><strong>Check Redis:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>redis-cli
+&gt;<span class="w"> </span>KEYS<span class="w"> </span>*<span class="w">  </span><span class="c1"># Should show channel layer keys</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="soft-deleted-messages-still-showing">
+<h3>Soft Deleted Messages Still Showing<a class="headerlink" href="#soft-deleted-messages-still-showing" title="Link to this heading"></a></h3>
+<p><strong>Cause</strong>: <code class="docutils literal notranslate"><span class="pre">MESSAGE_SOFT_DELETE</span> <span class="pre">=</span> <span class="pre">True</span></code> but frontend not filtering</p>
+<p><strong>Solution</strong>: Filter deleted messages in frontend:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">eventType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;message.dispatch&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// Filter soft-deleted messages</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">message</span><span class="p">.</span><span class="nx">is_deleted</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">displayMessage</span><span class="p">(</span><span class="nx">message</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// When loading messages</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">displayMessages</span><span class="p">(</span><span class="nx">messages</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">activeMessages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">messages</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="nx">m</span><span class="p">.</span><span class="nx">is_deleted</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">renderMessages</span><span class="p">(</span><span class="nx">activeMessages</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="html-tags-being-stripped">
+<h3>HTML Tags Being Stripped<a class="headerlink" href="#html-tags-being-stripped" title="Link to this heading"></a></h3>
+<p><strong>Cause</strong>: Bleach sanitization removes disallowed tags</p>
+<p><strong>Allowed tags</strong>: <code class="docutils literal notranslate"><span class="pre">b</span></code>, <code class="docutils literal notranslate"><span class="pre">i</span></code>, <code class="docutils literal notranslate"><span class="pre">strong</span></code>, <code class="docutils literal notranslate"><span class="pre">em</span></code>, <code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">span</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code>, <code class="docutils literal notranslate"><span class="pre">ul</span></code>, <code class="docutils literal notranslate"><span class="pre">ol</span></code>, <code class="docutils literal notranslate"><span class="pre">li</span></code>, <code class="docutils literal notranslate"><span class="pre">br</span></code></p>
+<p><strong>Solution</strong>: Use only allowed tags or override serializer:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Custom serializer with more tags</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">MessageSerializer</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">bleach</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomMessageSerializer</span><span class="p">(</span><span class="n">MessageSerializer</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">ALLOWED_TAGS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;strong&#39;</span><span class="p">,</span> <span class="s1">&#39;em&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;span&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;ul&#39;</span><span class="p">,</span> <span class="s1">&#39;ol&#39;</span><span class="p">,</span> <span class="s1">&#39;li&#39;</span><span class="p">,</span> <span class="s1">&#39;br&#39;</span><span class="p">,</span> <span class="s1">&#39;code&#39;</span><span class="p">,</span> <span class="s1">&#39;pre&#39;</span><span class="p">]</span>
+        <span class="n">ALLOWED_ATTRS</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;href&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;*&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;class&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">bleach</span><span class="o">.</span><span class="n">clean</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">ALLOWED_TAGS</span><span class="p">,</span>
+                          <span class="n">attributes</span><span class="o">=</span><span class="n">ALLOWED_ATTRS</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Configure in settings</span>
+<span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;SERIALIZERS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;MessageSerializer&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.serializers.CustomMessageSerializer&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-issues">
+<h2>Performance Issues<a class="headerlink" href="#performance-issues" title="Link to this heading"></a></h2>
+<section id="slow-message-loading">
+<h3>Slow Message Loading<a class="headerlink" href="#slow-message-loading" title="Link to this heading"></a></h3>
+<p><strong>Cause</strong>: Loading too many messages at once</p>
+<p><strong>Solution</strong>: Always use pagination:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Load messages with pagination</span>
+<span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.messages&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="nx">currentRoomId</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">paginate</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">page</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">size</span><span class="o">:</span><span class="w"> </span><span class="mf">50</span><span class="w">  </span><span class="c1">// Adjust based on needs</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}));</span>
+</pre></div>
+</div>
+</section>
+<section id="many-rooms-causing-lag">
+<h3>Many Rooms Causing Lag<a class="headerlink" href="#many-rooms-causing-lag" title="Link to this heading"></a></h3>
+<p><strong>Cause</strong>: Loading full data for hundreds of rooms</p>
+<p><strong>Solution</strong>: The <code class="docutils literal notranslate"><span class="pre">room.list</span></code> event already returns simplified data. For very large lists, implement virtual scrolling in frontend.</p>
+</section>
+<section id="redis-memory-issues">
+<h3>Redis Memory Issues<a class="headerlink" href="#redis-memory-issues" title="Link to this heading"></a></h3>
+<p><strong>Cause</strong>: Redis filling up with old channel layer data</p>
+<p><strong>Solution</strong>: Configure Redis eviction policy:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># In redis.conf</span>
+maxmemory<span class="w"> </span>256mb
+maxmemory-policy<span class="w"> </span>allkeys-lru
+</pre></div>
+</div>
+<p>Or upgrade Redis memory allocation.</p>
+</section>
+</section>
+<section id="concurrent-connection-issues">
+<h2>Concurrent Connection Issues<a class="headerlink" href="#concurrent-connection-issues" title="Link to this heading"></a></h2>
+<section id="multiple-devices-not-working">
+<h3>Multiple Devices Not Working<a class="headerlink" href="#multiple-devices-not-working" title="Link to this heading"></a></h3>
+<p><strong>Limitation</strong>: Version 0.1.0 supports one connection per user</p>
+<p><strong>Current Behavior</strong>: Last connection wins, earlier connections disconnected</p>
+<p><strong>Workaround</strong>: None currently available</p>
+<p><strong>Coming</strong>: Multi-device support in v0.2.0</p>
+</section>
+</section>
+<section id="debugging-tools">
+<h2>Debugging Tools<a class="headerlink" href="#debugging-tools" title="Link to this heading"></a></h2>
+<section id="enable-django-logging">
+<h3>Enable Django Logging<a class="headerlink" href="#enable-django-logging" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># settings.py</span>
+<span class="n">LOGGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;disable_existing_loggers&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s1">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;console&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="s1">&#39;logging.StreamHandler&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;root&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;console&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;INFO&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;loggers&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;realtime_chat_messaging&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;console&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;DEBUG&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;propagate&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;channels&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;handlers&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;console&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="s1">&#39;DEBUG&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;propagate&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="browser-devtools">
+<h3>Browser DevTools<a class="headerlink" href="#browser-devtools" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>Network Tab</strong>: Check WebSocket connection status</p></li>
+<li><p><strong>Console</strong>: Monitor WebSocket messages:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Received:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">));</span>
+<span class="p">};</span>
+
+<span class="c1">// Log all sends</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">originalSend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="nx">ws</span><span class="p">);</span>
+<span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Sending:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">data</span><span class="p">));</span>
+<span class="w">    </span><span class="nx">originalSend</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Application Tab</strong>: Check localStorage/sessionStorage for tokens</p></li>
+</ol>
+</section>
+<section id="django-shell-testing">
+<h3>Django Shell Testing<a class="headerlink" href="#django-shell-testing" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">shell</span>
+
+<span class="c1"># Test channel layer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">channels.layers</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_channel_layer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">asgiref.sync</span><span class="w"> </span><span class="kn">import</span> <span class="n">async_to_sync</span>
+
+<span class="n">channel_layer</span> <span class="o">=</span> <span class="n">get_channel_layer</span><span class="p">()</span>
+<span class="n">async_to_sync</span><span class="p">(</span><span class="n">channel_layer</span><span class="o">.</span><span class="n">send</span><span class="p">)(</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;test&#39;</span><span class="p">})</span>
+
+<span class="c1"># Test room access</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Room</span>
+<span class="n">room</span> <span class="o">=</span> <span class="n">Room</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">room</span><span class="o">.</span><span class="n">participants</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+
+<span class="c1"># Test permissions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">guardian.shortcuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_perms</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">get_perms</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="getting-more-help">
+<h2>Getting More Help<a class="headerlink" href="#getting-more-help" title="Link to this heading"></a></h2>
+<p>Still stuck? Here’s how to get help:</p>
+<ol class="arabic simple">
+<li><p><strong>Check Documentation</strong>: Review relevant sections:
+- <a class="reference internal" href="quickstart.html"><span class="doc">Quick Start Guide</span></a> - Basic setup
+- <a class="reference internal" href="websocket/message-events.html"><span class="doc">Message Events</span></a> - Event reference
+- <span class="xref std std-doc">customization/overview</span> - Customization guide</p></li>
+<li><p><strong>GitHub Issues</strong>: <a class="reference external" href="https://github.com/shady-cj/django-realtime-chat-messaging/issues">Report bugs</a></p></li>
+<li><p><strong>Include in Bug Reports</strong>:
+- Django version
+- Channels version
+- Package version
+- Error messages with full stack trace
+- Relevant code snippets
+- Steps to reproduce</p></li>
+<li><p><strong>Search Existing Issues</strong>: Check if someone already solved your problem</p></li>
+</ol>
+</section>
+<section id="common-error-reference">
+<h2>Common Error Reference<a class="headerlink" href="#common-error-reference" title="Link to this heading"></a></h2>
+<p>Quick reference for error codes:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 30.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Code</p></th>
+<th class="head"><p>Meaning</p></th>
+<th class="head"><p>Common Causes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>4001</p></td>
+<td><p>Authentication failed</p></td>
+<td><p>User not logged in, token expired</p></td>
+</tr>
+<tr class="row-odd"><td><p>4002</p></td>
+<td><p>Permission denied</p></td>
+<td><p>User not in room, lacks required permission</p></td>
+</tr>
+<tr class="row-even"><td><p>4003</p></td>
+<td><p>Validation error</p></td>
+<td><p>Invalid data, max participants exceeded</p></td>
+</tr>
+<tr class="row-odd"><td><p>4004</p></td>
+<td><p>Resource not found</p></td>
+<td><p>Room/message doesn’t exist</p></td>
+</tr>
+<tr class="row-even"><td><p>4005</p></td>
+<td><p>Integrity error</p></td>
+<td><p>Duplicate chat, constraint violation</p></td>
+</tr>
+<tr class="row-odd"><td><p>4006</p></td>
+<td><p>Internal server error</p></td>
+<td><p>Unexpected error, check server logs</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><span class="xref std std-doc">faq</span> - Frequently asked questions</p></li>
+<li><p><span class="xref std std-doc">advanced/deployment</span> - Production deployment guide</p></li>
+<li><p><span class="xref std std-doc">customization/overview</span> - Customize the package</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="websocket/room-events.html" class="btn btn-neutral float-left" title="Room Events" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erinfolami Peter (shady-cj).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

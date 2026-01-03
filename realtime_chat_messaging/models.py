@@ -63,6 +63,7 @@ class Message(AbstractMessage):
     forwarded_from = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, related_name="forwarded")
     is_edited = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
+    delivered_to  = models.ManyToManyField(User, related_name="messages_received")
 
     class Meta:
         indexes = [

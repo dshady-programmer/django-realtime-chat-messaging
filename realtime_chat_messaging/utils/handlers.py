@@ -1,41 +1,33 @@
 from channels.db import database_sync_to_async
 from django.shortcuts import get_object_or_404
 from operator import itemgetter
-from realtime_chat_messaging.conf import realtime_chat_settings
 from django.core.exceptions import ValidationError
 from collections import defaultdict
 from .chat_notifications import update_chat_notification, create_chat_notification
 from django.db.models import Prefetch, Q
 from django.core.paginator import Paginator
 from guardian.shortcuts import remove_perm, assign_perm
+from realtime_chat_messaging.utils.settings_util import get_settings
 
-serializers = realtime_chat_settings.SERIALIZERS
-models = realtime_chat_settings.MODELS 
+from django.contrib.auth import get_user_model
 
-(   Message, ReadReceipt, 
-    ChatNotification, Room, 
-    GroupChat, User, 
-    Channel, OneToOneChat, Reaction
-) = itemgetter(  
-    "Message", "ReadReceipt", 
-    "ChatNotification", "Room", 
-    "GroupChat", "User", 
-    "Channel", "OneToOneChat", "Reaction"
-    )(models)
+User = get_user_model()
 
 
-(
-    ChatNotificationSerializer, MessageSerializer, 
-    RoomPolymorphicSerializer, RoomListPolymorphicSerializer, 
-    ReactionSerializer, MessageMediaAssetSerializer
-) = itemgetter(
-    "ChatNotificationSerializer", "MessageSerializer", 
-    "RoomPolymorphicSerializer", "RoomListPolymorphicSerializer", 
-    "ReactionSerializer", "MessageMediaAssetSerializer"
-    )(serializers)
+
 
 @database_sync_to_async
 def get_and_group_chat_notifications(user):
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    models = realtime_chat_settings.MODELS 
+    ChatNotification, Room = itemgetter(
+        "ChatNotification", 
+        "Room"
+    )(models)
+    ChatNotificationSerializer = itemgetter(
+        "ChatNotificationSerializer"
+    )(serializers)
 
 
     chat_notifications = ChatNotification.objects.filter(recipients=user).prefetch_related(
@@ -62,6 +54,13 @@ def get_and_group_chat_notifications(user):
 
 @database_sync_to_async
 def create_message(data, user):
+
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    MessageSerializer, MessageMediaAssetSerializer = itemgetter(
+        "MessageSerializer", "MessageMediaAssetSerializer"
+    )(serializers)
+
     from django.db import connection
     # Ensures that a database connection is available and open for the current thread (async context). 
     # Needed serializer primarykeyrelatedfield.
@@ -115,6 +114,17 @@ def create_message(data, user):
 
 @database_sync_to_async
 def react_to_message(data, user):
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    models = realtime_chat_settings.MODELS 
+    Reaction, Message = itemgetter(
+        "Reaction", 
+        "Message"
+    )(models)
+    MessageSerializer, ReactionSerializer = itemgetter(
+        "MessageSerializer", "ReactionSerializer"
+    )(serializers)
+
     type = data.pop('type') if 'type' in data else None
     response = None
     if type == 'remove':
@@ -159,12 +169,26 @@ def message_acknowledged(user, message_id):
 
 @database_sync_to_async
 def modify_message(user, data):
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    models = realtime_chat_settings.MODELS 
+    soft_delete = realtime_chat_settings.MESSAGE_SOFT_DELETE
+    Message = itemgetter(
+        "Message"
+    )(models)
+    MessageSerializer = itemgetter(
+        "MessageSerializer"
+    )(serializers)
+
     action = data.get('action')
     message_ids = data.get('message_id')
     if action == "delete":
         if not isinstance(message_ids, list):
             message_ids = [message_ids]
-        Message.objects.filter(pk__in=message_ids).delete()
+        if soft_delete:
+            Message.objects.filter(pk__in=message_ids).update(is_deleted=True)
+        else:
+            Message.objects.filter(pk__in=message_ids).delete() 
         return {"status": "successful", "action": "delete", "message_ids": message_ids}
     elif action == "update":
         message_id = None
@@ -174,7 +198,7 @@ def modify_message(user, data):
             message_id = message_ids[0]
         else:
             message_id = message_ids
-        message = get_object_or_404(Message, pk=message_id)
+        message = get_object_or_404(Message.objects.prefetch_related('delivered_to'), pk=message_id)
         content = data.get('extra_fields').get('content')
         if content:
             serializer = MessageSerializer(instance=message, data={"content": content}, partial=True)
@@ -191,8 +215,18 @@ def modify_message(user, data):
 
 @database_sync_to_async
 def create_read_receipt(user, message_id):
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    models = realtime_chat_settings.MODELS 
+    Message, ReadReceipt = itemgetter(
+        "Message", "ReadReceipt"
+    )(models)
+    MessageSerializer = itemgetter(
+        "MessageSerializer"
+    )(serializers)
+
     if isinstance(message_id, list):
-        messages = Message.objects.filter(id__in=message_id).exclude(sender=user).distinct()
+        messages = Message.objects.filter(id__in=message_id).exclude(sender=user).prefetch_related('delivered_to').distinct()
         room_ids = set()
         receipts = []
         for message in messages:
@@ -208,7 +242,7 @@ def create_read_receipt(user, message_id):
         return room_ids, rooms
 
     else:
-        message = get_object_or_404(Message, id=message_id)
+        message = get_object_or_404(Message.objects.prefetch_related('delivered_to'), id=message_id)
         if message.sender != user:
             room_id = message.room.id
 
@@ -221,6 +255,12 @@ def create_read_receipt(user, message_id):
 
 @database_sync_to_async
 def create_room(user, data):
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    RoomPolymorphicSerializer = itemgetter(
+        "RoomPolymorphicSerializer"
+    )(serializers)
+
     serializer = RoomPolymorphicSerializer(data=data, context={"user": user})
     serializer.is_valid(raise_exception=True)
     instance = serializer.save()
@@ -231,6 +271,15 @@ def create_room(user, data):
 
 @database_sync_to_async
 def list_rooms(user):
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    models = realtime_chat_settings.MODELS 
+    Room = itemgetter(
+        "Room"
+    )(models)
+    RoomListPolymorphicSerializer = itemgetter(
+        "RoomListPolymorphicSerializer"
+    )(serializers)
     rooms = Room.objects.filter(Q(onetoonechat__participants=user) | Q(channel__subscribers=user) | Q(groupchat__participants=user)).select_related('last_message').order_by('-last_message__created_at')
     if rooms.exists():
         serializer = RoomListPolymorphicSerializer(rooms, many=True, context={"user": user})
@@ -241,11 +290,28 @@ def list_rooms(user):
     
 @database_sync_to_async
 def retreive_room(room):
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    RoomPolymorphicSerializer = itemgetter(
+        "RoomPolymorphicSerializer"
+    )(serializers)
+
     serializer = RoomPolymorphicSerializer(room)
     return serializer.data
 
 @database_sync_to_async
 def add_members_to_room(user_ids, room):
+
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    models = realtime_chat_settings.MODELS 
+    GroupChat = itemgetter(
+        "GroupChat"
+    )(models)
+    RoomPolymorphicSerializer = itemgetter(
+        "RoomPolymorphicSerializer"
+    )(serializers)
+
     from django.db import connection
     connection.ensure_connection() 
     existing_room_members = None
@@ -271,6 +337,16 @@ def add_members_to_room(user_ids, room):
         
 @database_sync_to_async
 def remove_members_from_room(user_ids, room, session_user):
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    models = realtime_chat_settings.MODELS 
+    GroupChat = itemgetter(
+        "GroupChat"
+    )(models)
+    RoomPolymorphicSerializer = itemgetter(
+        "RoomPolymorphicSerializer"
+    )(serializers)
+
     from django.db import connection
     connection.ensure_connection() 
     existing_room_members = None
@@ -302,6 +378,16 @@ def remove_members_from_room(user_ids, room, session_user):
 
 @database_sync_to_async
 def leave_room(user, room):
+
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    models = realtime_chat_settings.MODELS 
+    GroupChat, Channel = itemgetter(
+        "GroupChat", "Channel"
+    )(models)
+    RoomPolymorphicSerializer = itemgetter(
+        "RoomPolymorphicSerializer"
+    )(serializers)
     
     if isinstance(room, GroupChat):
         members = room.participants
@@ -319,6 +405,16 @@ def leave_room(user, room):
 
 @database_sync_to_async
 def join_room(user, room_id):
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    models = realtime_chat_settings.MODELS 
+    GroupChat, Channel, Room = itemgetter(
+        "GroupChat", "Channel", "Room"
+    )(models)
+    RoomPolymorphicSerializer = itemgetter(
+        "RoomPolymorphicSerializer"
+    )(serializers)
+
     room = get_object_or_404(Room, pk=room_id)
 
     if isinstance(room, GroupChat):
@@ -337,7 +433,17 @@ def join_room(user, room_id):
 
 @database_sync_to_async
 def retreive_messages(room, data):
-    messages = Message.objects.filter(room=room).prefetch_related('read_receipts', 'reactions', 'attachments').order_by('-created_at')
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    models = realtime_chat_settings.MODELS 
+    Message = itemgetter(
+        "Message"
+    )(models)
+    MessageSerializer = itemgetter(
+        "MessageSerializer"
+    )(serializers)
+
+    messages = Message.objects.filter(room=room).prefetch_related('read_receipts', 'reactions', 'attachments', 'delivered_to').order_by('-created_at')
     paginate = data.get('paginate')
     response = {}
     if paginate and isinstance(paginate, dict):
@@ -382,6 +488,17 @@ def retreive_messages(room, data):
 
 @database_sync_to_async
 def modify_room(user, data, room):
+    realtime_chat_settings = get_settings()
+    serializers = realtime_chat_settings.SERIALIZERS
+    models = realtime_chat_settings.MODELS 
+    GroupChat, Channel, OneToOneChat = itemgetter(
+        "GroupChat", "Channel", "OneToOneChat"
+    )(models)
+    RoomPolymorphicSerializer = itemgetter(
+        "RoomPolymorphicSerializer"
+    )(serializers)
+
+
     action = data.get('action')
     field_data = data.get('data')
 

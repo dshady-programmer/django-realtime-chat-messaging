@@ -4,7 +4,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from guardian.utils import get_anonymous_user
 from django.contrib.auth import get_user_model 
-from realtime_chat_messaging.conf import realtime_chat_settings
+from realtime_chat_messaging.utils.settings_util import get_settings
 from operator import itemgetter
 import json
 from .utils.cache_utils import (
@@ -26,43 +26,6 @@ from .permissions.decorators import (
 
 )
 User = get_user_model()
-event_mapper = realtime_chat_settings.EVENT_MAPPER
-handlers = realtime_chat_settings.EVENT_HANDLERS
-ExceptionHandler = realtime_chat_settings.EXCEPTION_HANDLERS_CLASS
-
-(
-    get_and_group_chat_notifications,
-    create_message, 
-    message_acknowledged,
-    create_read_receipt,
-    create_room,
-    list_rooms,
-    retreive_room,
-    add_members_to_room,
-    react_to_message,
-    remove_members_from_room,
-    leave_room, 
-    join_room, 
-    retreive_messages,
-    modify_message,
-    modify_room
-) = itemgetter(
-        "get_and_group_chat_notifications",
-        "create_message", 
-        "message_acknowledged",
-        "create_read_receipt",
-        "create_room",
-        "list_rooms",
-        "retreive_room",
-        "add_members_to_room",
-        "react_to_message",
-        "remove_members_from_room",
-        "leave_room", 
-        "join_room", 
-        "retreive_messages",
-        "modify_message",
-        "modify_room"
-    )(handlers)
 
 # 4001: Authentication failed.
 # 4002: Permission failed.
@@ -112,9 +75,8 @@ Notifications (2 events):
     mark_notification_read
 Presence (2 events): 
     typing_indicator, 
-    update_presence
 
-pending:
+
   modify_room
     update room,
     update room preferences,
@@ -166,14 +128,24 @@ roomupdate.dispatch
 
 """
 class ChatMessagingConsumer(AsyncWebsocketConsumer):
+    realtime_chat_settings = get_settings()
+    event_mapper = realtime_chat_settings.EVENT_MAPPER
+    handlers = realtime_chat_settings.EVENT_HANDLERS
+    ExceptionHandler = realtime_chat_settings.EXCEPTION_HANDLER_CLASS
+
     async def connect(self):
+        
         user = self.scope["user"]
         
         if user.id is None or user == database_sync_to_async(get_anonymous_user)():
             await self.close(code=4001)  # custom close code
             return
         
+
+
+        
         self.user = user
+
         await self.channel_cleanup(user.id)
         await self.channel_setup(user.id)
 
@@ -199,7 +171,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
         event_type = data.get("event_type")
-        map_event_type_to_handlers = event_mapper(self)
+        map_event_type_to_handlers = ChatMessagingConsumer.event_mapper(self)
         try:
             await map_event_type_to_handlers[event_type](data.get("data"))
         except KeyError:
@@ -208,6 +180,12 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
     @ExceptionHandler.exception_handler_decorator
     async def dispatch_chat_notifications(self):
+
+
+        get_and_group_chat_notifications = itemgetter(
+            "get_and_group_chat_notifications"
+        )(ChatMessagingConsumer.handlers)
+        
         chat_notifications = await get_and_group_chat_notifications(self.user)
         await self.send_group(
             USER_OWN_GROUP.format(user_id=self.user.id),
@@ -245,6 +223,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         note: extra field value must contain model fields validated by the provided serializer
         """
+        create_message = itemgetter(
+            "create_message"
+        )(ChatMessagingConsumer.handlers)
         
         room_id = room.id
         message = await create_message(data, self.user)
@@ -265,6 +246,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             message_id: string/int or List<string/int>,
         }
         """
+        message_acknowledged = itemgetter(
+            "message_acknowledged"
+        )(ChatMessagingConsumer.handlers)
 
         await message_acknowledged(self.user, data["message_id"])
 
@@ -282,6 +266,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
         broadcasts the message/messages with the updated read_receipts
         """
+        create_read_receipt = itemgetter(
+            "create_read_receipt"
+        )(ChatMessagingConsumer.handlers)
 
         room_id, message = await create_read_receipt(self.user, data["message_id"])
         
@@ -306,7 +293,10 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             reaction_content: text
         }
         """
-        
+        react_to_message = itemgetter(
+            "react_to_message"
+        )(ChatMessagingConsumer.handlers)
+
         response = await react_to_message(data, self.user)
         room_id = response['message']['room']['id']
         group_string = GROUP_STRING.format(group_id=room_id)
@@ -327,6 +317,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             room_id: string
         }
         """
+        
         group_string = GROUP_STRING.format(group_id=room.id)
         # print(group_string)
         await self.send_group(group_string, "messagetyping.dispatch", {"username": self.user.username})
@@ -347,6 +338,10 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             ]
         }
         """
+
+        modify_message = itemgetter(
+            "modify_message"
+        )(ChatMessagingConsumer.handlers)
 
         response = await modify_message(self.user, data)
         if response:
@@ -371,7 +366,10 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             }
         }
         """
-        
+        retreive_messages = itemgetter(
+            "retreive_messages"
+        )(ChatMessagingConsumer.handlers)
+
         response = await retreive_messages(room, data)
     
 
@@ -403,6 +401,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
 
+        create_room = itemgetter(
+            "create_room"
+        )(ChatMessagingConsumer.handlers)
 
         room = await create_room(self.user, data)
 
@@ -431,6 +432,10 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         
         data: empty
         """
+        list_rooms = itemgetter(
+            "list_rooms"
+        )(ChatMessagingConsumer.handlers)
+
         rooms = await list_rooms(self.user)
 
         await self.send_group(
@@ -450,6 +455,11 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         room_id
         }
         """
+
+        retreive_room = itemgetter(
+            "retreive_room"
+        )(ChatMessagingConsumer.handlers)
+
         room = await retreive_room(room)
 
         
@@ -472,6 +482,10 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
 
+        add_members_to_room = itemgetter(
+            "add_members_to_room"
+        )(ChatMessagingConsumer.handlers)
+
         users_added, serialized_room, new_member_usernames = await add_members_to_room(data.get('members'), room)
         group = GROUP_STRING.format(group_id=room.id)
         for user in users_added:
@@ -488,6 +502,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         members: [userIds]
         }
         """
+        remove_members_from_room = itemgetter(
+            "remove_members_from_room"
+        )(ChatMessagingConsumer.handlers)
 
         users_removed, serialized_room, removed_member_usernames = await remove_members_from_room(data.get('members'), room, self.user)
         group = GROUP_STRING.format(group_id=room.id) 
@@ -509,6 +526,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             room_id: string
         }
         """
+        leave_room = itemgetter(
+            "leave_room"
+        )(ChatMessagingConsumer.handlers)
 
         serialized_room = await leave_room(self.user, room)
 
@@ -530,6 +550,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             room_id: string
         }
         """
+        join_room = itemgetter(
+            "join_room"
+        )(ChatMessagingConsumer.handlers)
 
         serialized_room = await join_room(self.user, data.get('room_id'))
 
@@ -553,6 +576,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             }
         }
         """
+        modify_room = itemgetter(
+            "modify_room"
+        )(ChatMessagingConsumer.handlers)
         room_data = await modify_room(self.user, data, room)
         group = GROUP_STRING.format(group_id=room.id)
         await self.send_group(group, "roomupdate.dispatch", room_data)
