@@ -2,7 +2,7 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from channels.db import database_sync_to_async
-from realtime_chat_messaging.permissions.helpers import (
+from realtime_chat_messaging.permissions.handlers import (
     have_room_permission,
     have_message_permission,
     is_message_sender,

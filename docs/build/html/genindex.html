@@ -295,9 +295,306 @@
 <li class="toctree-l2"><a class="reference internal" href="websocket/room-events.html#next-steps">Next Steps</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="websocket/error-codes.html">Error Codes Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="websocket/error-codes.html#error-response-format">Error Response Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/error-codes.html#error-codes-overview">Error Codes Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/error-codes.html#authentication-failed">4001: Authentication Failed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/error-codes.html#permission-denied">4002: Permission Denied</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/error-codes.html#validation-error">4003: Validation Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/error-codes.html#resource-not-found">4004: Resource Not Found</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/error-codes.html#integrity-error">4005: Integrity Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/error-codes.html#internal-server-error">4006: Internal Server Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/error-codes.html#error-handling-best-practices">Error Handling Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="websocket/error-codes.html#complete-error-handler">Complete Error Handler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="websocket/error-codes.html#user-friendly-error-messages">User-Friendly Error Messages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="websocket/error-codes.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="customization/overview.html">Customization Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="customization/overview.html#what-can-be-customized">What Can Be Customized?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/overview.html#customization-levels">Customization Levels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#simple-customization-settings-only">Simple Customization (Settings Only)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#moderate-customization-serializers">Moderate Customization (Serializers)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#advanced-customization-handlers-permissions">Advanced Customization (Handlers/Permissions)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#expert-customization-consumer-models">Expert Customization (Consumer/Models)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/overview.html#when-to-customize">When to Customize</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#use-default-behavior">Use Default Behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#override-serializers">Override Serializers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#override-event-handlers">Override Event Handlers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#override-permissions">Override Permissions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#override-event-mapper">Override Event Mapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#override-models">Override Models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/overview.html#customization-strategy">Customization Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#the-principle-of-least-modification">The Principle of Least Modification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#composition-over-replacement">Composition Over Replacement</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/overview.html#understanding-dependencies">Understanding Dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#serializer-dependencies">Serializer Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#handler-dependencies">Handler Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#permission-dependencies">Permission Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/overview.html#configuration-best-practices">Configuration Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#organize-settings">Organize Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#document-your-customizations">Document Your Customizations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#test-your-customizations">Test Your Customizations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/overview.html#common-customization-patterns">Common Customization Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#pattern-1-adding-fields">Pattern 1: Adding Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#pattern-2-external-integration">Pattern 2: External Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#pattern-3-access-control">Pattern 3: Access Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/overview.html#pattern-4-new-events">Pattern 4: New Events</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/overview.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="customization/serializers.html">Customizing Serializers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="customization/serializers.html#available-serializers">Available Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/serializers.html#why-override-serializers">Why Override Serializers?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#common-reasons">Common Reasons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/serializers.html#basic-override-pattern">Basic Override Pattern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#step-1-create-custom-serializer">Step 1: Create Custom Serializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#step-2-configure-in-settings">Step 2: Configure in Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#step-3-test">Step 3: Test</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/serializers.html#common-customization-examples">Common Customization Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#example-1-add-profile-picture-to-userserializer">Example 1: Add Profile Picture to UserSerializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#example-2-add-priority-field-to-messages">Example 2: Add Priority Field to Messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#example-3-add-room-metadata">Example 3: Add Room Metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#example-4-custom-validation-rules">Example 4: Custom Validation Rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#example-5-filter-sensitive-data">Example 5: Filter Sensitive Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/serializers.html#working-with-polymorphic-serializers">Working with Polymorphic Serializers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#room-polymorphic-serializers">Room Polymorphic Serializers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/serializers.html#context-in-serializers">Context in Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/serializers.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#inherit-from-default">1. Inherit from Default</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#call-parent-methods">2. Call Parent Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#use-serializermethodfield-for-computed-data">3. Use SerializerMethodField for Computed Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#keep-serializers-focused">4. Keep Serializers Focused</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#document-custom-fields">5. Document Custom Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/serializers.html#testing-custom-serializers">Testing Custom Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/serializers.html#performance-considerations">Performance Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#avoid-n-1-queries">Avoid N+1 Queries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#limit-serialized-data">Limit Serialized Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/serializers.html#common-pitfalls">Common Pitfalls</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#pitfall-1-forgetting-to-update-related-serializers">Pitfall 1: Forgetting to Update Related Serializers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#pitfall-2-breaking-required-signatures">Pitfall 2: Breaking Required Signatures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/serializers.html#pitfall-3-not-passing-context">Pitfall 3: Not Passing Context</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/serializers.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="customization/event-handlers.html">Customizing Event Handlers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="customization/event-handlers.html#available-event-handlers">Available Event Handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/event-handlers.html#complete-function-signatures">Complete Function Signatures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#get-and-group-chat-notifications">get_and_group_chat_notifications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#create-message">create_message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#react-to-message">react_to_message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#message-acknowledged">message_acknowledged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#modify-message">modify_message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#create-read-receipt">create_read_receipt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#create-room">create_room</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#list-rooms">list_rooms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#retreive-room">retreive_room</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#retreive-messages">retreive_messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#modify-room">modify_room</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#add-members-to-room">add_members_to_room</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#remove-members-from-room">remove_members_from_room</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#leave-room">leave_room</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#join-room">join_room</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/event-handlers.html#common-customization-patterns">Common Customization Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#pattern-1-pre-processing">Pattern 1: Pre-Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#pattern-2-post-processing">Pattern 2: Post-Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#pattern-3-wrapping-with-error-handling">Pattern 3: Wrapping with Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#pattern-4-conditional-logic">Pattern 4: Conditional Logic</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/event-handlers.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#always-use-database-sync-to-async">1. Always Use &#64;database_sync_to_async</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#call-default-when-possible">2. Call Default When Possible</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#match-function-signatures">3. Match Function Signatures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#handle-errors-gracefully">4. Handle Errors Gracefully</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/event-handlers.html#ensure-database-connection">5. Ensure Database Connection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/event-handlers.html#testing-custom-handlers">Testing Custom Handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/event-handlers.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="customization/permissions.html">Customizing Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="customization/permissions.html#available-permission-functions">Available Permission Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/permissions.html#complete-function-signatures">Complete Function Signatures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#have-room-permission">have_room_permission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#have-message-permission">have_message_permission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#is-message-sender">is_message_sender</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#have-room-permissions-to-add-or-remove-members">have_room_permissions_to_add_or_remove_members</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#have-send-message-permission">have_send_message_permission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#have-admin-privileges">have_admin_privileges</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/permissions.html#using-decorators">Using Decorators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/permissions.html#common-customization-patterns">Common Customization Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#pattern-1-subscription-tiers">Pattern 1: Subscription Tiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#pattern-2-time-based-access">Pattern 2: Time-Based Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#pattern-3-geographic-restrictions">Pattern 3: Geographic Restrictions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#pattern-4-role-based-access">Pattern 4: Role-Based Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#pattern-5-content-moderation">Pattern 5: Content Moderation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/permissions.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/permissions.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#always-call-default-first">1. Always Call Default First</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#match-return-types">2. Match Return Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#use-database-connection">3. Use Database Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#handle-edge-cases">4. Handle Edge Cases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/permissions.html#log-permission-denials">5. Log Permission Denials</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/permissions.html#testing-custom-permissions">Testing Custom Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/permissions.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="customization/abstract-models.html">Extending with Abstract Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="customization/abstract-models.html#why-use-abstract-models">Why Use Abstract Models?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/abstract-models.html#available-abstract-models">Available Abstract Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#abstractmessage">AbstractMessage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#abstractgroupchat">AbstractGroupChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#abstractchannel">AbstractChannel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#abstractonetoonechat">AbstractOneToOneChat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/abstract-models.html#basic-usage-pattern">Basic Usage Pattern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#step-1-create-custom-model">Step 1: Create Custom Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#step-2-create-custom-serializer">Step 2: Create Custom Serializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#step-3-configure-settings">Step 3: Configure Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#step-4-run-migrations">Step 4: Run Migrations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/abstract-models.html#complete-examples">Complete Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#example-1-message-with-priority-and-tags">Example 1: Message with Priority and Tags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#example-2-group-chat-with-categories">Example 2: Group Chat with Categories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#example-3-channel-with-subscription-tiers">Example 3: Channel with Subscription Tiers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/abstract-models.html#advanced-patterns">Advanced Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#pattern-1-timestamped-models-with-soft-delete">Pattern 1: Timestamped Models with Soft Delete</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#pattern-2-searchable-messages">Pattern 2: Searchable Messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#pattern-3-threaded-conversations">Pattern 3: Threaded Conversations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/abstract-models.html#handling-migrations">Handling Migrations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#initial-migration">Initial Migration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#adding-fields-to-existing-model">Adding Fields to Existing Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#data-migration">Data Migration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/abstract-models.html#permission-implications">Permission Implications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/abstract-models.html#testing-custom-models">Testing Custom Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/abstract-models.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#always-inherit-from-abstract-models">1. Always Inherit from Abstract Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#update-related-components">2. Update Related Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#maintain-compatibility">3. Maintain Compatibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#use-indexes-wisely">4. Use Indexes Wisely</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/abstract-models.html#document-your-extensions">5. Document Your Extensions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/abstract-models.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="customization/member-management.html">Member Management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="customization/member-management.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customization/member-management.html#adding-members">Adding Members</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/member-management.html#room-add-members">room.add_members</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/member-management.html#removing-members">Removing Members</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/member-management.html#room-remove-members">room.remove_members</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/member-management.html#member-list-management">Member List Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/member-management.html#best-practices">Best Practices</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/member-management.html#common-patterns">Common Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/member-management.html#pattern-1-invite-link-system">Pattern 1: Invite Link System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/member-management.html#pattern-2-member-approval-workflow">Pattern 2: Member Approval Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/member-management.html#pattern-3-bulk-import-from-csv">Pattern 3: Bulk Import from CSV</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/member-management.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customization/member-management.html#issue-member-added-but-not-receiving-messages">Issue: Member Added But Not Receiving Messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/member-management.html#issue-cannot-remove-admin-moderator">Issue: Cannot Remove Admin/Moderator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customization/member-management.html#issue-room-disappeared-after-removing-last-member">Issue: Room Disappeared After Removing Last Member</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="customization/member-management.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="configuration.html">Settings Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#basic-configuration">Basic Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#core-settings">Core Settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#message-soft-delete">MESSAGE_SOFT_DELETE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#customization-settings">Customization Settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#serializers">SERIALIZERS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#models">MODELS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#event-handlers">EVENT_HANDLERS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#permissions">PERMISSIONS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#event-mapper">EVENT_MAPPER</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#exception-handler-class">EXCEPTION_HANDLER_CLASS</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#configuration-examples">Configuration Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#minimal-configuration">Minimal Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#basic-customization">Basic Customization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#advanced-customization">Advanced Customization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#environment-specific-configuration">Environment-Specific Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#development">Development</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#production">Production</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#common-patterns">Common Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#whatsapp-style-configuration">WhatsApp-Style Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuration.html#slack-style-configuration">Slack-Style Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#validating-configuration">Validating Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#connection-issues">Connection Issues</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#websocket-connection-fails">WebSocket Connection Fails</a></li>
@@ -336,7 +633,6 @@
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#performance-issues">Performance Issues</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#slow-message-loading">Slow Message Loading</a></li>
 <li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#many-rooms-causing-lag">Many Rooms Causing Lag</a></li>
-<li class="toctree-l3"><a class="reference internal" href="troubleshooting.html#redis-memory-issues">Redis Memory Issues</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#concurrent-connection-issues">Concurrent Connection Issues</a><ul>

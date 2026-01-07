@@ -116,7 +116,7 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
         if not resource_type:
             raise serializers.ValidationError("Invalid type")
 
-        extra_fields = self.initial_data.pop('extra_fields') if 'extra_fields' in self.initial_data else {}
+        extra_fields = self.initial_data.pop('extra_fields', {})
         preferences = extra_fields.get('preferences')
         if preferences and not isinstance(preferences, dict):
             raise serializer.ValidationError("preferences must be a python dictionary/javascript object")
@@ -145,7 +145,7 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
             if resource_type == OneToOneChat:
                 participants = data.get("participants")
                 participants = User.objects.filter(id__in=participants)
-                instance.participants.set([*participants,user ])
+                instance.participants.set([*participants, user])
             elif resource_type == GroupChat:
                 participants = data.get("participants")
                 participants = User.objects.filter(id__in=participants)
@@ -192,7 +192,7 @@ class ReactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = "__all__"
-        validators = []
+        validators = [] # let signals take care of unique constraints
     
 
 

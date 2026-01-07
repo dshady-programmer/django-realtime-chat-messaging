@@ -1,0 +1,1269 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customizing Permissions &mdash; Django Realtime Chat Messaging 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7ecde127" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Extending with Abstract Models" href="abstract-models.html" />
+    <link rel="prev" title="Customizing Serializers" href="serializers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Django Realtime Chat Messaging
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#system-requirements">System Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-package">Installing the Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#using-pip">Using pip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#using-poetry">Using Poetry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#using-pipenv">Using pipenv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#development-installation">Development Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-redis">Installing Redis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#ubuntu-debian">Ubuntu/Debian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#macos">macOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#verifying-installation">Verifying Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#test-redis-connection">Test Redis Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#test-package-import">Test Package Import</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#virtual-environment-setup">Virtual Environment Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#dependencies-overview">Dependencies Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#common-installation-issues">Common Installation Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#dependency-version-compatibility">Dependency Version Compatibility</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#tested-configurations">Tested Configurations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#upgrading">Upgrading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#uninstalling">Uninstalling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-1-add-to-installed-apps">Step 1: Add to INSTALLED_APPS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-2-configure-asgi-application">Step 2: Configure ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-3-set-asgi-application">Step 3: Set ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-4-configure-channel-layers">Step 4: Configure Channel Layers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#development-setup-in-memory">Development Setup (In-Memory)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#production-setup-redis">Production Setup (Redis)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-5-configure-guardian">Step 5: Configure Guardian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-6-run-migrations">Step 6: Run Migrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-7-create-superuser-optional">Step 7: Create Superuser (Optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-8-start-the-development-server">Step 8: Start the Development Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#testing-your-setup">Testing Your Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#verify-channel-layer-connection">Verify Channel Layer Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#websocket-connection-url">WebSocket Connection URL</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#creating-your-first-chat-room">Creating Your First Chat Room</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#via-django-shell">Via Django Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#via-django-admin">Via Django Admin</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#frontend-integration-preview">Frontend Integration Preview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#what-s-next">What’s Next?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#server-won-t-start">Server Won’t Start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#websocket-connection-fails">WebSocket Connection Fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#redis-connection-issues">Redis Connection Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#migration-errors">Migration Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#appregistrynotready-error">AppRegistryNotReady Error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#authentication-failed-4001">Authentication Failed (4001)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#production-deployment-preview">Production Deployment Preview</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../understanding-room-types.html">Understanding Room Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#the-three-room-types">The Three Room Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#onetoonechat-direct-messaging">OneToOneChat: Direct Messaging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#model-structure">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#creating-a-onetoonechat">Creating a OneToOneChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#permissions">Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#groupchat-multi-user-discussions">GroupChat: Multi-User Discussions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#id1">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#creating-a-groupchat">Creating a GroupChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#group-locking">Group Locking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#permissions-hierarchy">Permissions Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#granting-custom-permissions">Granting Custom Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#channel-broadcast-communication">Channel: Broadcast Communication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#id2">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#creating-a-channel">Creating a Channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#public-vs-private-channels">Public vs Private Channels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#id3">Permissions Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#granting-posting-permissions">Granting Posting Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#choosing-the-right-room-type">Choosing the Right Room Type</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#decision-tree">Decision Tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#comparison-table">Comparison Table</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#common-patterns">Common Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#whatsapp-style-setup">WhatsApp-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#slack-style-setup">Slack-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#discord-style-setup">Discord-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#telegram-style-setup">Telegram-Style Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#advanced-polymorphic-queries">Advanced: Polymorphic Queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#room-lifecycle">Room Lifecycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#creation">Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#deletion">Deletion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#signals-in-action">Signals in Action</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authentication-setup.html">Authentication Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#authentication-requirement">Authentication Requirement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#available-authentication-methods">Available Authentication Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#method-1-session-authentication-default">Method 1: Session Authentication (Default)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#how-it-works">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#frontend-usage">Frontend Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#pros-and-cons">Pros and Cons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#method-2-jwt-authentication">Method 2: JWT Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id1">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id2">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id3">Frontend Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#token-refresh-handling">Token Refresh Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id4">Pros and Cons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#method-3-token-authentication">Method 3: Token Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id5">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id6">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id7">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id8">Frontend Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#method-4-custom-authentication">Method 4: Custom Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id9">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id10">Frontend Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#testing-authentication">Testing Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#test-in-django-shell">Test in Django Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#test-with-browser-devtools">Test with Browser DevTools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#security-best-practices">Security Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#session-authentication">Session Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#jwt-authentication">JWT Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#general-security">General Security</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#connection-closes-immediately-code-4001">Connection Closes Immediately (Code 4001)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#invalid-token-format">Invalid Token Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#cors-issues">CORS Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#session-not-persisting">Session Not Persisting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">WebSocket API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../websocket/message-events.html">Message Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#event-structure">Event Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#message-sending">Message Sending</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#message-send">message.send</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#message-modification">Message Modification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#message-modify">message.modify</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#message-reactions">Message Reactions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#message-react">message.react</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#typing-indicators">Typing Indicators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#message-typing">message.typing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#read-receipts">Read Receipts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#message-read">message.read</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#message-delivery">Message Delivery</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#message-acknowledged">message.acknowledged</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#retrieving-messages">Retrieving Messages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#room-messages">room.messages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../websocket/room-events.html">Room Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#room-creation">Room Creation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#room-create">room.create</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#onetoonechat-creation">OneToOneChat Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#groupchat-creation">GroupChat Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#channel-creation">Channel Creation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#room-listing">Room Listing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#room-list">room.list</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#room-details">Room Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#room-info">room.info</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#joining-rooms">Joining Rooms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#room-join">room.join</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#leaving-rooms">Leaving Rooms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#room-leave">room.leave</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#room-modification">Room Modification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#room-modify">room.modify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#update-room-details">Update Room Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#add-remove-permissions">Add/Remove Permissions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#add-remove-admins-groupchat">Add/Remove Admins (GroupChat)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#add-remove-moderators-channel">Add/Remove Moderators (Channel)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#permission-requirements">Permission Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#error-responses">Error Responses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../websocket/error-codes.html">Error Codes Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#error-response-format">Error Response Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#error-codes-overview">Error Codes Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#authentication-failed">4001: Authentication Failed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#permission-denied">4002: Permission Denied</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#validation-error">4003: Validation Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#resource-not-found">4004: Resource Not Found</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#integrity-error">4005: Integrity Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#internal-server-error">4006: Internal Server Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#error-handling-best-practices">Error Handling Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/error-codes.html#complete-error-handler">Complete Error Handler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/error-codes.html#user-friendly-error-messages">User-Friendly Error Messages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Customization Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#what-can-be-customized">What Can Be Customized?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#customization-levels">Customization Levels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#simple-customization-settings-only">Simple Customization (Settings Only)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#moderate-customization-serializers">Moderate Customization (Serializers)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#advanced-customization-handlers-permissions">Advanced Customization (Handlers/Permissions)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#expert-customization-consumer-models">Expert Customization (Consumer/Models)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#when-to-customize">When to Customize</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#use-default-behavior">Use Default Behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#override-serializers">Override Serializers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#override-event-handlers">Override Event Handlers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#override-permissions">Override Permissions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#override-event-mapper">Override Event Mapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#override-models">Override Models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#customization-strategy">Customization Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#the-principle-of-least-modification">The Principle of Least Modification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#composition-over-replacement">Composition Over Replacement</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#understanding-dependencies">Understanding Dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#serializer-dependencies">Serializer Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#handler-dependencies">Handler Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#permission-dependencies">Permission Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#configuration-best-practices">Configuration Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#organize-settings">Organize Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#document-your-customizations">Document Your Customizations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#test-your-customizations">Test Your Customizations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#common-customization-patterns">Common Customization Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#pattern-1-adding-fields">Pattern 1: Adding Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#pattern-2-external-integration">Pattern 2: External Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#pattern-3-access-control">Pattern 3: Access Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#pattern-4-new-events">Pattern 4: New Events</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="serializers.html">Customizing Serializers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#available-serializers">Available Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#why-override-serializers">Why Override Serializers?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#common-reasons">Common Reasons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#basic-override-pattern">Basic Override Pattern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#step-1-create-custom-serializer">Step 1: Create Custom Serializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#step-2-configure-in-settings">Step 2: Configure in Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#step-3-test">Step 3: Test</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#common-customization-examples">Common Customization Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#example-1-add-profile-picture-to-userserializer">Example 1: Add Profile Picture to UserSerializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#example-2-add-priority-field-to-messages">Example 2: Add Priority Field to Messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#example-3-add-room-metadata">Example 3: Add Room Metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#example-4-custom-validation-rules">Example 4: Custom Validation Rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#example-5-filter-sensitive-data">Example 5: Filter Sensitive Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#working-with-polymorphic-serializers">Working with Polymorphic Serializers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#room-polymorphic-serializers">Room Polymorphic Serializers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#context-in-serializers">Context in Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#inherit-from-default">1. Inherit from Default</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#call-parent-methods">2. Call Parent Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#use-serializermethodfield-for-computed-data">3. Use SerializerMethodField for Computed Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#keep-serializers-focused">4. Keep Serializers Focused</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#document-custom-fields">5. Document Custom Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#testing-custom-serializers">Testing Custom Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#performance-considerations">Performance Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#avoid-n-1-queries">Avoid N+1 Queries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#limit-serialized-data">Limit Serialized Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#common-pitfalls">Common Pitfalls</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#pitfall-1-forgetting-to-update-related-serializers">Pitfall 1: Forgetting to Update Related Serializers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#pitfall-2-breaking-required-signatures">Pitfall 2: Breaking Required Signatures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#pitfall-3-not-passing-context">Pitfall 3: Not Passing Context</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Customizing Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#available-permission-functions">Available Permission Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#complete-function-signatures">Complete Function Signatures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#have-room-permission">have_room_permission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#have-message-permission">have_message_permission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#is-message-sender">is_message_sender</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#have-room-permissions-to-add-or-remove-members">have_room_permissions_to_add_or_remove_members</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#have-send-message-permission">have_send_message_permission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#have-admin-privileges">have_admin_privileges</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#using-decorators">Using Decorators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-customization-patterns">Common Customization Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pattern-1-subscription-tiers">Pattern 1: Subscription Tiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pattern-2-time-based-access">Pattern 2: Time-Based Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pattern-3-geographic-restrictions">Pattern 3: Geographic Restrictions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pattern-4-role-based-access">Pattern 4: Role-Based Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pattern-5-content-moderation">Pattern 5: Content Moderation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#always-call-default-first">1. Always Call Default First</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#match-return-types">2. Match Return Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#use-database-connection">3. Use Database Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#handle-edge-cases">4. Handle Edge Cases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#log-permission-denials">5. Log Permission Denials</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-custom-permissions">Testing Custom Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="abstract-models.html">Extending with Abstract Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#why-use-abstract-models">Why Use Abstract Models?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#available-abstract-models">Available Abstract Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#abstractmessage">AbstractMessage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#abstractgroupchat">AbstractGroupChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#abstractchannel">AbstractChannel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#abstractonetoonechat">AbstractOneToOneChat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#basic-usage-pattern">Basic Usage Pattern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#step-1-create-custom-model">Step 1: Create Custom Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#step-2-create-custom-serializer">Step 2: Create Custom Serializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#step-3-configure-settings">Step 3: Configure Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#step-4-run-migrations">Step 4: Run Migrations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#complete-examples">Complete Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#example-1-message-with-priority-and-tags">Example 1: Message with Priority and Tags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#example-2-group-chat-with-categories">Example 2: Group Chat with Categories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#example-3-channel-with-subscription-tiers">Example 3: Channel with Subscription Tiers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#advanced-patterns">Advanced Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#pattern-1-timestamped-models-with-soft-delete">Pattern 1: Timestamped Models with Soft Delete</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#pattern-2-searchable-messages">Pattern 2: Searchable Messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#pattern-3-threaded-conversations">Pattern 3: Threaded Conversations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#handling-migrations">Handling Migrations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#initial-migration">Initial Migration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#adding-fields-to-existing-model">Adding Fields to Existing Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#data-migration">Data Migration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#permission-implications">Permission Implications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#testing-custom-models">Testing Custom Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#always-inherit-from-abstract-models">1. Always Inherit from Abstract Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#update-related-components">2. Update Related Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#maintain-compatibility">3. Maintain Compatibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#use-indexes-wisely">4. Use Indexes Wisely</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#document-your-extensions">5. Document Your Extensions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#connection-issues">Connection Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#websocket-connection-fails">WebSocket Connection Fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#connection-closes-immediately-code-4001">Connection Closes Immediately (Code 4001)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#appregistrynotready-error">AppRegistryNotReady Error</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#redis-connection-errors">Redis Connection Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#cannot-connect-to-redis">Cannot Connect to Redis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#redis-authentication-failed">Redis Authentication Failed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#migration-issues">Migration Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#table-does-not-exist">Table Does Not Exist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#migration-conflicts">Migration Conflicts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#permission-errors">Permission Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#permission-denied-4002">Permission Denied (4002)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#cannot-add-members-to-room">Cannot Add Members to Room</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#validation-errors">Validation Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#maximum-participants-exceeded">Maximum Participants Exceeded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#forwarded-messages-can-t-be-replies">Forwarded Messages Can’t Be Replies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#onetoonechat-must-have-2-participants">OneToOneChat Must Have 2 Participants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#duplicate-onetoonechat">Duplicate OneToOneChat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#message-issues">Message Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#messages-not-appearing">Messages Not Appearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#soft-deleted-messages-still-showing">Soft Deleted Messages Still Showing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#html-tags-being-stripped">HTML Tags Being Stripped</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#performance-issues">Performance Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#slow-message-loading">Slow Message Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#many-rooms-causing-lag">Many Rooms Causing Lag</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#concurrent-connection-issues">Concurrent Connection Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#multiple-devices-not-working">Multiple Devices Not Working</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#debugging-tools">Debugging Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#enable-django-logging">Enable Django Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#browser-devtools">Browser DevTools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#django-shell-testing">Django Shell Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#getting-more-help">Getting More Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#common-error-reference">Common Error Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Django Realtime Chat Messaging</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Customizing Permissions</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/shady-cj/django-realtime-chat-messaging/blob/main/docs/source/customization/permissions.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="customizing-permissions">
+<h1>Customizing Permissions<a class="headerlink" href="#customizing-permissions" title="Link to this heading"></a></h1>
+<p>Permissions control who can access and modify rooms and messages. This guide shows you how to override default permission functions to implement custom access control.</p>
+<section id="available-permission-functions">
+<h2>Available Permission Functions<a class="headerlink" href="#available-permission-functions" title="Link to this heading"></a></h2>
+<p>The package provides 6 permission functions you can override:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">have_room_permission</span></code> - Can user access a room?</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">have_message_permission</span></code> - Can user access message(s)?</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_message_sender</span></code> - Is user the sender of message(s)?</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">have_room_permissions_to_add_or_remove_members</span></code> - Can user add/remove members?</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">have_send_message_permission</span></code> - Can user send messages to room?</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">have_admin_privileges</span></code> - Is user an admin/moderator of room?</p></li>
+</ol>
+</section>
+<section id="complete-function-signatures">
+<h2>Complete Function Signatures<a class="headerlink" href="#complete-function-signatures" title="Link to this heading"></a></h2>
+<section id="have-room-permission">
+<h3>have_room_permission<a class="headerlink" href="#have-room-permission" title="Link to this heading"></a></h3>
+<p>Check if user can access a room (for viewing, fetching messages, etc.).</p>
+<p><strong>Signature:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">have_room_permission</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span><span class="p">,</span> <span class="n">room_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Room</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if user can access room.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user: User requesting access</span>
+<span class="sd">        room_id: ID of room to check</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (is_permitted: bool, room: Room instance)</span>
+
+<span class="sd">    Default Logic:</span>
+<span class="sd">        - OneToOneChat: User must be a participant</span>
+<span class="sd">        - GroupChat: User must be a participant</span>
+<span class="sd">        - Channel: User must be a subscriber</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p><strong>Default Implementation:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">have_room_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">connection</span>
+    <span class="n">connection</span><span class="o">.</span><span class="n">ensure_connection</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">room_id</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Invalid room_id type&quot;</span><span class="p">)</span>
+
+    <span class="n">room</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Room</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">room_id</span><span class="p">)</span>
+    <span class="n">is_permitted</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s2">&quot;participants&quot;</span><span class="p">):</span>
+        <span class="c1"># OneToOneChat or GroupChat</span>
+        <span class="k">if</span> <span class="n">room</span><span class="o">.</span><span class="n">participants</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">is_permitted</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s2">&quot;subscribers&quot;</span><span class="p">):</span>
+        <span class="c1"># Channel</span>
+        <span class="k">if</span> <span class="n">room</span><span class="o">.</span><span class="n">subscribers</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">is_permitted</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span>
+</pre></div>
+</div>
+<p><strong>Custom Example: Premium Rooms</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.permissions.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">have_room_permission</span> <span class="k">as</span> <span class="n">default_check</span>
+
+<span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_room_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="c1"># Check default permission first</span>
+    <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="k">await</span> <span class="n">default_check</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_permitted</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="c1"># Additional check: Premium rooms require subscription</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s1">&#39;is_premium&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">room</span><span class="o">.</span><span class="n">is_premium</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="s1">&#39;profile&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">is_subscribed</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="c1"># Additional check: Time-based access</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s1">&#39;access_hours&#39;</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">django.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timezone</span>
+        <span class="n">current_hour</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">hour</span>
+
+        <span class="k">if</span> <span class="n">current_hour</span> <span class="o">&lt;</span> <span class="n">room</span><span class="o">.</span><span class="n">access_hours</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">current_hour</span> <span class="o">&gt;</span> <span class="n">room</span><span class="o">.</span><span class="n">access_hours</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+</pre></div>
+</div>
+</section>
+<section id="have-message-permission">
+<h3>have_message_permission<a class="headerlink" href="#have-message-permission" title="Link to this heading"></a></h3>
+<p>Check if user can access message(s) (for reading, reacting, etc.).</p>
+<p><strong>Signature:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">have_message_permission</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span><span class="p">,</span> <span class="n">message_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if user can access message(s).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user: User requesting access</span>
+<span class="sd">        message_id: Single message ID or list of IDs</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if user can access all messages, False otherwise</span>
+
+<span class="sd">    Default Logic:</span>
+<span class="sd">        User must be member of the room containing the message(s)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p><strong>Default Implementation:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">have_message_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">message_id</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">connection</span>
+    <span class="n">connection</span><span class="o">.</span><span class="n">ensure_connection</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">message_id</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Invalid message_id type&quot;</span><span class="p">)</span>
+
+    <span class="n">is_permitted</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_member</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+        <span class="n">is_mem</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">room</span><span class="p">,</span> <span class="s2">&quot;participants&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">room</span><span class="o">.</span><span class="n">participants</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">is_mem</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">room</span><span class="p">,</span> <span class="s2">&quot;subscribers&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">room</span><span class="o">.</span><span class="n">subscribers</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="n">user</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">is_mem</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">is_mem</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message_id</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">message_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">message_id</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">message_id</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">message_id</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">message_id</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">get_object_or_404</span><span class="p">(</span><span class="n">Message</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span>
+        <span class="n">is_permitted</span> <span class="o">=</span> <span class="n">is_member</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_permitted</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="k">return</span> <span class="n">is_permitted</span>
+</pre></div>
+</div>
+</section>
+<section id="is-message-sender">
+<h3>is_message_sender<a class="headerlink" href="#is-message-sender" title="Link to this heading"></a></h3>
+<p>Check if user is the sender of message(s) (for editing/deleting).</p>
+<p><strong>Signature:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_message_sender</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span><span class="p">,</span> <span class="n">message_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Room</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if user is sender of message(s).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user: User to check</span>
+<span class="sd">        message_id: Single message ID or list of IDs</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (is_permitted: bool, room: Room instance)</span>
+
+<span class="sd">    Validation:</span>
+<span class="sd">        - All messages must be from same room</span>
+<span class="sd">        - User must be sender of ALL messages</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p><strong>Custom Example: Allow Admins to Modify Any Message</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.permissions.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_message_sender</span> <span class="k">as</span> <span class="n">default_check</span>
+
+<span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_message_sender_check</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">message_id</span><span class="p">):</span>
+    <span class="c1"># Check if user is sender</span>
+    <span class="n">is_sender</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="k">await</span> <span class="n">default_check</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">message_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_sender</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="c1"># Allow admins/moderators to modify any message</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s1">&#39;admins&#39;</span><span class="p">):</span>
+        <span class="c1"># GroupChat</span>
+        <span class="k">if</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">room</span><span class="o">.</span><span class="n">admins</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">or</span> <span class="n">user</span> <span class="o">==</span> <span class="n">room</span><span class="o">.</span><span class="n">creator</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s1">&#39;moderators&#39;</span><span class="p">):</span>
+        <span class="c1"># Channel</span>
+        <span class="k">if</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">room</span><span class="o">.</span><span class="n">moderators</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">or</span> <span class="n">user</span> <span class="o">==</span> <span class="n">room</span><span class="o">.</span><span class="n">creator</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+</pre></div>
+</div>
+</section>
+<section id="have-room-permissions-to-add-or-remove-members">
+<h3>have_room_permissions_to_add_or_remove_members<a class="headerlink" href="#have-room-permissions-to-add-or-remove-members" title="Link to this heading"></a></h3>
+<p>Check if user can add or remove members from room.</p>
+<p><strong>Signature:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">have_room_permissions_to_add_or_remove_members</span><span class="p">(</span>
+    <span class="n">user</span><span class="p">:</span> <span class="n">User</span><span class="p">,</span>
+    <span class="n">room_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="n">perm_phrase</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Room</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if user can add or remove members.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user: User attempting action</span>
+<span class="sd">        room_id: Room ID</span>
+<span class="sd">        perm_phrase: &quot;add_new&quot; or &quot;remove&quot;</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (is_permitted: bool, room: Room instance)</span>
+
+<span class="sd">    Default Logic:</span>
+<span class="sd">        GroupChat:</span>
+<span class="sd">            - Creator: Always permitted</span>
+<span class="sd">            - Admins: Always permitted</span>
+<span class="sd">            - Users with specific permission: Permitted</span>
+
+<span class="sd">        Channel:</span>
+<span class="sd">            - Creator: Always permitted</span>
+<span class="sd">            - Moderators: Always permitted</span>
+<span class="sd">            - Users with specific permission: Permitted</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p><strong>Custom Example: Limit Member Addition</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.permissions.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">have_room_permissions_to_add_or_remove_members</span> <span class="k">as</span> <span class="n">default_check</span>
+<span class="p">)</span>
+
+<span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_member_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">,</span> <span class="n">perm_phrase</span><span class="p">):</span>
+    <span class="c1"># Check default permission</span>
+    <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="k">await</span> <span class="n">default_check</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">,</span> <span class="n">perm_phrase</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_permitted</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="c1"># Additional check for adding members</span>
+    <span class="k">if</span> <span class="n">perm_phrase</span> <span class="o">==</span> <span class="s2">&quot;add_new&quot;</span><span class="p">:</span>
+        <span class="c1"># Free users can&#39;t add more than 5 members per day</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">is_premium</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">django.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timezone</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+
+            <span class="n">today_start</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">hour</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">minute</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">second</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># Count additions today</span>
+            <span class="n">additions_today</span> <span class="o">=</span> <span class="n">MemberAdditionLog</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+                <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+                <span class="n">room</span><span class="o">=</span><span class="n">room</span><span class="p">,</span>
+                <span class="n">added_at__gte</span><span class="o">=</span><span class="n">today_start</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">additions_today</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+</pre></div>
+</div>
+</section>
+<section id="have-send-message-permission">
+<h3>have_send_message_permission<a class="headerlink" href="#have-send-message-permission" title="Link to this heading"></a></h3>
+<p>Check if user can send messages to room.</p>
+<p><strong>Signature:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">have_send_message_permission</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Room</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if user can send message to room.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user: User attempting to send</span>
+<span class="sd">        data: Message data containing room_id or message_id (for replies)</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (is_permitted: bool, room: Room instance)</span>
+
+<span class="sd">    Default Logic:</span>
+<span class="sd">        Channel:</span>
+<span class="sd">            - Creator: Permitted</span>
+<span class="sd">            - Moderators: Permitted</span>
+<span class="sd">            - Users with can_send_messages permission: Permitted</span>
+
+<span class="sd">        GroupChat (if group_locked=True):</span>
+<span class="sd">            - Creator: Permitted</span>
+<span class="sd">            - Admins: Permitted</span>
+
+<span class="sd">        GroupChat (if group_locked=False):</span>
+<span class="sd">            - All participants: Permitted</span>
+
+<span class="sd">        OneToOneChat:</span>
+<span class="sd">            - Both participants: Permitted</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p><strong>Custom Example: Rate Limiting</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.permissions.helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">have_send_message_permission</span> <span class="k">as</span> <span class="n">default_check</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.core.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache</span>
+
+<span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_send_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="c1"># Check default permission</span>
+    <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="k">await</span> <span class="n">default_check</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_permitted</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="c1"># Rate limiting: 10 messages per minute for free users</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">is_premium</span><span class="p">:</span>
+        <span class="n">cache_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;message_rate_</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">room</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">message_count</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cache_key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">message_count</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
+                <span class="s2">&quot;Rate limit exceeded. Premium users have unlimited messaging.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Increment counter</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cache_key</span><span class="p">,</span> <span class="n">message_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>  <span class="c1"># 60 seconds TTL</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+</pre></div>
+</div>
+</section>
+<section id="have-admin-privileges">
+<h3>have_admin_privileges<a class="headerlink" href="#have-admin-privileges" title="Link to this heading"></a></h3>
+<p>Check if user has admin/moderator privileges in room.</p>
+<p><strong>Signature:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">have_admin_privileges</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span><span class="p">,</span> <span class="n">room_id</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Room</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if user has admin privileges.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        user: User to check</span>
+<span class="sd">        room_id: Room ID</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (is_permitted: bool, room: Room instance)</span>
+
+<span class="sd">    Default Logic:</span>
+<span class="sd">        GroupChat:</span>
+<span class="sd">            - Creator: Has privileges</span>
+<span class="sd">            - Admins: Has privileges</span>
+
+<span class="sd">        Channel:</span>
+<span class="sd">            - Creator: Has privileges</span>
+<span class="sd">            - Moderators: Has privileges</span>
+
+<span class="sd">        OneToOneChat:</span>
+<span class="sd">            - Not applicable (returns False for non-Group/Channel)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="using-decorators">
+<h2>Using Decorators<a class="headerlink" href="#using-decorators" title="Link to this heading"></a></h2>
+<p>Permission functions are used via decorators on consumer methods:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">realtime_chat_messaging.permissions.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">can_access_room</span><span class="p">,</span>
+    <span class="n">can_access_message</span><span class="p">,</span>
+    <span class="n">can_send_message_to_room</span><span class="p">,</span>
+    <span class="n">can_modify_message</span><span class="p">,</span>
+    <span class="n">can_add_members_to_room</span><span class="p">,</span>
+    <span class="n">can_remove_members_from_room</span><span class="p">,</span>
+    <span class="n">is_room_admin</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Example of decorator usage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CustomChatConsumer</span><span class="p">(</span><span class="n">ChatMessagingConsumer</span><span class="p">):</span>
+
+    <span class="nd">@ExceptionHandler</span><span class="o">.</span><span class="n">exception_handler_decorator</span>
+    <span class="nd">@can_send_message_to_room</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">receive_message_send_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">room</span><span class="p">):</span>
+        <span class="c1"># &#39;room&#39; is injected by decorator after permission check</span>
+        <span class="c1"># Only called if user has permission</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="common-customization-patterns">
+<h2>Common Customization Patterns<a class="headerlink" href="#common-customization-patterns" title="Link to this heading"></a></h2>
+<section id="pattern-1-subscription-tiers">
+<h3>Pattern 1: Subscription Tiers<a class="headerlink" href="#pattern-1-subscription-tiers" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">premium_room_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="k">await</span> <span class="n">default_check</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_permitted</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="c1"># Check subscription tier</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s1">&#39;required_tier&#39;</span><span class="p">):</span>
+        <span class="n">user_tier</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">subscription_tier</span>
+        <span class="n">required_tier</span> <span class="o">=</span> <span class="n">room</span><span class="o">.</span><span class="n">required_tier</span>
+
+        <span class="n">tier_hierarchy</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;free&#39;</span><span class="p">,</span> <span class="s1">&#39;basic&#39;</span><span class="p">,</span> <span class="s1">&#39;premium&#39;</span><span class="p">,</span> <span class="s1">&#39;enterprise&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">tier_hierarchy</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">user_tier</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tier_hierarchy</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">required_tier</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+</pre></div>
+</div>
+</section>
+<section id="pattern-2-time-based-access">
+<h3>Pattern 2: Time-Based Access<a class="headerlink" href="#pattern-2-time-based-access" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">time_based_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="k">await</span> <span class="n">default_check</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_permitted</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">django.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timezone</span>
+
+    <span class="c1"># Check access schedule</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s1">&#39;access_schedule&#39;</span><span class="p">):</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">current_day</span> <span class="o">=</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%A&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">current_time</span> <span class="o">=</span> <span class="n">now</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="n">schedule</span> <span class="o">=</span> <span class="n">room</span><span class="o">.</span><span class="n">access_schedule</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">current_day</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">schedule</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">schedule</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">current_time</span> <span class="o">&lt;=</span> <span class="n">schedule</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+</pre></div>
+</div>
+</section>
+<section id="pattern-3-geographic-restrictions">
+<h3>Pattern 3: Geographic Restrictions<a class="headerlink" href="#pattern-3-geographic-restrictions" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">geo_restricted_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="k">await</span> <span class="n">default_check</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_permitted</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="c1"># Check geographic restrictions</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s1">&#39;allowed_countries&#39;</span><span class="p">):</span>
+        <span class="n">user_country</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">country</span>
+
+        <span class="k">if</span> <span class="n">user_country</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">room</span><span class="o">.</span><span class="n">allowed_countries</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+</pre></div>
+</div>
+</section>
+<section id="pattern-4-role-based-access">
+<h3>Pattern 4: Role-Based Access<a class="headerlink" href="#pattern-4-role-based-access" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">role_based_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="k">await</span> <span class="n">default_check</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_permitted</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="c1"># Check user roles</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="s1">&#39;required_roles&#39;</span><span class="p">):</span>
+        <span class="n">user_roles</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">roles</span><span class="p">)</span>
+        <span class="n">required_roles</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">room</span><span class="o">.</span><span class="n">required_roles</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">user_roles</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">required_roles</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+</pre></div>
+</div>
+</section>
+<section id="pattern-5-content-moderation">
+<h3>Pattern 5: Content Moderation<a class="headerlink" href="#pattern-5-content-moderation" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">moderation_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="k">await</span> <span class="n">default_send_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_permitted</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="c1"># Check if user is shadowbanned</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="s1">&#39;profile&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">is_shadowbanned</span><span class="p">:</span>
+        <span class="c1"># Allow send but don&#39;t actually broadcast</span>
+        <span class="c1"># (Handle in custom handler)</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="c1"># Check user reputation</span>
+    <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">reputation_score</span> <span class="o">&lt;</span> <span class="n">room</span><span class="o">.</span><span class="n">min_reputation</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>Override permissions in settings:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># settings.py</span>
+<span class="n">REALTIME_CHAT_MESSAGING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;PERMISSIONS&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;have_room_permission&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.permissions.custom_room_permission&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;have_message_permission&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.permissions.custom_message_permission&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;is_message_sender&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.permissions.custom_sender_check&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;have_room_permissions_to_add_or_remove_members&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.permissions.custom_member_permission&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;have_send_message_permission&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.permissions.custom_send_permission&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;have_admin_privileges&#39;</span><span class="p">:</span> <span class="s1">&#39;myapp.permissions.custom_admin_check&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="always-call-default-first">
+<h3>1. Always Call Default First<a class="headerlink" href="#always-call-default-first" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="c1"># Check default logic</span>
+    <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="k">await</span> <span class="n">default_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_permitted</span><span class="p">:</span>
+        <span class="c1"># Respect default denial</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="c1"># Add custom checks</span>
+    <span class="c1"># ...</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+</pre></div>
+</div>
+</section>
+<section id="match-return-types">
+<h3>2. Match Return Types<a class="headerlink" href="#match-return-types" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ✅ Correct - returns (bool, Room)</span>
+<span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_room_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="c1"># ...</span>
+    <span class="k">return</span> <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span>
+
+<span class="c1"># ❌ Wrong - returns only bool</span>
+<span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_room_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="c1"># ...</span>
+    <span class="k">return</span> <span class="n">is_permitted</span>  <span class="c1"># Missing room!</span>
+</pre></div>
+</div>
+</section>
+<section id="use-database-connection">
+<h3>3. Use Database Connection<a class="headerlink" href="#use-database-connection" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">connection</span>
+    <span class="n">connection</span><span class="o">.</span><span class="n">ensure_connection</span><span class="p">()</span>
+
+    <span class="c1"># Your database queries</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="handle-edge-cases">
+<h3>4. Handle Edge Cases<a class="headerlink" href="#handle-edge-cases" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="c1"># Validate inputs</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">is_authenticated</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;User must be authenticated&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">room_id</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;room_id is required&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Your logic</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+<section id="log-permission-denials">
+<h3>5. Log Permission Denials<a class="headerlink" href="#log-permission-denials" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@database_sync_to_async</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_permission</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
+    <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="k">await</span> <span class="n">default_check</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">room_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_permitted</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Permission denied: user=</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, room=</span><span class="si">{</span><span class="n">room_id</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;reason=not_member&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Custom checks with logging</span>
+    <span class="k">if</span> <span class="n">custom_check_failed</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Permission denied: user=</span><span class="si">{</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, room=</span><span class="si">{</span><span class="n">room_id</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;reason=premium_required&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">room</span>
+
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">room</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testing-custom-permissions">
+<h2>Testing Custom Permissions<a class="headerlink" href="#testing-custom-permissions" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># tests/test_permissions.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.test</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestCase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">asgiref.sync</span><span class="w"> </span><span class="kn">import</span> <span class="n">async_to_sync</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myapp.permissions</span><span class="w"> </span><span class="kn">import</span> <span class="n">custom_room_permission</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PermissionTests</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span><span class="s1">&#39;testuser&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">premium_user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span><span class="s1">&#39;premium&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">premium_user</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">is_subscribed</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">premium_user</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">premium_room</span> <span class="o">=</span> <span class="n">Room</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">is_premium</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">premium_room</span><span class="o">.</span><span class="n">participants</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">premium_user</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_premium_room_requires_subscription</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Non-premium users can&#39;t access premium rooms&quot;&quot;&quot;</span>
+        <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="n">async_to_sync</span><span class="p">(</span><span class="n">custom_room_permission</span><span class="p">)(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">premium_room</span><span class="o">.</span><span class="n">id</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">is_permitted</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_premium_user_can_access_premium_room</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Premium users can access premium rooms&quot;&quot;&quot;</span>
+        <span class="n">is_permitted</span><span class="p">,</span> <span class="n">room</span> <span class="o">=</span> <span class="n">async_to_sync</span><span class="p">(</span><span class="n">custom_room_permission</span><span class="p">)(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">premium_user</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">premium_room</span><span class="o">.</span><span class="n">id</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">is_permitted</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="abstract-models.html"><span class="doc">Extending with Abstract Models</span></a> - Extend models with custom fields</p></li>
+<li><p><a class="reference internal" href="overview.html"><span class="doc">Customization Overview</span></a> - Customization principles</p></li>
+<li><p><span class="xref std std-doc">settings-reference</span> - Configure permissions in settings</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="serializers.html" class="btn btn-neutral float-left" title="Customizing Serializers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="abstract-models.html" class="btn btn-neutral float-right" title="Extending with Abstract Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erinfolami Peter (shady-cj).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

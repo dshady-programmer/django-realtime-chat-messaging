@@ -703,6 +703,4 @@ Quick reference for error codes:
 Next Steps
 ----------
 
-- :doc:`faq` - Frequently asked questions
-- :doc:`advanced/deployment` - Production deployment guide
 - :doc:`customization/overview` - Customize the package

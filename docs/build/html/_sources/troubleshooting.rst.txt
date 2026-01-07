@@ -554,21 +554,6 @@ Many Rooms Causing Lag
 
 **Solution**: The ``room.list`` event already returns simplified data. For very large lists, implement virtual scrolling in frontend.
 
-Redis Memory Issues
-~~~~~~~~~~~~~~~~~~~
-
-**Cause**: Redis filling up with old channel layer data
-
-**Solution**: Configure Redis eviction policy:
-
-.. code-block:: bash
-
-   # In redis.conf
-   maxmemory 256mb
-   maxmemory-policy allkeys-lru
-
-Or upgrade Redis memory allocation.
-
 Concurrent Connection Issues
 -----------------------------
 
@@ -718,6 +703,4 @@ Quick reference for error codes:
 Next Steps
 ----------
 
-- :doc:`faq` - Frequently asked questions
-- :doc:`advanced/deployment` - Production deployment guide
 - :doc:`customization/overview` - Customize the package

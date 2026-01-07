@@ -1,0 +1,1245 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Member Management &mdash; Django Realtime Chat Messaging 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7ecde127" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Django Realtime Chat Messaging
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#system-requirements">System Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-package">Installing the Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#using-pip">Using pip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#using-poetry">Using Poetry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#using-pipenv">Using pipenv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#development-installation">Development Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-redis">Installing Redis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#ubuntu-debian">Ubuntu/Debian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#macos">macOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#verifying-installation">Verifying Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#test-redis-connection">Test Redis Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#test-package-import">Test Package Import</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#virtual-environment-setup">Virtual Environment Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#dependencies-overview">Dependencies Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#common-installation-issues">Common Installation Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#dependency-version-compatibility">Dependency Version Compatibility</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#tested-configurations">Tested Configurations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#upgrading">Upgrading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#uninstalling">Uninstalling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-1-add-to-installed-apps">Step 1: Add to INSTALLED_APPS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-2-configure-asgi-application">Step 2: Configure ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-3-set-asgi-application">Step 3: Set ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-4-configure-channel-layers">Step 4: Configure Channel Layers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#development-setup-in-memory">Development Setup (In-Memory)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#production-setup-redis">Production Setup (Redis)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-5-configure-guardian">Step 5: Configure Guardian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-6-run-migrations">Step 6: Run Migrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-7-create-superuser-optional">Step 7: Create Superuser (Optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-8-start-the-development-server">Step 8: Start the Development Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#testing-your-setup">Testing Your Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#verify-channel-layer-connection">Verify Channel Layer Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#websocket-connection-url">WebSocket Connection URL</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#creating-your-first-chat-room">Creating Your First Chat Room</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#via-django-shell">Via Django Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#via-django-admin">Via Django Admin</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#frontend-integration-preview">Frontend Integration Preview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#what-s-next">What’s Next?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#server-won-t-start">Server Won’t Start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#websocket-connection-fails">WebSocket Connection Fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#redis-connection-issues">Redis Connection Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#migration-errors">Migration Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#appregistrynotready-error">AppRegistryNotReady Error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#authentication-failed-4001">Authentication Failed (4001)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#production-deployment-preview">Production Deployment Preview</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../understanding-room-types.html">Understanding Room Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#the-three-room-types">The Three Room Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#onetoonechat-direct-messaging">OneToOneChat: Direct Messaging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#model-structure">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#creating-a-onetoonechat">Creating a OneToOneChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#permissions">Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#groupchat-multi-user-discussions">GroupChat: Multi-User Discussions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#id1">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#creating-a-groupchat">Creating a GroupChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#group-locking">Group Locking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#permissions-hierarchy">Permissions Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#granting-custom-permissions">Granting Custom Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#channel-broadcast-communication">Channel: Broadcast Communication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#id2">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#creating-a-channel">Creating a Channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#public-vs-private-channels">Public vs Private Channels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#id3">Permissions Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#granting-posting-permissions">Granting Posting Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#choosing-the-right-room-type">Choosing the Right Room Type</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#decision-tree">Decision Tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#comparison-table">Comparison Table</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#common-patterns">Common Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#whatsapp-style-setup">WhatsApp-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#slack-style-setup">Slack-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#discord-style-setup">Discord-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#telegram-style-setup">Telegram-Style Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#advanced-polymorphic-queries">Advanced: Polymorphic Queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#room-lifecycle">Room Lifecycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#creation">Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#deletion">Deletion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#signals-in-action">Signals in Action</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authentication-setup.html">Authentication Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#authentication-requirement">Authentication Requirement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#available-authentication-methods">Available Authentication Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#method-1-session-authentication-default">Method 1: Session Authentication (Default)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#how-it-works">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#frontend-usage">Frontend Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#pros-and-cons">Pros and Cons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#method-2-jwt-authentication">Method 2: JWT Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id1">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id2">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id3">Frontend Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#token-refresh-handling">Token Refresh Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id4">Pros and Cons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#method-3-token-authentication">Method 3: Token Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id5">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id6">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id7">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id8">Frontend Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#method-4-custom-authentication">Method 4: Custom Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id9">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id10">Frontend Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#testing-authentication">Testing Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#test-in-django-shell">Test in Django Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#test-with-browser-devtools">Test with Browser DevTools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#security-best-practices">Security Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#session-authentication">Session Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#jwt-authentication">JWT Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#general-security">General Security</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#connection-closes-immediately-code-4001">Connection Closes Immediately (Code 4001)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#invalid-token-format">Invalid Token Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#cors-issues">CORS Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#session-not-persisting">Session Not Persisting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">WebSocket API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../websocket/message-events.html">Message Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#event-structure">Event Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#message-sending">Message Sending</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#message-send">message.send</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#message-modification">Message Modification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#message-modify">message.modify</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#message-reactions">Message Reactions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#message-react">message.react</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#typing-indicators">Typing Indicators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#message-typing">message.typing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#read-receipts">Read Receipts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#message-read">message.read</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#message-delivery">Message Delivery</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#message-acknowledged">message.acknowledged</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#retrieving-messages">Retrieving Messages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/message-events.html#room-messages">room.messages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/message-events.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../websocket/room-events.html">Room Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#room-creation">Room Creation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#room-create">room.create</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#onetoonechat-creation">OneToOneChat Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#groupchat-creation">GroupChat Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#channel-creation">Channel Creation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#room-listing">Room Listing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#room-list">room.list</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#room-details">Room Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#room-info">room.info</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#joining-rooms">Joining Rooms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#room-join">room.join</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#leaving-rooms">Leaving Rooms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#room-leave">room.leave</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#room-modification">Room Modification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#room-modify">room.modify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#update-room-details">Update Room Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#add-remove-permissions">Add/Remove Permissions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#add-remove-admins-groupchat">Add/Remove Admins (GroupChat)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/room-events.html#add-remove-moderators-channel">Add/Remove Moderators (Channel)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#permission-requirements">Permission Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#error-responses">Error Responses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/room-events.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../websocket/error-codes.html">Error Codes Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#error-response-format">Error Response Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#error-codes-overview">Error Codes Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#authentication-failed">4001: Authentication Failed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#permission-denied">4002: Permission Denied</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#validation-error">4003: Validation Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#resource-not-found">4004: Resource Not Found</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#integrity-error">4005: Integrity Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#internal-server-error">4006: Internal Server Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#error-handling-best-practices">Error Handling Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/error-codes.html#complete-error-handler">Complete Error Handler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../websocket/error-codes.html#user-friendly-error-messages">User-Friendly Error Messages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../websocket/error-codes.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Customization Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#what-can-be-customized">What Can Be Customized?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#customization-levels">Customization Levels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#simple-customization-settings-only">Simple Customization (Settings Only)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#moderate-customization-serializers">Moderate Customization (Serializers)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#advanced-customization-handlers-permissions">Advanced Customization (Handlers/Permissions)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#expert-customization-consumer-models">Expert Customization (Consumer/Models)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#when-to-customize">When to Customize</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#use-default-behavior">Use Default Behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#override-serializers">Override Serializers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#override-event-handlers">Override Event Handlers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#override-permissions">Override Permissions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#override-event-mapper">Override Event Mapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#override-models">Override Models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#customization-strategy">Customization Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#the-principle-of-least-modification">The Principle of Least Modification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#composition-over-replacement">Composition Over Replacement</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#understanding-dependencies">Understanding Dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#serializer-dependencies">Serializer Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#handler-dependencies">Handler Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#permission-dependencies">Permission Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#configuration-best-practices">Configuration Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#organize-settings">Organize Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#document-your-customizations">Document Your Customizations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#test-your-customizations">Test Your Customizations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#common-customization-patterns">Common Customization Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#pattern-1-adding-fields">Pattern 1: Adding Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#pattern-2-external-integration">Pattern 2: External Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#pattern-3-access-control">Pattern 3: Access Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="overview.html#pattern-4-new-events">Pattern 4: New Events</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="serializers.html">Customizing Serializers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#available-serializers">Available Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#why-override-serializers">Why Override Serializers?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#common-reasons">Common Reasons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#basic-override-pattern">Basic Override Pattern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#step-1-create-custom-serializer">Step 1: Create Custom Serializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#step-2-configure-in-settings">Step 2: Configure in Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#step-3-test">Step 3: Test</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#common-customization-examples">Common Customization Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#example-1-add-profile-picture-to-userserializer">Example 1: Add Profile Picture to UserSerializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#example-2-add-priority-field-to-messages">Example 2: Add Priority Field to Messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#example-3-add-room-metadata">Example 3: Add Room Metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#example-4-custom-validation-rules">Example 4: Custom Validation Rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#example-5-filter-sensitive-data">Example 5: Filter Sensitive Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#working-with-polymorphic-serializers">Working with Polymorphic Serializers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#room-polymorphic-serializers">Room Polymorphic Serializers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#context-in-serializers">Context in Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#inherit-from-default">1. Inherit from Default</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#call-parent-methods">2. Call Parent Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#use-serializermethodfield-for-computed-data">3. Use SerializerMethodField for Computed Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#keep-serializers-focused">4. Keep Serializers Focused</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#document-custom-fields">5. Document Custom Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#testing-custom-serializers">Testing Custom Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#performance-considerations">Performance Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#avoid-n-1-queries">Avoid N+1 Queries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#limit-serialized-data">Limit Serialized Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#common-pitfalls">Common Pitfalls</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#pitfall-1-forgetting-to-update-related-serializers">Pitfall 1: Forgetting to Update Related Serializers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#pitfall-2-breaking-required-signatures">Pitfall 2: Breaking Required Signatures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="serializers.html#pitfall-3-not-passing-context">Pitfall 3: Not Passing Context</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="serializers.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">Customizing Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#available-permission-functions">Available Permission Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#complete-function-signatures">Complete Function Signatures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#have-room-permission">have_room_permission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#have-message-permission">have_message_permission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#is-message-sender">is_message_sender</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#have-room-permissions-to-add-or-remove-members">have_room_permissions_to_add_or_remove_members</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#have-send-message-permission">have_send_message_permission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#have-admin-privileges">have_admin_privileges</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#using-decorators">Using Decorators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#common-customization-patterns">Common Customization Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#pattern-1-subscription-tiers">Pattern 1: Subscription Tiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#pattern-2-time-based-access">Pattern 2: Time-Based Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#pattern-3-geographic-restrictions">Pattern 3: Geographic Restrictions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#pattern-4-role-based-access">Pattern 4: Role-Based Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#pattern-5-content-moderation">Pattern 5: Content Moderation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#always-call-default-first">1. Always Call Default First</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#match-return-types">2. Match Return Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#use-database-connection">3. Use Database Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#handle-edge-cases">4. Handle Edge Cases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="permissions.html#log-permission-denials">5. Log Permission Denials</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#testing-custom-permissions">Testing Custom Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="abstract-models.html">Extending with Abstract Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#why-use-abstract-models">Why Use Abstract Models?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#available-abstract-models">Available Abstract Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#abstractmessage">AbstractMessage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#abstractgroupchat">AbstractGroupChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#abstractchannel">AbstractChannel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#abstractonetoonechat">AbstractOneToOneChat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#basic-usage-pattern">Basic Usage Pattern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#step-1-create-custom-model">Step 1: Create Custom Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#step-2-create-custom-serializer">Step 2: Create Custom Serializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#step-3-configure-settings">Step 3: Configure Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#step-4-run-migrations">Step 4: Run Migrations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#complete-examples">Complete Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#example-1-message-with-priority-and-tags">Example 1: Message with Priority and Tags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#example-2-group-chat-with-categories">Example 2: Group Chat with Categories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#example-3-channel-with-subscription-tiers">Example 3: Channel with Subscription Tiers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#advanced-patterns">Advanced Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#pattern-1-timestamped-models-with-soft-delete">Pattern 1: Timestamped Models with Soft Delete</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#pattern-2-searchable-messages">Pattern 2: Searchable Messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#pattern-3-threaded-conversations">Pattern 3: Threaded Conversations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#handling-migrations">Handling Migrations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#initial-migration">Initial Migration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#adding-fields-to-existing-model">Adding Fields to Existing Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#data-migration">Data Migration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#permission-implications">Permission Implications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#testing-custom-models">Testing Custom Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#always-inherit-from-abstract-models">1. Always Inherit from Abstract Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#update-related-components">2. Update Related Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#maintain-compatibility">3. Maintain Compatibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#use-indexes-wisely">4. Use Indexes Wisely</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract-models.html#document-your-extensions">5. Document Your Extensions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="abstract-models.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#connection-issues">Connection Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#websocket-connection-fails">WebSocket Connection Fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#connection-closes-immediately-code-4001">Connection Closes Immediately (Code 4001)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#appregistrynotready-error">AppRegistryNotReady Error</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#redis-connection-errors">Redis Connection Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#cannot-connect-to-redis">Cannot Connect to Redis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#redis-authentication-failed">Redis Authentication Failed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#migration-issues">Migration Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#table-does-not-exist">Table Does Not Exist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#migration-conflicts">Migration Conflicts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#permission-errors">Permission Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#permission-denied-4002">Permission Denied (4002)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#cannot-add-members-to-room">Cannot Add Members to Room</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#validation-errors">Validation Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#maximum-participants-exceeded">Maximum Participants Exceeded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#forwarded-messages-can-t-be-replies">Forwarded Messages Can’t Be Replies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#onetoonechat-must-have-2-participants">OneToOneChat Must Have 2 Participants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#duplicate-onetoonechat">Duplicate OneToOneChat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#message-issues">Message Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#messages-not-appearing">Messages Not Appearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#soft-deleted-messages-still-showing">Soft Deleted Messages Still Showing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#html-tags-being-stripped">HTML Tags Being Stripped</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#performance-issues">Performance Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#slow-message-loading">Slow Message Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#many-rooms-causing-lag">Many Rooms Causing Lag</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#concurrent-connection-issues">Concurrent Connection Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#multiple-devices-not-working">Multiple Devices Not Working</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#debugging-tools">Debugging Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#enable-django-logging">Enable Django Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#browser-devtools">Browser DevTools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#django-shell-testing">Django Shell Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#getting-more-help">Getting More Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#common-error-reference">Common Error Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Django Realtime Chat Messaging</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Member Management</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/shady-cj/django-realtime-chat-messaging/blob/main/docs/source/customization/member-management.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="member-management">
+<h1>Member Management<a class="headerlink" href="#member-management" title="Link to this heading"></a></h1>
+<p>Complete reference for managing room members via WebSocket. These events handle adding and removing users from groups and channels.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Member management events allow:</p>
+<ul class="simple">
+<li><p>Adding users to GroupChat or Channel</p></li>
+<li><p>Removing users from GroupChat or Channel</p></li>
+<li><p>Tracking who performed the action</p></li>
+<li><p>Broadcasting changes to all affected users</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>OneToOneChat has exactly 2 participants and does not support member management events.</p>
+</div>
+</section>
+<section id="adding-members">
+<h2>Adding Members<a class="headerlink" href="#adding-members" title="Link to this heading"></a></h2>
+<section id="room-add-members">
+<h3>room.add_members<a class="headerlink" href="#room-add-members" title="Link to this heading"></a></h3>
+<p>Add users to a GroupChat or Channel.</p>
+<p><strong>Permissions Required:</strong></p>
+<ul class="simple">
+<li><p>Must be room member</p></li>
+<li><p><strong>GroupChat</strong>: Creator, admin, or user with <code class="docutils literal notranslate"><span class="pre">can_add_new_participants</span></code> permission</p></li>
+<li><p><strong>Channel</strong>: Creator, moderator, or user with <code class="docutils literal notranslate"><span class="pre">can_add_new_subscribers</span></code> permission</p></li>
+</ul>
+<p><strong>Request:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;event_type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.add_members&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;data&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;room_id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room-uuid&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// Required</span>
+<span class="w">        </span><span class="s2">&quot;members&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">user_id1</span><span class="p">,</span><span class="w"> </span><span class="nx">user_id2</span><span class="p">,</span><span class="w"> </span><span class="nx">user_id3</span><span class="p">]</span><span class="w">  </span><span class="c1">// Required, array of user IDs</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Response Broadcast:</strong></p>
+<p>All room members (including newly added) receive:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;eventType&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;roomaddmembers.dispatch&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;data&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;room&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Full updated room object with new members</span>
+<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room-uuid&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;GroupChat&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// or &quot;Channel&quot;</span>
+<span class="w">            </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Project Team&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;participants&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w">  </span><span class="c1">// or &quot;subscribers&quot; for Channel</span>
+<span class="w">                </span><span class="p">{</span><span class="cm">/* existing member */</span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span><span class="cm">/* existing member */</span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span><span class="cm">/* newly added member 1 */</span><span class="p">},</span>
+<span class="w">                </span><span class="p">{</span><span class="cm">/* newly added member 2 */</span><span class="p">}</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="c1">// ... other room fields</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="s2">&quot;new_members&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bob&quot;</span><span class="p">],</span><span class="w">  </span><span class="c1">// Usernames of added users</span>
+<span class="w">        </span><span class="s2">&quot;added_by&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;john&quot;</span><span class="w">  </span><span class="c1">// Username of user who added them (or &quot;self&quot; if user joined via room.join)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Examples:</strong></p>
+<p>Add single user:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.add_members&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;123e4567-e89b-12d3-a456-426614174000&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">members</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="mf">42</span><span class="p">]</span><span class="w">  </span><span class="c1">// Single user ID in array</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}));</span>
+</pre></div>
+</div>
+<p>Add multiple users:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.add_members&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room-uuid&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">members</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="mf">10</span><span class="p">,</span><span class="w"> </span><span class="mf">15</span><span class="p">,</span><span class="w"> </span><span class="mf">23</span><span class="p">,</span><span class="w"> </span><span class="mf">45</span><span class="p">]</span><span class="w">  </span><span class="c1">// Multiple user IDs</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}));</span>
+</pre></div>
+</div>
+<p><strong>Frontend Implementation:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">class</span><span class="w"> </span><span class="nx">MemberManager</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">roomId</span><span class="p">,</span><span class="w"> </span><span class="nx">ws</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">roomId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">roomId</span><span class="p">;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ws</span><span class="p">;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">setupListeners</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">setupListeners</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">eventType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;roomaddmembers.dispatch&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">onMembersAdded</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">addMembers</span><span class="p">(</span><span class="nx">userIds</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">            </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.add_members&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">roomId</span><span class="p">,</span>
+<span class="w">                </span><span class="nx">members</span><span class="o">:</span><span class="w"> </span><span class="nx">userIds</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">onMembersAdded</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">room</span><span class="p">,</span><span class="w"> </span><span class="nx">new_members</span><span class="p">,</span><span class="w"> </span><span class="nx">added_by</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// Update UI</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">added_by</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;self&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// User joined themselves</span>
+<span class="w">            </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">new_members</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="si">}</span><span class="sb"> joined the room`</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Someone added users</span>
+<span class="w">            </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">added_by</span><span class="si">}</span><span class="sb"> added </span><span class="si">${</span><span class="nx">new_members</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// Update member list</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">updateMemberList</span><span class="p">(</span><span class="nx">room</span><span class="p">.</span><span class="nx">participants</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">room</span><span class="p">.</span><span class="nx">subscribers</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">updateMemberList</span><span class="p">(</span><span class="nx">members</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Your UI update logic</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Usage</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">manager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">MemberManager</span><span class="p">(</span><span class="nx">currentRoomId</span><span class="p">,</span><span class="w"> </span><span class="nx">ws</span><span class="p">);</span>
+<span class="nx">manager</span><span class="p">.</span><span class="nx">addMembers</span><span class="p">([</span><span class="nx">userId1</span><span class="p">,</span><span class="w"> </span><span class="nx">userId2</span><span class="p">]);</span>
+</pre></div>
+</div>
+<p><strong>Behavior:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Duplicate Prevention</strong>: Users already in room are skipped (no error)</p></li>
+<li><p><strong>Partial Success</strong>: If some users don’t exist, valid users are still added</p></li>
+<li><p><strong>Signal Effects</strong>:
+- New members automatically added to room
+- Admins/moderators get default permissions (via signal)</p></li>
+<li><p><strong>Notifications</strong>: New members receive notification about being added</p></li>
+</ol>
+<p><strong>Constraints:</strong></p>
+<ul class="simple">
+<li><p>Maximum members enforced (<code class="docutils literal notranslate"><span class="pre">max_participants</span></code> or <code class="docutils literal notranslate"><span class="pre">max_subscribers</span></code>)</p></li>
+<li><p>Enforced via signal - raises <code class="docutils literal notranslate"><span class="pre">ValidationError</span></code> if exceeded</p></li>
+<li><p>User IDs must exist in database (404 error if not found)</p></li>
+<li><p>Cannot add to OneToOneChat (raises error)</p></li>
+</ul>
+<p><strong>Error Responses:</strong></p>
+<p>Maximum participants exceeded:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4003</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Maximum number of group participants exceeded&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Permission denied:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4002</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;User is not authorized to add new members to this room&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>User not found:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4004</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;No User matches the given query.&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="removing-members">
+<h2>Removing Members<a class="headerlink" href="#removing-members" title="Link to this heading"></a></h2>
+<section id="room-remove-members">
+<h3>room.remove_members<a class="headerlink" href="#room-remove-members" title="Link to this heading"></a></h3>
+<p>Remove users from a GroupChat or Channel.</p>
+<p><strong>Permissions Required:</strong></p>
+<ul class="simple">
+<li><p>Must be room member</p></li>
+<li><p><strong>GroupChat</strong>: Creator, admin, or user with <code class="docutils literal notranslate"><span class="pre">can_remove_participants</span></code> permission</p></li>
+<li><p><strong>Channel</strong>: Creator, moderator, or user with <code class="docutils literal notranslate"><span class="pre">can_remove_subscribers</span></code> permission</p></li>
+</ul>
+<p><strong>Special Rules:</strong></p>
+<ul class="simple">
+<li><p>Cannot remove room creator (unless they remove themselves)</p></li>
+<li><p>Admins cannot remove other admins (unless they are creator)</p></li>
+<li><p>Moderators cannot remove other moderators (unless they are creator)</p></li>
+</ul>
+<p><strong>Request:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;event_type&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.remove_members&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;data&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;room_id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room-uuid&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// Required</span>
+<span class="w">        </span><span class="s2">&quot;members&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">user_id1</span><span class="p">,</span><span class="w"> </span><span class="nx">user_id2</span><span class="p">]</span><span class="w">  </span><span class="c1">// Required, array of user IDs</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Response to Removed Users:</strong></p>
+<p>Each removed user receives:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;eventType&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;roomexit.dispatch&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;data&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;room&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Room object</span>
+<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room-uuid&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;name&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Project Team&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="c1">// ... other fields</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="s2">&quot;message&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;You have been removed by john&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Response to Remaining Members:</strong></p>
+<p>All remaining room members receive:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;eventType&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;roomremovemembers.dispatch&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;data&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;room&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Updated room object without removed members</span>
+<span class="w">            </span><span class="s2">&quot;id&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room-uuid&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;participants&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w">  </span><span class="c1">// or &quot;subscribers&quot;</span>
+<span class="w">                </span><span class="c1">// Remaining members only</span>
+<span class="w">            </span><span class="p">],</span>
+<span class="w">            </span><span class="c1">// ... other fields</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="s2">&quot;removed_members&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;bob&quot;</span><span class="p">],</span><span class="w">  </span><span class="c1">// Usernames of removed users</span>
+<span class="w">        </span><span class="s2">&quot;removed_by&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;john&quot;</span><span class="w">  </span><span class="c1">// Username of remover (or &quot;self&quot; if voluntary leave)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Examples:</strong></p>
+<p>Remove single user:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.remove_members&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room-uuid&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">members</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="mf">42</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}));</span>
+</pre></div>
+</div>
+<p>Remove multiple users:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.remove_members&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room-uuid&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">members</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="mf">10</span><span class="p">,</span><span class="w"> </span><span class="mf">15</span><span class="p">,</span><span class="w"> </span><span class="mf">23</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}));</span>
+</pre></div>
+</div>
+<p><strong>Frontend Implementation:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">class</span><span class="w"> </span><span class="nx">MemberManager</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// ... previous code ...</span>
+
+<span class="w">    </span><span class="nx">removeMembers</span><span class="p">(</span><span class="nx">userIds</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">            </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.remove_members&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">roomId</span><span class="p">,</span>
+<span class="w">                </span><span class="nx">members</span><span class="o">:</span><span class="w"> </span><span class="nx">userIds</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">setupListeners</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">eventType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;roomremovemembers.dispatch&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">onMembersRemoved</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">eventType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;roomexit.dispatch&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">onSelfRemoved</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">onMembersRemoved</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">room</span><span class="p">,</span><span class="w"> </span><span class="nx">removed_members</span><span class="p">,</span><span class="w"> </span><span class="nx">removed_by</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">;</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">removed_by</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;self&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">removed_members</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="si">}</span><span class="sb"> left the room`</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`</span><span class="si">${</span><span class="nx">removed_by</span><span class="si">}</span><span class="sb"> removed </span><span class="si">${</span><span class="nx">removed_members</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// Update member list</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">updateMemberList</span><span class="p">(</span><span class="nx">room</span><span class="p">.</span><span class="nx">participants</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">room</span><span class="p">.</span><span class="nx">subscribers</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">onSelfRemoved</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Current user was removed</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">message</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// Navigate away or show notification</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">handleRemoval</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">room</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">handleRemoval</span><span class="p">(</span><span class="nx">room</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Redirect to room list or show modal</span>
+<span class="w">        </span><span class="nx">showNotification</span><span class="p">(</span><span class="sb">`You were removed from </span><span class="si">${</span><span class="nx">room</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">navigateToRoomList</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Behavior:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Creator Protection</strong>: Cannot remove creator unless self-removal</p></li>
+<li><p><strong>Partial Removal</strong>: If user tries to remove creator, creator is skipped but others are removed</p></li>
+<li><p><strong>Signal Effects</strong>:
+- Room deleted if no members remain (via signal)
+- Removed users lose all permissions (via signal)</p></li>
+<li><p><strong>Notifications</strong>: Removed users get notification about removal</p></li>
+</ol>
+<p><strong>Constraints:</strong></p>
+<ul class="simple">
+<li><p>Cannot remove from OneToOneChat (2-participant rule)</p></li>
+<li><p>Users not in room are silently skipped</p></li>
+<li><p>Must have at least 1 member remaining (or room is deleted)</p></li>
+</ul>
+<p><strong>Error Responses:</strong></p>
+<p>Permission denied:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4002</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;User is not authorized to remove members from this room&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Invalid room type:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4003</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Invalid room, Can only add or remove members from Groups/Channels&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="member-list-management">
+<h2>Member List Management<a class="headerlink" href="#member-list-management" title="Link to this heading"></a></h2>
+<section id="best-practices">
+<h3>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h3>
+<p><strong>1. Real-Time UI Updates</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">class</span><span class="w"> </span><span class="nx">RoomMemberList</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">roomId</span><span class="p">,</span><span class="w"> </span><span class="nx">ws</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">roomId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">roomId</span><span class="p">;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ws</span><span class="p">;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">members</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">initialize</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Load initial members</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">            </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.info&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">roomId</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}));</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">onRoomInfo</span><span class="p">(</span><span class="nx">room</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">members</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">room</span><span class="p">.</span><span class="nx">participants</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">room</span><span class="p">.</span><span class="nx">subscribers</span><span class="p">;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">onMembersAdded</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Update local state</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">newMembers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">new_members</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">username</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+<span class="w">            </span><span class="nx">username</span><span class="o">:</span><span class="w"> </span><span class="nx">username</span><span class="p">,</span>
+<span class="w">            </span><span class="c1">// ... fetch full user data if needed</span>
+<span class="w">        </span><span class="p">}));</span>
+
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">members</span><span class="p">.</span><span class="nx">push</span><span class="p">(...</span><span class="nx">newMembers</span><span class="p">);</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// Show notification</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">showNotification</span><span class="p">(</span>
+<span class="w">            </span><span class="sb">`</span><span class="si">${</span><span class="nx">data</span><span class="p">.</span><span class="nx">new_members</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span><span class="si">}</span><span class="sb"> joined`</span><span class="p">,</span>
+<span class="w">            </span><span class="s1">&#39;success&#39;</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">onMembersRemoved</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Update local state</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">members</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">members</span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span>
+<span class="w">            </span><span class="nx">m</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="o">!</span><span class="nx">data</span><span class="p">.</span><span class="nx">removed_members</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">m</span><span class="p">.</span><span class="nx">username</span><span class="p">)</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">render</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// Show notification</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">showNotification</span><span class="p">(</span>
+<span class="w">            </span><span class="sb">`</span><span class="si">${</span><span class="nx">data</span><span class="p">.</span><span class="nx">removed_members</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span><span class="si">}</span><span class="sb"> left`</span><span class="p">,</span>
+<span class="w">            </span><span class="s1">&#39;info&#39;</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">render</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">memberList</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;member-list&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">memberList</span><span class="p">.</span><span class="nx">innerHTML</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">members</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="sb">`</span>
+<span class="sb">            &lt;div class=&quot;member&quot;&gt;</span>
+<span class="sb">                &lt;img src=&quot;</span><span class="si">${</span><span class="nx">m</span><span class="p">.</span><span class="nx">avatar</span><span class="si">}</span><span class="sb">&quot; alt=&quot;</span><span class="si">${</span><span class="nx">m</span><span class="p">.</span><span class="nx">username</span><span class="si">}</span><span class="sb">&quot;&gt;</span>
+<span class="sb">                &lt;span&gt;</span><span class="si">${</span><span class="nx">m</span><span class="p">.</span><span class="nx">username</span><span class="si">}</span><span class="sb">&lt;/span&gt;</span>
+<span class="sb">                </span><span class="si">${</span><span class="k">this</span><span class="p">.</span><span class="nx">canRemove</span><span class="p">(</span><span class="nx">m</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="sb">`</span>
+<span class="sb">                    &lt;button onclick=&quot;removeMember(&#39;</span><span class="si">${</span><span class="nx">m</span><span class="p">.</span><span class="nx">id</span><span class="si">}</span><span class="sb">&#39;)&quot;&gt;Remove&lt;/button&gt;</span>
+<span class="sb">                `</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span>
+<span class="sb">            &lt;/div&gt;</span>
+<span class="sb">        `</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">canRemove</span><span class="p">(</span><span class="nx">member</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Check if current user can remove this member</span>
+<span class="w">        </span><span class="c1">// Based on permissions, roles, etc.</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>2. Batch Operations</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Add multiple users at once</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">inviteMultipleUsers</span><span class="p">(</span><span class="nx">userIds</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">userIds</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Single request for efficiency</span>
+<span class="w">    </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.add_members&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="nx">currentRoomId</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">members</span><span class="o">:</span><span class="w"> </span><span class="nx">userIds</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}));</span>
+<span class="p">}</span>
+
+<span class="c1">// Remove multiple users</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">removeMultipleUsers</span><span class="p">(</span><span class="nx">userIds</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">userIds</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Confirm before removing</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">confirm</span><span class="p">(</span><span class="sb">`Remove </span><span class="si">${</span><span class="nx">userIds</span><span class="p">.</span><span class="nx">length</span><span class="si">}</span><span class="sb"> members?`</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">            </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.remove_members&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="nx">currentRoomId</span><span class="p">,</span>
+<span class="w">                </span><span class="nx">members</span><span class="o">:</span><span class="w"> </span><span class="nx">userIds</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}));</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>3. Permission-Based UI</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">class</span><span class="w"> </span><span class="nx">MemberActions</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">currentUser</span><span class="p">,</span><span class="w"> </span><span class="nx">room</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">currentUser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">currentUser</span><span class="p">;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">room</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">canAddMembers</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;OneToOneChat&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;GroupChat&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Check if user is creator, admin, or has permission</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">currentUser</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">creator</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">||</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">admins</span><span class="p">.</span><span class="nx">some</span><span class="p">(</span><span class="nx">a</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">currentUser</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">hasPermission</span><span class="p">(</span><span class="s1">&#39;can_add_new_participants&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;Channel&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">currentUser</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">creator</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">||</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">moderators</span><span class="p">.</span><span class="nx">some</span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">m</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">currentUser</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">hasPermission</span><span class="p">(</span><span class="s1">&#39;can_add_new_subscribers&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">canRemoveMember</span><span class="p">(</span><span class="nx">member</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Cannot remove creator</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">member</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">creator</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">            </span><span class="nx">member</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">currentUser</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// Check permissions similar to canAddMembers</span>
+<span class="w">        </span><span class="c1">// ...</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">hasPermission</span><span class="p">(</span><span class="nx">permissionName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Check if user has specific permission</span>
+<span class="w">        </span><span class="c1">// Query from room.permissions or user.permissions</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Use in UI</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">actions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">MemberActions</span><span class="p">(</span><span class="nx">currentUser</span><span class="p">,</span><span class="w"> </span><span class="nx">room</span><span class="p">);</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">actions</span><span class="p">.</span><span class="nx">canAddMembers</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">showAddMemberButton</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="common-patterns">
+<h2>Common Patterns<a class="headerlink" href="#common-patterns" title="Link to this heading"></a></h2>
+<section id="pattern-1-invite-link-system">
+<h3>Pattern 1: Invite Link System<a class="headerlink" href="#pattern-1-invite-link-system" title="Link to this heading"></a></h3>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Generate invite link (custom implementation)</span>
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">generateInviteLink</span><span class="p">(</span><span class="nx">roomId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">createInviteToken</span><span class="p">(</span><span class="nx">roomId</span><span class="p">,</span><span class="w"> </span><span class="nx">expiresIn</span><span class="o">=</span><span class="s1">&#39;7d&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="sb">`https://app.com/invite/</span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Accept invite</span>
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">acceptInvite</span><span class="p">(</span><span class="nx">inviteToken</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">roomId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">validateInviteToken</span><span class="p">(</span><span class="nx">inviteToken</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">roomId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Join room</span>
+<span class="w">        </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">            </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.join&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// For public channels</span>
+<span class="w">            </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="nx">roomId</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}));</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="pattern-2-member-approval-workflow">
+<h3>Pattern 2: Member Approval Workflow<a class="headerlink" href="#pattern-2-member-approval-workflow" title="Link to this heading"></a></h3>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// User requests to join</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">requestToJoin</span><span class="p">(</span><span class="nx">roomId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/api/join-requests/&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">method</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span><span class="w"> </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="nx">roomId</span><span class="w"> </span><span class="p">})</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">}</span>
+
+<span class="c1">// Admin approves and adds member</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">approveJoinRequest</span><span class="p">(</span><span class="nx">requestId</span><span class="p">,</span><span class="w"> </span><span class="nx">userId</span><span class="p">,</span><span class="w"> </span><span class="nx">roomId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Approve in your system</span>
+<span class="w">    </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`/api/join-requests/</span><span class="si">${</span><span class="nx">requestId</span><span class="si">}</span><span class="sb">/approve/`</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">method</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;POST&#39;</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="c1">// Add to room</span>
+<span class="w">    </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.add_members&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="nx">roomId</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">members</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">userId</span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="pattern-3-bulk-import-from-csv">
+<h3>Pattern 3: Bulk Import from CSV<a class="headerlink" href="#pattern-3-bulk-import-from-csv" title="Link to this heading"></a></h3>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">importMembersFromCSV</span><span class="p">(</span><span class="nx">file</span><span class="p">,</span><span class="w"> </span><span class="nx">roomId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">users</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">parseCSV</span><span class="p">(</span><span class="nx">file</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">userIds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[];</span>
+
+<span class="w">    </span><span class="c1">// Look up user IDs</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">email</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">users</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetch</span><span class="p">(</span><span class="sb">`/api/users/?email=</span><span class="si">${</span><span class="nx">email</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">user</span><span class="p">)</span><span class="w"> </span><span class="nx">userIds</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Add in batches of 50</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">userIds</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mf">50</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">batch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">userIds</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">50</span><span class="p">);</span>
+
+<span class="w">        </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">            </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.add_members&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="nx">roomId</span><span class="p">,</span>
+<span class="w">                </span><span class="nx">members</span><span class="o">:</span><span class="w"> </span><span class="nx">batch</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}));</span>
+
+<span class="w">        </span><span class="c1">// Wait for response before next batch</span>
+<span class="w">        </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForMemberAddResponse</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="issue-member-added-but-not-receiving-messages">
+<h3>Issue: Member Added But Not Receiving Messages<a class="headerlink" href="#issue-member-added-but-not-receiving-messages" title="Link to this heading"></a></h3>
+<p><strong>Cause</strong>: User not connected to WebSocket</p>
+<p><strong>Solution</strong>: Ensure user connects after being added, or system sends notification to connect</p>
+</section>
+<section id="issue-cannot-remove-admin-moderator">
+<h3>Issue: Cannot Remove Admin/Moderator<a class="headerlink" href="#issue-cannot-remove-admin-moderator" title="Link to this heading"></a></h3>
+<p><strong>Cause</strong>: Trying to remove with insufficient permissions</p>
+<p><strong>Solution</strong>:
+- Only creator can remove admins/moderators
+- Or have creator remove admin/moderator role first, then remove as regular member</p>
+</section>
+<section id="issue-room-disappeared-after-removing-last-member">
+<h3>Issue: Room Disappeared After Removing Last Member<a class="headerlink" href="#issue-room-disappeared-after-removing-last-member" title="Link to this heading"></a></h3>
+<p><strong>Cause</strong>: Signal automatically deletes empty rooms</p>
+<p><strong>Solution</strong>: This is expected behavior. If you need to prevent this, override the signal or add a “archived” state instead of deletion</p>
+</section>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><span class="xref std std-doc">room-events</span> - Creating and managing rooms</p></li>
+<li><p><span class="xref std std-doc">message-events</span> - Sending and receiving messages</p></li>
+<li><p><span class="xref std std-doc">error-codes</span> - Complete error reference</p></li>
+<li><p><a class="reference internal" href="permissions.html"><span class="doc">Customizing Permissions</span></a> - Custom member management permissions</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erinfolami Peter (shady-cj).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

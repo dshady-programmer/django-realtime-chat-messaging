@@ -93,3 +93,25 @@ class ExceptionHandler:
                 
         return wrapper
 
+
+
+
+from django.db import connection
+from channels.db import database_sync_to_async
+
+
+def sqlite_safe_db_sync_to_async(func):
+    """
+    Wrapper around database_sync_to_async to ensure db connection to fix
+
+    return self.connection.connection.getlimit(sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    AttributeError: 'NoneType' object has no attribute 'getlimit'
+    """
+
+    @database_sync_to_async
+    def wrapper(*args, **kwargs):
+        connection.ensure_connection()
+        return func(*args, **kwargs)
+    return wrapper
+ 

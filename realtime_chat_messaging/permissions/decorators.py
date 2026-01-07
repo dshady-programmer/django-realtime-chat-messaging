@@ -1,20 +1,21 @@
 from functools import wraps
 from django.core.exceptions import PermissionDenied
 from operator import itemgetter
-from realtime_chat_messaging.utils.settings_util import get_settings
+from realtime_chat_messaging.conf import realtime_chat_settings 
+from realtime_chat_messaging.utils.loader import import_and_verify_type_class
+permissions = realtime_chat_settings.PERMISSION_HANDLER_CLASS
+
+PERMISSION_HANDLER_CLASS = import_and_verify_type_class(permissions, "PERMISSION_HANDLER_CLASS")
+PERMISSION_HANDLER = PERMISSION_HANDLER_CLASS()
+
 
 
 def can_modify_message(method):
     @wraps(method)
     async def wrapper(self, data, *args, **kwargs):
-        realtime_chat_settings = get_settings()
-        permissions = realtime_chat_settings.PERMISSIONS
-        is_message_sender = itemgetter(
-            "is_message_sender",
-        )(permissions)        
 
         message_id = data.get('message_id')
-        is_permitted, room = await is_message_sender(self.user, message_id)
+        is_permitted, room = await PERMISSION_HANDLER.is_message_sender(self.user, message_id)
         if is_permitted:
             return await method(self, data, room=room, *args, **kwargs)
         else:
@@ -25,15 +26,9 @@ def can_modify_message(method):
 def can_access_message(method):
     @wraps(method)
     async def wrapper(self, data, *args, **kwargs):
-        realtime_chat_settings = get_settings()
-        permissions = realtime_chat_settings.PERMISSIONS
-        have_message_permission = itemgetter(
-            "have_message_permission",
-        )(permissions)
-
         message_id = data.get('message_id')
         
-        is_permitted = await have_message_permission(self.user, message_id)
+        is_permitted = await PERMISSION_HANDLER.have_message_permission(self.user, message_id)
         if is_permitted:
             return await method(*args, **kwargs)
         else:
@@ -44,13 +39,8 @@ def can_access_message(method):
 def can_send_message_to_room(method):
     @wraps(method)
     async def wrapper(self, data, *args, **kwargs):
-        realtime_chat_settings = get_settings()
-        permissions = realtime_chat_settings.PERMISSIONS
-        have_send_message_permission = itemgetter(
-            "have_send_message_permission",
-        )(permissions)
-        
-        is_permitted, room = await have_send_message_permission(self.user, data)
+
+        is_permitted, room = await PERMISSION_HANDLER.have_send_message_permission(self.user, data)
         if is_permitted:
             return await method(self, data, room=room, *args, **kwargs)
         else:
@@ -61,15 +51,9 @@ def can_send_message_to_room(method):
 def can_access_room(method):
     @wraps(method)
     async def wrapper(self, data, *args, **kwargs):
-        realtime_chat_settings = get_settings()
-        permissions = realtime_chat_settings.PERMISSIONS
-        have_room_permission = itemgetter(
-            "have_room_permission",
-        )(permissions)
-        
 
         room_id = data.get('room_id')
-        is_permitted, room = await have_room_permission(self.user, room_id)
+        is_permitted, room = await PERMISSION_HANDLER.have_room_permission(self.user, room_id)
         if is_permitted:
             return await method(self, data, room=room, *args, **kwargs)
         else:
@@ -81,14 +65,9 @@ def can_access_room(method):
 def can_add_members_to_room(method):
     @wraps(method)
     async def wrapper(self, data, *args, **kwargs):
-        realtime_chat_settings = get_settings()
-        permissions = realtime_chat_settings.PERMISSIONS
-        have_room_permissions_to_add_or_remove_members = itemgetter(
-            "have_room_permissions_to_add_or_remove_members",
-        )(permissions)
 
         room_id = data.get('room_id')
-        is_permitted, room = await have_room_permissions_to_add_or_remove_members(self.user, room_id, "add_new") 
+        is_permitted, room = await PERMISSION_HANDLER.have_room_permissions_to_add_or_remove_members(self.user, room_id, "add_new") 
         if is_permitted:
             return await method(self, data, room=room, *args, **kwargs)
         else:
@@ -100,15 +79,9 @@ def can_add_members_to_room(method):
 def can_remove_members_from_room(method):
     @wraps(method)
     async def wrapper(self, data, *args, **kwargs):
-        realtime_chat_settings = get_settings()
-        permissions = realtime_chat_settings.PERMISSIONS
-        have_room_permissions_to_add_or_remove_members = itemgetter(
-            "have_room_permissions_to_add_or_remove_members",
-        )(permissions)
-
 
         room_id = data.get('room_id')
-        is_permitted, room = await have_room_permissions_to_add_or_remove_members(self.user, room_id, "remove") 
+        is_permitted, room = await PERMISSION_HANDLER.have_room_permissions_to_add_or_remove_members(self.user, room_id, "remove") 
         if is_permitted:
             return await method(self, data, room=room, *args, **kwargs)
         else:
@@ -121,14 +94,10 @@ def is_room_admin(method):
     @wraps(method)
     async def wrapper(self, data, *args, **kwargs):
 
-        realtime_chat_settings = get_settings()
-        permissions = realtime_chat_settings.PERMISSIONS
-        have_admin_privileges = itemgetter(
-            "have_admin_privileges",
-        )(permissions)
+
 
         room_id = data.get('room_id')
-        is_permitted, room = await have_admin_privileges(self.user, room_id)
+        is_permitted, room = await PERMISSION_HANDLER.have_admin_privileges(self.user, room_id)
         if is_permitted:
             return await method(self, data, room=room, *args, **kwargs)
         else:

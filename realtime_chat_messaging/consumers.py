@@ -3,9 +3,10 @@ from channels.db import database_sync_to_async
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from guardian.utils import get_anonymous_user
-from django.contrib.auth import get_user_model 
-from realtime_chat_messaging.utils.settings_util import get_settings
-from operator import itemgetter
+from django.contrib.auth import get_user_model
+
+from realtime_chat_messaging.conf import realtime_chat_settings 
+from realtime_chat_messaging.utils.loader import import_and_verify_type_class, import_and_verify_type_function
 import json
 from .utils.cache_utils import (
     fetch_user_groups,
@@ -27,6 +28,12 @@ from .permissions.decorators import (
 )
 User = get_user_model()
 
+event_mapper = realtime_chat_settings.EVENT_MAPPER
+event_handler_class = realtime_chat_settings.EVENT_HANDLER_CLASS
+exception_handler_class = realtime_chat_settings.EXCEPTION_HANDLER_CLASS
+enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
+
+
 # 4001: Authentication failed.
 # 4002: Permission failed.
 # 4003: Validation error.
@@ -40,50 +47,6 @@ USER_OWN_GROUP = "user-{user_id}"
 GROUP_STRING = "group-{group_id}"
 
 
-
-"""
-Connection: 
-    connect, 
-    disconnect
-Room Management (8 events): 
-    create_room, 
-    join_room, 
-    leave_room, 
-    fetch_rooms, 
-    fetch_room_details, 
-    add_participant, 
-    remove_participant, 
-    update_room
-Messages (6 events): 
-    send_message, 
-    edit_message, 
-    delete_message, 
-    fetch_messages, 
-    forward_message, 
-    reply_to_message 
-    upload_media, 
-    fetch_media
-Reactions (3 events): 
-    add_reaction, 
-    remove_reaction, 
-    fetch_reactions
-Read Receipts (2 events): 
-    mark_as_read, 
-    fetch_read_receipts
-Notifications (2 events): 
-    fetch_notifications, 
-    mark_notification_read
-Presence (2 events): 
-    typing_indicator, 
-
-
-  modify_room
-    update room,
-    update room preferences,
-    update room member permissions
-    
-
-"""
 """
 dispatch_chat_notification (message, reaction, reply)
 send_message / receive_message (forwarded, reply)
@@ -128,11 +91,9 @@ roomupdate.dispatch
 
 """
 class ChatMessagingConsumer(AsyncWebsocketConsumer):
-    realtime_chat_settings = get_settings()
-    event_mapper = realtime_chat_settings.EVENT_MAPPER
-    handlers = realtime_chat_settings.EVENT_HANDLERS
-    ExceptionHandler = realtime_chat_settings.EXCEPTION_HANDLER_CLASS
 
+    
+    ExceptionHandler = import_and_verify_type_class(exception_handler_class, "EXCEPTION_HANDLER_CLASS")
     async def connect(self):
         
         user = self.scope["user"]
@@ -141,9 +102,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             await self.close(code=4001)  # custom close code
             return
         
+        e_handler = import_and_verify_type_class(event_handler_class, "EVENT_HANDLER_CLASS")
 
-
-        
+        self.EventHandler = e_handler()
         self.user = user
 
         await self.channel_cleanup(user.id)
@@ -151,7 +112,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
         # dispatch all notifications.
-        await self.dispatch_chat_notifications()
+        if enable_notification:
+            await self.dispatch_chat_notifications()
 
     async def disconnect(self, close_code):
         if hasattr(self, "user"):
@@ -161,6 +123,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
 
     async def receive(self, text_data = None, bytes_data = None):
+        EventMapper = import_and_verify_type_function(event_mapper, "EVENT_MAPPER")
         data = json.loads(text_data)
         """
         data : {
@@ -171,7 +134,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
         event_type = data.get("event_type")
-        map_event_type_to_handlers = ChatMessagingConsumer.event_mapper(self)
+        map_event_type_to_handlers = EventMapper(self)
         try:
             await map_event_type_to_handlers[event_type](data.get("data"))
         except KeyError:
@@ -181,12 +144,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @ExceptionHandler.exception_handler_decorator
     async def dispatch_chat_notifications(self):
 
-
-        get_and_group_chat_notifications = itemgetter(
-            "get_and_group_chat_notifications"
-        )(ChatMessagingConsumer.handlers)
-        
-        chat_notifications = await get_and_group_chat_notifications(self.user)
+        chat_notifications = await self.EventHandler.get_and_group_chat_notifications(self.user)
         await self.send_group(
             USER_OWN_GROUP.format(user_id=self.user.id),
             "chat.notifications",
@@ -200,13 +158,12 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         receive_message_send_event
 
         data: {
-            parent_message: <only for reply messages>
+            parent_message_id: <only for reply messages>
             room_id: string/int,
             content: text, 
             extra_fields: {
                 ... 
-                is_forwarded: Boolean,
-                forwarded_from_id: <only if is_forwarded is true>
+                forwarded_from_id: <only if message is forwarded>
 
                 media: [
                     {
@@ -223,12 +180,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         note: extra field value must contain model fields validated by the provided serializer
         """
-        create_message = itemgetter(
-            "create_message"
-        )(ChatMessagingConsumer.handlers)
-        
         room_id = room.id
-        message = await create_message(data, self.user)
+        message = await self.EventHandler.create_message(data, self.user)
         group_string = GROUP_STRING.format(group_id=room_id)
         # print(group_string)
         await self.send_group(group_string, "message.dispatch", message)
@@ -246,11 +199,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             message_id: string/int or List<string/int>,
         }
         """
-        message_acknowledged = itemgetter(
-            "message_acknowledged"
-        )(ChatMessagingConsumer.handlers)
 
-        await message_acknowledged(self.user, data["message_id"])
+        await self.EventHandler.message_acknowledged(self.user, data["message_id"])
 
         await self.send(text_data=json.dumps({"status": "successful"}))
 
@@ -266,11 +216,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
         broadcasts the message/messages with the updated read_receipts
         """
-        create_read_receipt = itemgetter(
-            "create_read_receipt"
-        )(ChatMessagingConsumer.handlers)
 
-        room_id, message = await create_read_receipt(self.user, data["message_id"])
+        room_id, message = await self.EventHandler.create_read_receipt(self.user, data["message_id"])
         
         if room_id:
             if isinstance(room_id, set):
@@ -293,11 +240,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             reaction_content: text
         }
         """
-        react_to_message = itemgetter(
-            "react_to_message"
-        )(ChatMessagingConsumer.handlers)
 
-        response = await react_to_message(data, self.user)
+        response = await self.EventHandler.react_to_message(data, self.user)
         room_id = response['message']['room']['id']
         group_string = GROUP_STRING.format(group_id=room_id)
         # print(group_string)
@@ -334,16 +278,14 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             action: "update" / "delete"
             message_id: string/int (update) / [string/int, string/int] (for delete)
             extra_fields: [
-                content: text (for update action, provide fields to modify)
+                content: text (for update action)
             ]
         }
+        Note: No matter what extra fields are passed only content is updated
         """
 
-        modify_message = itemgetter(
-            "modify_message"
-        )(ChatMessagingConsumer.handlers)
 
-        response = await modify_message(self.user, data)
+        response = await self.EventHandler.modify_message(self.user, data)
         if response:
             group_string = GROUP_STRING.format(group_id=room.id)
             await self.send_group(group_string, "messagemodification.dispatch", response)
@@ -366,11 +308,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             }
         }
         """
-        retreive_messages = itemgetter(
-            "retreive_messages"
-        )(ChatMessagingConsumer.handlers)
 
-        response = await retreive_messages(room, data)
+        response = await self.EventHandler.retreive_messages(room, data)
     
 
         user_group = USER_OWN_GROUP.format(user_id=self.user.id)
@@ -401,11 +340,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
 
-        create_room = itemgetter(
-            "create_room"
-        )(ChatMessagingConsumer.handlers)
 
-        room = await create_room(self.user, data)
+        room = await self.EventHandler.create_room(self.user, data)
 
         members = None
         if "participants" in room:
@@ -432,11 +368,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         
         data: empty
         """
-        list_rooms = itemgetter(
-            "list_rooms"
-        )(ChatMessagingConsumer.handlers)
 
-        rooms = await list_rooms(self.user)
+        rooms = await self.EventHandler.list_rooms(self.user)
 
         await self.send_group(
             USER_OWN_GROUP.format(user_id=self.user.id),
@@ -456,11 +389,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
 
-        retreive_room = itemgetter(
-            "retreive_room"
-        )(ChatMessagingConsumer.handlers)
 
-        room = await retreive_room(room)
+
+        room = await self.EventHandler.retreive_room(room)
 
         
         await self.send_group(
@@ -482,11 +413,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
 
-        add_members_to_room = itemgetter(
-            "add_members_to_room"
-        )(ChatMessagingConsumer.handlers)
 
-        users_added, serialized_room, new_member_usernames = await add_members_to_room(data.get('members'), room)
+
+        users_added, serialized_room, new_member_usernames = await self.EventHandler.add_members_to_room(data.get('members'), room)
         group = GROUP_STRING.format(group_id=room.id)
         for user in users_added:
             await self.add_channel_to_group(group, user.id)
@@ -502,11 +431,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         members: [userIds]
         }
         """
-        remove_members_from_room = itemgetter(
-            "remove_members_from_room"
-        )(ChatMessagingConsumer.handlers)
 
-        users_removed, serialized_room, removed_member_usernames = await remove_members_from_room(data.get('members'), room, self.user)
+
+        users_removed, serialized_room, removed_member_usernames = await self.EventHandler.remove_members_from_room(data.get('members'), room, self.user)
         group = GROUP_STRING.format(group_id=room.id) 
         for user in users_removed:
             await self.discard_channel_from_group(group, user.id)
@@ -526,11 +453,9 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             room_id: string
         }
         """
-        leave_room = itemgetter(
-            "leave_room"
-        )(ChatMessagingConsumer.handlers)
 
-        serialized_room = await leave_room(self.user, room)
+
+        serialized_room = await self.EventHandler.leave_room(self.user, room)
 
         group = GROUP_STRING.format(group_id=room.id)
         user_group = USER_OWN_GROUP.format(user_id=self.user.id)
@@ -550,11 +475,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             room_id: string
         }
         """
-        join_room = itemgetter(
-            "join_room"
-        )(ChatMessagingConsumer.handlers)
 
-        serialized_room = await join_room(self.user, data.get('room_id'))
+        serialized_room = await self.EventHandler.join_room(self.user, data.get('room_id'))
 
         group = GROUP_STRING.format(group_id=serialized_room["id"])
         await self.add_channel_to_group(group)
@@ -573,13 +495,18 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             action: "update" / "add_permission" /  "remove_permission" / "add_moderator" / "add_admin" / "remove_moderator" / "remove_admin"
             data: {
                 ...
+                users: []
+                permissions: [] <Must be valid permission based on the type of room you're modifying
             }
         }
+         
+         
+         
+        Note: if you have a different model for Room/GroupChat/Channel other than the default provided
+        you should rewrite your modify_room. See docs to implement this properly
         """
-        modify_room = itemgetter(
-            "modify_room"
-        )(ChatMessagingConsumer.handlers)
-        room_data = await modify_room(self.user, data, room)
+
+        room_data = await self.EventHandler.modify_room(self.user, data, room)
         group = GROUP_STRING.format(group_id=room.id)
         await self.send_group(group, "roomupdate.dispatch", room_data)
 

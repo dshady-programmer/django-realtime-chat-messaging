@@ -4,21 +4,22 @@ from django.contrib.auth import get_user_model
 from django.db.models import F,Q
 import uuid
 from polymorphic.models import PolymorphicModel
-from .types import ALLOWED_MIME_TYPES, MEDIATYPE_CHOICES, NOTIFICATION_TYPE
-from .model_mixins import AbstractChannel, AbstractGroupChat, AbstractMessage, AbstractOneToOneChat
+from .types import ALLOWED_MIME_TYPES, MEDIATYPE_CHOICES
+from .model_mixins import (
+    AbstractRoom, AbstractChannel, AbstractGroupChat, 
+    AbstractMessage, AbstractOneToOneChat, 
+    AbstractReadReceipt, AbstractReaction, 
+    AbstractChatNotification, AbstractMessageMediaAsset
+)
 
 User = get_user_model()
 
 
 
-class Room(PolymorphicModel):
+class Room(PolymorphicModel, AbstractRoom):
     """Generic models for all chat types"""
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     preferences = models.JSONField(default=dict)
-    last_message = models.ForeignKey('Message', on_delete=models.SET_NULL, related_name="message_room", null=True, blank=True, default=None)
-    
+  
 
 
 class OneToOneChat(Room, AbstractOneToOneChat):
@@ -28,7 +29,6 @@ class OneToOneChat(Room, AbstractOneToOneChat):
 
 class GroupChat(Room, AbstractGroupChat):
     admins = models.ManyToManyField(User, related_name="groups_moderated")
-    participants = models.ManyToManyField(User, related_name="groups_in")
     max_participants = models.PositiveBigIntegerField(default=100)
     avatar = models.URLField(null=True, blank=True)
     join_approval_required = models.BooleanField(default=False)
@@ -41,7 +41,6 @@ class GroupChat(Room, AbstractGroupChat):
         ]
 
 class Channel(Room, AbstractChannel):
-    subscribers = models.ManyToManyField(User, related_name="channels_subscribed")
     is_public = models.BooleanField(default=False)
     avatar = models.URLField(null=True, blank=True)
     moderators = models.ManyToManyField(User, related_name="channels_moderated")
@@ -78,23 +77,14 @@ class Message(AbstractMessage):
         ]
 
 
-class ReadReceipt(models.Model):
-
-    """
-    Optional: 
-        you can enable read receipts in settings
-    """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="read_receipts")
-    reader = models.ForeignKey(User, on_delete=models.CASCADE)
-    read_at = models.DateTimeField(auto_now_add=True)
+class ReadReceipt(AbstractReadReceipt):
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['message', 'reader'], name='unique_read_receipts'),
         ]
 
-class ChatNotification(models.Model):
+class ChatNotification(AbstractChatNotification):
     """
     Optional:
         you can enable notifications in settings.
@@ -109,30 +99,20 @@ class ChatNotification(models.Model):
 
         This way notifications aren't created for every user, instead notifications are created per message basis
     """
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    recipients = models.ManyToManyField(User, related_name='unread_messages')
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='notifications')
-    notification_type = models.CharField(max_length=64, choices=NOTIFICATION_TYPE, default=NOTIFICATION_TYPE[1][0])
+    pass
 
 
 
-class Reaction(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="reactions")
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reactions")
-    reaction_content = models.TextField(max_length=128)
-    created_at = models.DateTimeField(auto_now_add=True)
+class Reaction(AbstractReaction):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['message', 'user'], name='unique_reaction'),
         ]
 
 
-class MessageMediaAsset(models.Model):
+class MessageMediaAsset(AbstractMessageMediaAsset):
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="attachments")
+
     media_url = models.CharField() # This is the external link — not the file itself
     media_type = models.CharField(max_length=64, choices=MEDIATYPE_CHOICES)
     file_size = models.PositiveBigIntegerField(default=0)

@@ -1,0 +1,1472 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Error Codes Reference &mdash; Django Realtime Chat Messaging 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=7ecde127" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Customization Overview" href="../customization/overview.html" />
+    <link rel="prev" title="Room Events" href="room-events.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Django Realtime Chat Messaging
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#requirements">Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#system-requirements">System Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-the-package">Installing the Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#using-pip">Using pip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#using-poetry">Using Poetry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#using-pipenv">Using pipenv</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#development-installation">Development Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#installing-redis">Installing Redis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#ubuntu-debian">Ubuntu/Debian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#macos">macOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#windows">Windows</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#verifying-installation">Verifying Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#test-redis-connection">Test Redis Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#test-package-import">Test Package Import</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#virtual-environment-setup">Virtual Environment Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#dependencies-overview">Dependencies Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#next-steps">Next Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#common-installation-issues">Common Installation Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#dependency-version-compatibility">Dependency Version Compatibility</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../installation.html#tested-configurations">Tested Configurations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#upgrading">Upgrading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation.html#uninstalling">Uninstalling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-1-add-to-installed-apps">Step 1: Add to INSTALLED_APPS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-2-configure-asgi-application">Step 2: Configure ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-3-set-asgi-application">Step 3: Set ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-4-configure-channel-layers">Step 4: Configure Channel Layers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#development-setup-in-memory">Development Setup (In-Memory)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#production-setup-redis">Production Setup (Redis)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-5-configure-guardian">Step 5: Configure Guardian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-6-run-migrations">Step 6: Run Migrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-7-create-superuser-optional">Step 7: Create Superuser (Optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#step-8-start-the-development-server">Step 8: Start the Development Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#testing-your-setup">Testing Your Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#verify-channel-layer-connection">Verify Channel Layer Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#websocket-connection-url">WebSocket Connection URL</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#creating-your-first-chat-room">Creating Your First Chat Room</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#via-django-shell">Via Django Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#via-django-admin">Via Django Admin</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#frontend-integration-preview">Frontend Integration Preview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#what-s-next">What’s Next?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#server-won-t-start">Server Won’t Start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#websocket-connection-fails">WebSocket Connection Fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#redis-connection-issues">Redis Connection Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#migration-errors">Migration Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#appregistrynotready-error">AppRegistryNotReady Error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../quickstart.html#authentication-failed-4001">Authentication Failed (4001)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../quickstart.html#production-deployment-preview">Production Deployment Preview</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../understanding-room-types.html">Understanding Room Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#the-three-room-types">The Three Room Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#onetoonechat-direct-messaging">OneToOneChat: Direct Messaging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#model-structure">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#creating-a-onetoonechat">Creating a OneToOneChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#permissions">Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#groupchat-multi-user-discussions">GroupChat: Multi-User Discussions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#id1">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#creating-a-groupchat">Creating a GroupChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#group-locking">Group Locking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#permissions-hierarchy">Permissions Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#granting-custom-permissions">Granting Custom Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#channel-broadcast-communication">Channel: Broadcast Communication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#id2">Model Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#creating-a-channel">Creating a Channel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#public-vs-private-channels">Public vs Private Channels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#id3">Permissions Hierarchy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#granting-posting-permissions">Granting Posting Permissions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#choosing-the-right-room-type">Choosing the Right Room Type</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#decision-tree">Decision Tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#comparison-table">Comparison Table</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#common-patterns">Common Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#whatsapp-style-setup">WhatsApp-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#slack-style-setup">Slack-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#discord-style-setup">Discord-Style Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#telegram-style-setup">Telegram-Style Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#advanced-polymorphic-queries">Advanced: Polymorphic Queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#room-lifecycle">Room Lifecycle</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#creation">Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#deletion">Deletion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../understanding-room-types.html#signals-in-action">Signals in Action</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../understanding-room-types.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../authentication-setup.html">Authentication Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#authentication-requirement">Authentication Requirement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#available-authentication-methods">Available Authentication Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#method-1-session-authentication-default">Method 1: Session Authentication (Default)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#how-it-works">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#frontend-usage">Frontend Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#pros-and-cons">Pros and Cons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#method-2-jwt-authentication">Method 2: JWT Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id1">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id2">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id3">Frontend Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#token-refresh-handling">Token Refresh Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id4">Pros and Cons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#method-3-token-authentication">Method 3: Token Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id5">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id6">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id7">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id8">Frontend Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#method-4-custom-authentication">Method 4: Custom Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id9">How It Works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#id10">Frontend Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#testing-authentication">Testing Authentication</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#test-in-django-shell">Test in Django Shell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#test-with-browser-devtools">Test with Browser DevTools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#security-best-practices">Security Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#session-authentication">Session Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#jwt-authentication">JWT Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#general-security">General Security</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#connection-closes-immediately-code-4001">Connection Closes Immediately (Code 4001)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#invalid-token-format">Invalid Token Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#cors-issues">CORS Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../authentication-setup.html#session-not-persisting">Session Not Persisting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../authentication-setup.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">WebSocket API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="message-events.html">Message Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="message-events.html#event-structure">Event Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="message-events.html#message-sending">Message Sending</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="message-events.html#message-send">message.send</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="message-events.html#message-modification">Message Modification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="message-events.html#message-modify">message.modify</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="message-events.html#message-reactions">Message Reactions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="message-events.html#message-react">message.react</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="message-events.html#typing-indicators">Typing Indicators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="message-events.html#message-typing">message.typing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="message-events.html#read-receipts">Read Receipts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="message-events.html#message-read">message.read</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="message-events.html#message-delivery">Message Delivery</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="message-events.html#message-acknowledged">message.acknowledged</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="message-events.html#retrieving-messages">Retrieving Messages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="message-events.html#room-messages">room.messages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="message-events.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="message-events.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="room-events.html">Room Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="room-events.html#room-creation">Room Creation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#room-create">room.create</a></li>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#onetoonechat-creation">OneToOneChat Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#groupchat-creation">GroupChat Creation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#channel-creation">Channel Creation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="room-events.html#room-listing">Room Listing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#room-list">room.list</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="room-events.html#room-details">Room Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#room-info">room.info</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="room-events.html#joining-rooms">Joining Rooms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#room-join">room.join</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="room-events.html#leaving-rooms">Leaving Rooms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#room-leave">room.leave</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="room-events.html#room-modification">Room Modification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#room-modify">room.modify</a></li>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#update-room-details">Update Room Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#add-remove-permissions">Add/Remove Permissions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#add-remove-admins-groupchat">Add/Remove Admins (GroupChat)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="room-events.html#add-remove-moderators-channel">Add/Remove Moderators (Channel)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="room-events.html#permission-requirements">Permission Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="room-events.html#error-responses">Error Responses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="room-events.html#complete-example">Complete Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="room-events.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Error Codes Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#error-response-format">Error Response Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#error-codes-overview">Error Codes Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#authentication-failed">4001: Authentication Failed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#permission-denied">4002: Permission Denied</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#validation-error">4003: Validation Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#resource-not-found">4004: Resource Not Found</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integrity-error">4005: Integrity Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#internal-server-error">4006: Internal Server Error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#error-handling-best-practices">Error Handling Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#complete-error-handler">Complete Error Handler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#user-friendly-error-messages">User-Friendly Error Messages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../customization/overview.html">Customization Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../customization/overview.html#what-can-be-customized">What Can Be Customized?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/overview.html#customization-levels">Customization Levels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#simple-customization-settings-only">Simple Customization (Settings Only)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#moderate-customization-serializers">Moderate Customization (Serializers)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#advanced-customization-handlers-permissions">Advanced Customization (Handlers/Permissions)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#expert-customization-consumer-models">Expert Customization (Consumer/Models)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/overview.html#when-to-customize">When to Customize</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#use-default-behavior">Use Default Behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#override-serializers">Override Serializers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#override-event-handlers">Override Event Handlers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#override-permissions">Override Permissions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#override-event-mapper">Override Event Mapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#override-models">Override Models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/overview.html#customization-strategy">Customization Strategy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#the-principle-of-least-modification">The Principle of Least Modification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#composition-over-replacement">Composition Over Replacement</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/overview.html#understanding-dependencies">Understanding Dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#serializer-dependencies">Serializer Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#handler-dependencies">Handler Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#permission-dependencies">Permission Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/overview.html#configuration-best-practices">Configuration Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#organize-settings">Organize Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#document-your-customizations">Document Your Customizations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#test-your-customizations">Test Your Customizations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/overview.html#common-customization-patterns">Common Customization Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#pattern-1-adding-fields">Pattern 1: Adding Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#pattern-2-external-integration">Pattern 2: External Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#pattern-3-access-control">Pattern 3: Access Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/overview.html#pattern-4-new-events">Pattern 4: New Events</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/overview.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../customization/serializers.html">Customizing Serializers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../customization/serializers.html#available-serializers">Available Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/serializers.html#why-override-serializers">Why Override Serializers?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#common-reasons">Common Reasons</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/serializers.html#basic-override-pattern">Basic Override Pattern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#step-1-create-custom-serializer">Step 1: Create Custom Serializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#step-2-configure-in-settings">Step 2: Configure in Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#step-3-test">Step 3: Test</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/serializers.html#common-customization-examples">Common Customization Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#example-1-add-profile-picture-to-userserializer">Example 1: Add Profile Picture to UserSerializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#example-2-add-priority-field-to-messages">Example 2: Add Priority Field to Messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#example-3-add-room-metadata">Example 3: Add Room Metadata</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#example-4-custom-validation-rules">Example 4: Custom Validation Rules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#example-5-filter-sensitive-data">Example 5: Filter Sensitive Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/serializers.html#working-with-polymorphic-serializers">Working with Polymorphic Serializers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#room-polymorphic-serializers">Room Polymorphic Serializers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/serializers.html#context-in-serializers">Context in Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/serializers.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#inherit-from-default">1. Inherit from Default</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#call-parent-methods">2. Call Parent Methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#use-serializermethodfield-for-computed-data">3. Use SerializerMethodField for Computed Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#keep-serializers-focused">4. Keep Serializers Focused</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#document-custom-fields">5. Document Custom Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/serializers.html#testing-custom-serializers">Testing Custom Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/serializers.html#performance-considerations">Performance Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#avoid-n-1-queries">Avoid N+1 Queries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#limit-serialized-data">Limit Serialized Data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/serializers.html#common-pitfalls">Common Pitfalls</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#pitfall-1-forgetting-to-update-related-serializers">Pitfall 1: Forgetting to Update Related Serializers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#pitfall-2-breaking-required-signatures">Pitfall 2: Breaking Required Signatures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/serializers.html#pitfall-3-not-passing-context">Pitfall 3: Not Passing Context</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/serializers.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../customization/event-handlers.html">Customizing Event Handlers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../customization/event-handlers.html#available-event-handlers">Available Event Handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/event-handlers.html#complete-function-signatures">Complete Function Signatures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#get-and-group-chat-notifications">get_and_group_chat_notifications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#create-message">create_message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#react-to-message">react_to_message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#message-acknowledged">message_acknowledged</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#modify-message">modify_message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#create-read-receipt">create_read_receipt</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#create-room">create_room</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#list-rooms">list_rooms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#retreive-room">retreive_room</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#retreive-messages">retreive_messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#modify-room">modify_room</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#add-members-to-room">add_members_to_room</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#remove-members-from-room">remove_members_from_room</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#leave-room">leave_room</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#join-room">join_room</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/event-handlers.html#common-customization-patterns">Common Customization Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#pattern-1-pre-processing">Pattern 1: Pre-Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#pattern-2-post-processing">Pattern 2: Post-Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#pattern-3-wrapping-with-error-handling">Pattern 3: Wrapping with Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#pattern-4-conditional-logic">Pattern 4: Conditional Logic</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/event-handlers.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#always-use-database-sync-to-async">1. Always Use &#64;database_sync_to_async</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#call-default-when-possible">2. Call Default When Possible</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#match-function-signatures">3. Match Function Signatures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#handle-errors-gracefully">4. Handle Errors Gracefully</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/event-handlers.html#ensure-database-connection">5. Ensure Database Connection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/event-handlers.html#testing-custom-handlers">Testing Custom Handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/event-handlers.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../customization/permissions.html">Customizing Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../customization/permissions.html#available-permission-functions">Available Permission Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/permissions.html#complete-function-signatures">Complete Function Signatures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#have-room-permission">have_room_permission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#have-message-permission">have_message_permission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#is-message-sender">is_message_sender</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#have-room-permissions-to-add-or-remove-members">have_room_permissions_to_add_or_remove_members</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#have-send-message-permission">have_send_message_permission</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#have-admin-privileges">have_admin_privileges</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/permissions.html#using-decorators">Using Decorators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/permissions.html#common-customization-patterns">Common Customization Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#pattern-1-subscription-tiers">Pattern 1: Subscription Tiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#pattern-2-time-based-access">Pattern 2: Time-Based Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#pattern-3-geographic-restrictions">Pattern 3: Geographic Restrictions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#pattern-4-role-based-access">Pattern 4: Role-Based Access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#pattern-5-content-moderation">Pattern 5: Content Moderation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/permissions.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/permissions.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#always-call-default-first">1. Always Call Default First</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#match-return-types">2. Match Return Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#use-database-connection">3. Use Database Connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#handle-edge-cases">4. Handle Edge Cases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/permissions.html#log-permission-denials">5. Log Permission Denials</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/permissions.html#testing-custom-permissions">Testing Custom Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/permissions.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../customization/abstract-models.html">Extending with Abstract Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../customization/abstract-models.html#why-use-abstract-models">Why Use Abstract Models?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/abstract-models.html#available-abstract-models">Available Abstract Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#abstractmessage">AbstractMessage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#abstractgroupchat">AbstractGroupChat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#abstractchannel">AbstractChannel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#abstractonetoonechat">AbstractOneToOneChat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/abstract-models.html#basic-usage-pattern">Basic Usage Pattern</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#step-1-create-custom-model">Step 1: Create Custom Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#step-2-create-custom-serializer">Step 2: Create Custom Serializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#step-3-configure-settings">Step 3: Configure Settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#step-4-run-migrations">Step 4: Run Migrations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/abstract-models.html#complete-examples">Complete Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#example-1-message-with-priority-and-tags">Example 1: Message with Priority and Tags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#example-2-group-chat-with-categories">Example 2: Group Chat with Categories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#example-3-channel-with-subscription-tiers">Example 3: Channel with Subscription Tiers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/abstract-models.html#advanced-patterns">Advanced Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#pattern-1-timestamped-models-with-soft-delete">Pattern 1: Timestamped Models with Soft Delete</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#pattern-2-searchable-messages">Pattern 2: Searchable Messages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#pattern-3-threaded-conversations">Pattern 3: Threaded Conversations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/abstract-models.html#handling-migrations">Handling Migrations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#initial-migration">Initial Migration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#adding-fields-to-existing-model">Adding Fields to Existing Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#data-migration">Data Migration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/abstract-models.html#permission-implications">Permission Implications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/abstract-models.html#testing-custom-models">Testing Custom Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/abstract-models.html#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#always-inherit-from-abstract-models">1. Always Inherit from Abstract Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#update-related-components">2. Update Related Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#maintain-compatibility">3. Maintain Compatibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#use-indexes-wisely">4. Use Indexes Wisely</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../customization/abstract-models.html#document-your-extensions">5. Document Your Extensions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../customization/abstract-models.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Resources</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#connection-issues">Connection Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#websocket-connection-fails">WebSocket Connection Fails</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#connection-closes-immediately-code-4001">Connection Closes Immediately (Code 4001)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#appregistrynotready-error">AppRegistryNotReady Error</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#redis-connection-errors">Redis Connection Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#cannot-connect-to-redis">Cannot Connect to Redis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#redis-authentication-failed">Redis Authentication Failed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#migration-issues">Migration Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#table-does-not-exist">Table Does Not Exist</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#migration-conflicts">Migration Conflicts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#permission-errors">Permission Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#permission-denied-4002">Permission Denied (4002)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#cannot-add-members-to-room">Cannot Add Members to Room</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#validation-errors">Validation Errors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#maximum-participants-exceeded">Maximum Participants Exceeded</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#forwarded-messages-can-t-be-replies">Forwarded Messages Can’t Be Replies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#onetoonechat-must-have-2-participants">OneToOneChat Must Have 2 Participants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#duplicate-onetoonechat">Duplicate OneToOneChat</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#message-issues">Message Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#messages-not-appearing">Messages Not Appearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#soft-deleted-messages-still-showing">Soft Deleted Messages Still Showing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#html-tags-being-stripped">HTML Tags Being Stripped</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#performance-issues">Performance Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#slow-message-loading">Slow Message Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#many-rooms-causing-lag">Many Rooms Causing Lag</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#concurrent-connection-issues">Concurrent Connection Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#multiple-devices-not-working">Multiple Devices Not Working</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#debugging-tools">Debugging Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#enable-django-logging">Enable Django Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#browser-devtools">Browser DevTools</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../troubleshooting.html#django-shell-testing">Django Shell Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#getting-more-help">Getting More Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#common-error-reference">Common Error Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../troubleshooting.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Django Realtime Chat Messaging</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Error Codes Reference</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/shady-cj/django-realtime-chat-messaging/blob/main/docs/source/websocket/error-codes.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="error-codes-reference">
+<h1>Error Codes Reference<a class="headerlink" href="#error-codes-reference" title="Link to this heading"></a></h1>
+<p>Complete reference for all error codes returned by Django Realtime Chat Messaging WebSocket API.</p>
+<section id="error-response-format">
+<h2>Error Response Format<a class="headerlink" href="#error-response-format" title="Link to this heading"></a></h2>
+<p>All errors follow this structure:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4003</span><span class="p">,</span><span class="w">                    </span><span class="c1">// Error code (4001-4006)</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Error message here&quot;</span><span class="w">   </span><span class="c1">// Human-readable description</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="error-codes-overview">
+<h2>Error Codes Overview<a class="headerlink" href="#error-codes-overview" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%" />
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Code</p></th>
+<th class="head"><p>Name</p></th>
+<th class="head"><p>Meaning</p></th>
+<th class="head"><p>Common Causes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>4001</p></td>
+<td><p>Authentication Failed</p></td>
+<td><p>User not authenticated</p></td>
+<td><p>Not logged in, token expired</p></td>
+</tr>
+<tr class="row-odd"><td><p>4002</p></td>
+<td><p>Permission Denied</p></td>
+<td><p>User lacks permission</p></td>
+<td><p>Not room member, insufficient role</p></td>
+</tr>
+<tr class="row-even"><td><p>4003</p></td>
+<td><p>Validation Error</p></td>
+<td><p>Invalid data</p></td>
+<td><p>Missing fields, constraint violation</p></td>
+</tr>
+<tr class="row-odd"><td><p>4004</p></td>
+<td><p>Resource Not Found</p></td>
+<td><p>Resource doesn’t exist</p></td>
+<td><p>Room/message/user not found</p></td>
+</tr>
+<tr class="row-even"><td><p>4005</p></td>
+<td><p>Integrity Error</p></td>
+<td><p>Database constraint</p></td>
+<td><p>Duplicate chat, foreign key error</p></td>
+</tr>
+<tr class="row-odd"><td><p>4006</p></td>
+<td><p>Internal Server Error</p></td>
+<td><p>Unexpected error</p></td>
+<td><p>Server bug, database issue</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="authentication-failed">
+<h2>4001: Authentication Failed<a class="headerlink" href="#authentication-failed" title="Link to this heading"></a></h2>
+<p><strong>Meaning:</strong> User is not authenticated or authentication is invalid.</p>
+<p><strong>When It Happens:</strong></p>
+<ul class="simple">
+<li><p>WebSocket connection attempt with anonymous user</p></li>
+<li><p>Session expired</p></li>
+<li><p>JWT token expired or invalid</p></li>
+<li><p>Token not provided</p></li>
+</ul>
+<p><strong>Connection Behavior:</strong></p>
+<p>When authentication fails on connection, the WebSocket closes immediately with code 4001:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">ws</span><span class="p">.</span><span class="nx">onclose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">4001</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Authentication failed&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Redirect to login or refresh token</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p><strong>Examples:</strong></p>
+<p>No token provided:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Trying to connect without authentication</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s1">&#39;ws://localhost:8000/messaging/&#39;</span><span class="p">);</span>
+<span class="c1">// Connection closes with code 4001</span>
+</pre></div>
+</div>
+<p>Expired JWT token:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Token expired</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;expired-jwt-token&#39;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="sb">`ws://localhost:8000/messaging/?token=</span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="c1">// Connection closes with code 4001</span>
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<ol class="arabic">
+<li><p><strong>For Session Auth:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Ensure user is logged in</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">isUserLoggedIn</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/login/&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Then connect</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s1">&#39;ws://localhost:8000/messaging/&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>For JWT Auth:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span><span class="w"> </span><span class="nx">connectWithToken</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">localStorage</span><span class="p">.</span><span class="nx">getItem</span><span class="p">(</span><span class="s1">&#39;access_token&#39;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Check if token is expired</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">isTokenExpired</span><span class="p">(</span><span class="nx">token</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Refresh token</span>
+<span class="w">        </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">refreshAccessToken</span><span class="p">();</span>
+<span class="w">        </span><span class="nx">localStorage</span><span class="p">.</span><span class="nx">setItem</span><span class="p">(</span><span class="s1">&#39;access_token&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">token</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span>
+<span class="w">        </span><span class="sb">`ws://localhost:8000/messaging/?token=</span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">    </span><span class="p">);</span>
+
+<span class="w">    </span><span class="nx">ws</span><span class="p">.</span><span class="nx">onclose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">4001</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Token refresh failed, re-login</span>
+<span class="w">            </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/login/&#39;</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Auto-Reconnect with Token Refresh:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">connectWithAutoRefresh</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">getValidToken</span><span class="p">();</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span>
+<span class="w">            </span><span class="sb">`ws://localhost:8000/messaging/?token=</span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">`</span>
+<span class="w">        </span><span class="p">);</span>
+
+<span class="w">        </span><span class="nx">ws</span><span class="p">.</span><span class="nx">onclose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">4001</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// Try to refresh and reconnect</span>
+<span class="w">                </span><span class="k">await</span><span class="w"> </span><span class="nx">refreshAccessToken</span><span class="p">();</span>
+<span class="w">                </span><span class="nx">setTimeout</span><span class="p">(</span><span class="nx">connectWithAutoRefresh</span><span class="p">,</span><span class="w"> </span><span class="mf">1000</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">};</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">ws</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Refresh failed, redirect to login</span>
+<span class="w">        </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/login/&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="permission-denied">
+<h2>4002: Permission Denied<a class="headerlink" href="#permission-denied" title="Link to this heading"></a></h2>
+<p><strong>Meaning:</strong> User authenticated but lacks required permissions.</p>
+<p><strong>When It Happens:</strong></p>
+<ul class="simple">
+<li><p>Not a room member</p></li>
+<li><p>Insufficient role (not admin/moderator)</p></li>
+<li><p>Missing object-level permission</p></li>
+<li><p>Trying to access another user’s private data</p></li>
+<li><p>Room-specific restrictions (locked group, channel posting)</p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<p>Not a room member:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4002</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;User is not authorized access this room&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Cannot send to channel:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4002</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;User is not authorized to send message to this room&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Cannot add members:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4002</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;User is not authorized to add new members to this room&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Cannot modify message:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4002</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;User is not authorized to modify this message&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Not a room admin:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4002</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;User is not an admin of this room&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<ol class="arabic">
+<li><p><strong>Check Membership:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">sendMessage</span><span class="p">(</span><span class="nx">roomId</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Check if user is room member first</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">isMember</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">checkRoomMembership</span><span class="p">(</span><span class="nx">roomId</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">isMember</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">showError</span><span class="p">(</span><span class="s1">&#39;You must join this room first&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;message.send&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="nx">roomId</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="nx">content</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Request Permission:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span><span class="w"> </span><span class="nx">handlePermissionError</span><span class="p">(</span><span class="nx">error</span><span class="p">,</span><span class="w"> </span><span class="nx">roomId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">4002</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;not authorized to send message&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">showModal</span><span class="p">(</span>
+<span class="w">                </span><span class="s1">&#39;You need posting permission&#39;</span><span class="p">,</span>
+<span class="w">                </span><span class="s1">&#39;Ask a moderator to grant you posting rights&#39;</span>
+<span class="w">            </span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;not authorized access this room&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">showModal</span><span class="p">(</span>
+<span class="w">                </span><span class="s1">&#39;Access Denied&#39;</span><span class="p">,</span>
+<span class="w">                </span><span class="s1">&#39;Ask an admin to add you to this room&#39;</span>
+<span class="w">            </span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>UI Based on Permissions:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">class</span><span class="w"> </span><span class="nx">RoomUI</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">room</span><span class="p">,</span><span class="w"> </span><span class="nx">currentUser</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">room</span><span class="p">;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">currentUser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">currentUser</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">render</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Show/hide based on permissions</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">canSendMessages</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">showMessageInput</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">showReadOnlyNotice</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">canAddMembers</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">showAddMemberButton</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">canModifyRoom</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">showSettingsButton</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">canSendMessages</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;Channel&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">currentUser</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">creator</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">||</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">moderators</span><span class="p">.</span><span class="nx">some</span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">m</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">currentUser</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">hasPermission</span><span class="p">(</span><span class="s1">&#39;can_send_messages&#39;</span><span class="p">)</span>
+<span class="w">            </span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;GroupChat&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">group_locked</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">currentUser</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">creator</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">||</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">room</span><span class="p">.</span><span class="nx">admins</span><span class="p">.</span><span class="nx">some</span><span class="p">(</span><span class="nx">a</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">a</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">currentUser</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+<span class="w">            </span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">hasPermission</span><span class="p">(</span><span class="nx">perm</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Check user&#39;s permissions for this room</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="validation-error">
+<h2>4003: Validation Error<a class="headerlink" href="#validation-error" title="Link to this heading"></a></h2>
+<p><strong>Meaning:</strong> Request data is invalid or violates business rules.</p>
+<p><strong>When It Happens:</strong></p>
+<ul class="simple">
+<li><p>Missing required fields</p></li>
+<li><p>Invalid data types</p></li>
+<li><p>Constraint violations (max participants, message length)</p></li>
+<li><p>Business rule violations (forwarded message can’t be reply)</p></li>
+<li><p>Invalid choice values</p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<p>Missing required field:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4003</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">&quot;room_id&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;This field is required.&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Maximum participants exceeded:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4003</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Maximum number of group participants exceeded&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Invalid message:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4003</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="s2">&quot;content&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;This field may not be blank.&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Invalid room type:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4003</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Invalid type&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Constraint violation:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4003</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;A one to one chat can only have 2 participants&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<ol class="arabic">
+<li><p><strong>Validate Before Sending:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span><span class="w"> </span><span class="nx">sendMessage</span><span class="p">(</span><span class="nx">roomId</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Client-side validation</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">content</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">content</span><span class="p">.</span><span class="nx">trim</span><span class="p">().</span><span class="nx">length</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">showError</span><span class="p">(</span><span class="s1">&#39;Message cannot be empty&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">content</span><span class="p">.</span><span class="nx">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">5000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">showError</span><span class="p">(</span><span class="s1">&#39;Message too long (max 5000 characters)&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;message.send&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="nx">roomId</span><span class="p">,</span><span class="w"> </span><span class="nx">content</span><span class="o">:</span><span class="w"> </span><span class="nx">content</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Handle Field Errors:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span><span class="w"> </span><span class="nx">handleValidationError</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Field-specific errors</span>
+<span class="w">        </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">).</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">field</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">const</span><span class="w"> </span><span class="nx">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">[</span><span class="nx">field</span><span class="p">];</span>
+<span class="w">            </span><span class="nx">showFieldError</span><span class="p">(</span><span class="nx">field</span><span class="p">,</span><span class="w"> </span><span class="nx">errors</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">));</span>
+<span class="w">        </span><span class="p">});</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// General validation error</span>
+<span class="w">        </span><span class="nx">showError</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Respect Constraints:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">addMembers</span><span class="p">(</span><span class="nx">roomId</span><span class="p">,</span><span class="w"> </span><span class="nx">userIds</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">room</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">getRoomInfo</span><span class="p">(</span><span class="nx">roomId</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Check max participants</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">currentCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">room</span><span class="p">.</span><span class="nx">participants</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">newCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">currentCount</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">userIds</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">newCount</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">room</span><span class="p">.</span><span class="nx">max_participants</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">showError</span><span class="p">(</span>
+<span class="w">            </span><span class="sb">`Cannot add </span><span class="si">${</span><span class="nx">userIds</span><span class="p">.</span><span class="nx">length</span><span class="si">}</span><span class="sb"> members. `</span><span class="w"> </span><span class="o">+</span>
+<span class="w">            </span><span class="sb">`Room has </span><span class="si">${</span><span class="nx">currentCount</span><span class="si">}</span><span class="sb">/</span><span class="si">${</span><span class="nx">room</span><span class="p">.</span><span class="nx">max_participants</span><span class="si">}</span><span class="sb"> members.`</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.add_members&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="nx">roomId</span><span class="p">,</span><span class="w"> </span><span class="nx">members</span><span class="o">:</span><span class="w"> </span><span class="nx">userIds</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}));</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="resource-not-found">
+<h2>4004: Resource Not Found<a class="headerlink" href="#resource-not-found" title="Link to this heading"></a></h2>
+<p><strong>Meaning:</strong> Requested resource doesn’t exist in database.</p>
+<p><strong>When It Happens:</strong></p>
+<ul class="simple">
+<li><p>Room ID doesn’t exist</p></li>
+<li><p>Message ID doesn’t exist</p></li>
+<li><p>User ID doesn’t exist</p></li>
+<li><p>Deleted resource</p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<p>Room not found:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4004</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;No Room matches the given query.&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Message not found:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4004</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;No Message matches the given query.&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>User not found:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4004</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;No User matches the given query.&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<ol class="arabic">
+<li><p><strong>Validate IDs:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">loadRoom</span><span class="p">(</span><span class="nx">roomId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">            </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.info&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">room_id</span><span class="o">:</span><span class="w"> </span><span class="nx">roomId</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}));</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">4004</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">showError</span><span class="p">(</span><span class="s1">&#39;Room not found&#39;</span><span class="p">);</span>
+<span class="w">            </span><span class="nx">navigateToRoomList</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Handle Deletion:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Listen for room deletion</span>
+<span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">4004</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="s1">&#39;Room&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">showNotification</span><span class="p">(</span><span class="s1">&#39;This room was deleted&#39;</span><span class="p">);</span>
+<span class="w">            </span><span class="nx">navigateToRoomList</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Cache Validation:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">class</span><span class="w"> </span><span class="nx">RoomCache</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kr">constructor</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">rooms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Map</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">async</span><span class="w"> </span><span class="nx">getRoom</span><span class="p">(</span><span class="nx">roomId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Check cache</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">rooms</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">roomId</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">rooms</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">roomId</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="c1">// Fetch from server</span>
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">const</span><span class="w"> </span><span class="nx">room</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">fetchRoomInfo</span><span class="p">(</span><span class="nx">roomId</span><span class="p">);</span>
+<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="nx">rooms</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="nx">roomId</span><span class="p">,</span><span class="w"> </span><span class="nx">room</span><span class="p">);</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">room</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">4004</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// Remove from cache if deleted</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">rooms</span><span class="p">.</span><span class="ow">delete</span><span class="p">(</span><span class="nx">roomId</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="nx">error</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="integrity-error">
+<h2>4005: Integrity Error<a class="headerlink" href="#integrity-error" title="Link to this heading"></a></h2>
+<p><strong>Meaning:</strong> Database integrity constraint violated.</p>
+<p><strong>When It Happens:</strong></p>
+<ul class="simple">
+<li><p>Duplicate OneToOneChat between same users</p></li>
+<li><p>Unique constraint violations</p></li>
+<li><p>Foreign key violations</p></li>
+<li><p>Constraint check failures</p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<p>Duplicate chat:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4005</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Chat already exists&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<ol class="arabic">
+<li><p><strong>Check Before Creating:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">startChatWithUser</span><span class="p">(</span><span class="nx">userId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Check if chat already exists</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">existingChat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">findExistingChat</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">existingChat</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">navigateToRoom</span><span class="p">(</span><span class="nx">existingChat</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Create new chat</span>
+<span class="w">    </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;room.create&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">             </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;OneToOneChat&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">participants</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">userId</span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}));</span>
+<span class="p">}</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">findExistingChat</span><span class="p">(</span><span class="nx">userId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">rooms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">getRoomList</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">rooms</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">room</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">        </span><span class="nx">room</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;OneToOneChat&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">        </span><span class="nx">room</span><span class="p">.</span><span class="nx">peer</span><span class="p">.</span><span class="nx">id</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">userId</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Handle Duplicates Gracefully:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">4005</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;Chat already exists&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Fetch existing chat instead</span>
+<span class="w">            </span><span class="nx">fetchExistingChatAndNavigate</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="internal-server-error">
+<h2>4006: Internal Server Error<a class="headerlink" href="#internal-server-error" title="Link to this heading"></a></h2>
+<p><strong>Meaning:</strong> Unexpected error occurred on server.</p>
+<p><strong>When It Happens:</strong></p>
+<ul class="simple">
+<li><p>Server bug</p></li>
+<li><p>Database connection error</p></li>
+<li><p>Unhandled exception</p></li>
+<li><p>Configuration error</p></li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="s2">&quot;error&quot;</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s2">&quot;code&quot;</span><span class="o">:</span><span class="w"> </span><span class="mf">4006</span><span class="p">,</span>
+<span class="w">        </span><span class="s2">&quot;detail&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Internal server error.&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Solutions:</strong></p>
+<ol class="arabic">
+<li><p><strong>Retry Logic:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">sendWithRetry</span><span class="p">(</span><span class="nx">eventType</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">maxRetries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">let</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">maxRetries</span><span class="p">;</span><span class="w"> </span><span class="nx">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">ws</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">                </span><span class="nx">event_type</span><span class="o">:</span><span class="w"> </span><span class="nx">eventType</span><span class="p">,</span>
+<span class="w">                </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span>
+<span class="w">            </span><span class="p">}));</span>
+
+<span class="w">            </span><span class="c1">// Wait for response</span>
+<span class="w">            </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">waitForResponse</span><span class="p">();</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">4006</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">maxRetries</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="c1">// Wait before retry</span>
+<span class="w">                    </span><span class="k">await</span><span class="w"> </span><span class="nx">sleep</span><span class="p">(</span><span class="mf">1000</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1</span><span class="p">));</span>
+<span class="w">                    </span><span class="k">continue</span><span class="p">;</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nx">response</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">i</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">maxRetries</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">1</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="nx">error</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Error Reporting:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span><span class="w"> </span><span class="nx">handleInternalError</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Log to external service</span>
+<span class="w">    </span><span class="nx">Sentry</span><span class="p">.</span><span class="nx">captureException</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;WebSocket Internal Error&#39;</span><span class="p">),</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">extra</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="nx">error</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">()</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="c1">// Show user-friendly message</span>
+<span class="w">    </span><span class="nx">showError</span><span class="p">(</span>
+<span class="w">        </span><span class="s1">&#39;Something went wrong. Please try again later.&#39;</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="error-handling-best-practices">
+<h2>Error Handling Best Practices<a class="headerlink" href="#error-handling-best-practices" title="Link to this heading"></a></h2>
+<section id="complete-error-handler">
+<h3>Complete Error Handler<a class="headerlink" href="#complete-error-handler" title="Link to this heading"></a></h3>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">class</span><span class="w"> </span><span class="nx">WebSocketErrorHandler</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kr">constructor</span><span class="p">(</span><span class="nx">ws</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">ws</span><span class="p">;</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">setupListeners</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">setupListeners</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ws</span><span class="p">.</span><span class="nx">onmessage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">handleError</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">error</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">};</span>
+
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="nx">ws</span><span class="p">.</span><span class="nx">onclose</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="nx">handleClose</span><span class="p">(</span><span class="nx">event</span><span class="p">);</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">handleError</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">code</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="mf">4001</span><span class="o">:</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">handleAuthError</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+<span class="w">                </span><span class="k">break</span><span class="p">;</span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="mf">4002</span><span class="o">:</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">handlePermissionError</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+<span class="w">                </span><span class="k">break</span><span class="p">;</span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="mf">4003</span><span class="o">:</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">handleValidationError</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+<span class="w">                </span><span class="k">break</span><span class="p">;</span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="mf">4004</span><span class="o">:</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">handleNotFoundError</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+<span class="w">                </span><span class="k">break</span><span class="p">;</span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="mf">4005</span><span class="o">:</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">handleIntegrityError</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+<span class="w">                </span><span class="k">break</span><span class="p">;</span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="mf">4006</span><span class="o">:</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">handleInternalError</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+<span class="w">                </span><span class="k">break</span><span class="p">;</span>
+<span class="w">            </span><span class="k">default</span><span class="o">:</span>
+<span class="w">                </span><span class="k">this</span><span class="p">.</span><span class="nx">handleUnknownError</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">handleAuthError</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Authentication failed:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">);</span>
+<span class="w">        </span><span class="nb">window</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">href</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;/login/&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">handlePermissionError</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s1">&#39;Permission denied:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">showNotification</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;warning&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">handleValidationError</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s1">&#39;Validation error:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">);</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="ow">typeof</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;object&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Field errors</span>
+<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="nx">displayFieldErrors</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">showNotification</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;error&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">handleNotFoundError</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s1">&#39;Resource not found:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">showNotification</span><span class="p">(</span><span class="s1">&#39;Resource not found&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;error&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">handleIntegrityError</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="s1">&#39;Integrity error:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">showNotification</span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;error&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">handleInternalError</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Internal server error:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">detail</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">Sentry</span><span class="p">.</span><span class="nx">captureException</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">showNotification</span><span class="p">(</span>
+<span class="w">            </span><span class="s1">&#39;Something went wrong. Please try again.&#39;</span><span class="p">,</span>
+<span class="w">            </span><span class="s1">&#39;error&#39;</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">handleUnknownError</span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Unknown error:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">);</span>
+<span class="w">        </span><span class="nx">Sentry</span><span class="p">.</span><span class="nx">captureException</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">handleClose</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">code</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">4001</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="nx">handleAuthError</span><span class="p">({</span><span class="w"> </span><span class="nx">detail</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Authentication failed&#39;</span><span class="w"> </span><span class="p">});</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;WebSocket closed:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">event</span><span class="p">.</span><span class="nx">code</span><span class="p">,</span><span class="w"> </span><span class="nx">event</span><span class="p">.</span><span class="nx">reason</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="nx">displayFieldErrors</span><span class="p">(</span><span class="nx">fieldErrors</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">Object</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">fieldErrors</span><span class="p">).</span><span class="nx">forEach</span><span class="p">(</span><span class="nx">field</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kd">const</span><span class="w"> </span><span class="nx">errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">fieldErrors</span><span class="p">[</span><span class="nx">field</span><span class="p">];</span>
+<span class="w">            </span><span class="nx">showFieldError</span><span class="p">(</span><span class="nx">field</span><span class="p">,</span><span class="w"> </span><span class="nx">errors</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">));</span>
+<span class="w">        </span><span class="p">});</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Usage</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">ws</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocket</span><span class="p">(</span><span class="s1">&#39;ws://localhost:8000/messaging/&#39;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">errorHandler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">WebSocketErrorHandler</span><span class="p">(</span><span class="nx">ws</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="user-friendly-error-messages">
+<h3>User-Friendly Error Messages<a class="headerlink" href="#user-friendly-error-messages" title="Link to this heading"></a></h3>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span><span class="w"> </span><span class="nx">getUserFriendlyMessage</span><span class="p">(</span><span class="nx">errorCode</span><span class="p">,</span><span class="w"> </span><span class="nx">detail</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">messages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="mf">4001</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Please log in to continue&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="mf">4002</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;You don\&#39;t have permission for this action&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="mf">4003</span><span class="o">:</span><span class="w"> </span><span class="nx">detail</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;Invalid input. Please check your data&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="mf">4004</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;This item no longer exists&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="mf">4005</span><span class="o">:</span><span class="w"> </span><span class="nx">detail</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;This action conflicts with existing data&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="mf">4006</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Something went wrong. Please try again later&#39;</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">messages</span><span class="p">[</span><span class="nx">errorCode</span><span class="p">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;An error occurred&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="message-events.html"><span class="doc">Message Events</span></a> - Message event reference</p></li>
+<li><p><a class="reference internal" href="room-events.html"><span class="doc">Room Events</span></a> - Room event reference</p></li>
+<li><p><a class="reference internal" href="../troubleshooting.html"><span class="doc">Troubleshooting</span></a> - Troubleshooting guide</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="room-events.html" class="btn btn-neutral float-left" title="Room Events" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../customization/overview.html" class="btn btn-neutral float-right" title="Customization Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Erinfolami Peter (shady-cj).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

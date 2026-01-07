@@ -154,13 +154,6 @@ Documentation Contents
    understanding-room-types
    authentication-setup
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Use Case Guides
-
-   guides/whatsapp-style
-   guides/slack-style
-   guides/discord-style
 
 .. toctree::
    :maxdepth: 2
@@ -172,14 +165,6 @@ Documentation Contents
    websocket/member-management
    websocket/error-codes
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Frontend Integration
-
-   frontend/javascript-examples
-   frontend/event-payloads
-   frontend/best-practices
-   frontend/reconnection-handling
 
 .. toctree::
    :maxdepth: 2
@@ -190,17 +175,9 @@ Documentation Contents
    customization/event-handlers
    customization/permissions
    customization/abstract-models
+   customization/member-management
    customization/settings-reference
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Advanced Topics
-
-   advanced/file-uploads
-   advanced/push-notifications
-   advanced/scaling
-   advanced/deployment
-   advanced/monitoring
 
 .. toctree::
    :maxdepth: 2
@@ -216,8 +193,8 @@ Documentation Contents
    :maxdepth: 1
    :caption: Additional Resources
 
+   configuration
    troubleshooting
-   faq
    contributing
    changelog
 

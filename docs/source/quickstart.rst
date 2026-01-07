@@ -340,11 +340,7 @@ Now that you have the basics working, explore:
 - :doc:`understanding-room-types` - Learn about OneToOne, Group, and Channel differences
 - :doc:`authentication-setup` - Configure JWT, session, or custom authentication
 
-**Use Case Guides**
 
-- :doc:`guides/whatsapp-style` - Build WhatsApp-like one-to-one chat
-- :doc:`guides/slack-style` - Implement Slack-style team communication
-- :doc:`guides/discord-style` - Create Discord-style public channels
 
 **WebSocket Events**
 
@@ -471,4 +467,3 @@ For production, use an ASGI server like Daphne or Uvicorn:
    pip install uvicorn
    uvicorn yourproject.asgi:application --host 0.0.0.0 --port 8000
 
-See :doc:`advanced/deployment` for complete production deployment guide.
