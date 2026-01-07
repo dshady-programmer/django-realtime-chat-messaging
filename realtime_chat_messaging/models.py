@@ -19,13 +19,15 @@ User = settings.AUTH_USER_MODEL
 class Room(PolymorphicModel, AbstractRoom):
     """Generic models for all chat types"""
     preferences = models.JSONField(default=dict)
+
+    class Meta:
+        swappable = 'REALTIME_CHAT_MESSAGING_ROOM_MODEL'
   
 
 
 class OneToOneChat(Room, AbstractOneToOneChat):
-    pass
-
-
+    class Meta:
+        swappable = 'REALTIME_CHAT_MESSAGING_ONETOONECHAT_MODEL'
 
 class GroupChat(Room, AbstractGroupChat):
     admins = models.ManyToManyField(User, related_name="groups_moderated")
@@ -39,6 +41,7 @@ class GroupChat(Room, AbstractGroupChat):
             ("can_add_new_participants", "Can add new participants"),
             ("can_remove_participants", "Can remove participants")
         ]
+        swappable = 'REALTIME_CHAT_MESSAGING_GROUPCHAT_MODEL'
 
 class Channel(Room, AbstractChannel):
     is_public = models.BooleanField(default=False)
@@ -52,6 +55,7 @@ class Channel(Room, AbstractChannel):
             ("can_remove_subscribers", "Can remove subscribers"), 
             ("can_send_messages", "Can send messages"),
         ]
+        swappable = 'REALTIME_CHAT_MESSAGING_CHANNEL_MODEL'
 
     
 
@@ -75,6 +79,7 @@ class Message(AbstractMessage):
                 name="forwarded_messages_cant_be_replies"
             )
         ]
+        swappable = 'REALTIME_CHAT_MESSAGING_MESSAGE_MODEL'
 
 
 class ReadReceipt(AbstractReadReceipt):
@@ -83,23 +88,27 @@ class ReadReceipt(AbstractReadReceipt):
         constraints = [
             models.UniqueConstraint(fields=['message', 'reader'], name='unique_read_receipts'),
         ]
+        swappable = 'REALTIME_CHAT_MESSAGING_READRECEIPT_MODEL'
+
+
 
 class ChatNotification(AbstractChatNotification):
     """
     Optional:
-        you can enable notifications in settings.
+        you can enable notifications in settings. (ENABLE_NOTIFICATION)
 
     ChatNotification serves as a way to track undelivered messages, you can integrate with push notification services like firebase, aws sns etc..
 
     How it works: 
         When a message is sent to a room (OneToOneChat, GroupChat, Channel) a chat notication is created
-        recipients would all the participants for OneToOneChat, GroupChat, Channel
-        For each message read event that happens the user who opens the message would be removed from the recipient list 
+        `recipients` would be all the participants of the room(OneToOneChat, GroupChat, Channel)
+        For each message delivered event that happens the user who gets the message would be removed from the recipient list 
         When there's no more user left in the recipients list, the notification would be deleted.
 
-        This way notifications aren't created for every user, instead notifications are created per message basis
+        With this approach notifications are created per message basis
     """
-    pass
+    class Meta:
+        swappable = 'REALTIME_CHAT_MESSAGING_CHATNOTIFICATION_MODEL'
 
 
 
@@ -108,6 +117,7 @@ class Reaction(AbstractReaction):
         constraints = [
             models.UniqueConstraint(fields=['message', 'user'], name='unique_reaction'),
         ]
+        swappable = 'REALTIME_CHAT_MESSAGING_REACTION_MODEL'
 
 
 class MessageMediaAsset(AbstractMessageMediaAsset):
@@ -122,12 +132,13 @@ class MessageMediaAsset(AbstractMessageMediaAsset):
     
 
     class Meta:
-         constraints = [
+        constraints = [
             models.CheckConstraint(
                 condition=Q(mime_type__in=ALLOWED_MIME_TYPES),
                 name="valid_mime_type"
             )
         ]
+        swappable = 'REALTIME_CHAT_MESSAGING_MESSAGEMEDIAASSET_MODEL'
     """
     metadata samples
     for video note

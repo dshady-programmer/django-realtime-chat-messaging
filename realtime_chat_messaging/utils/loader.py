@@ -4,6 +4,7 @@ from django.core.exceptions import ImproperlyConfigured
 from rest_framework import serializers
 from django.db import models
 from channels.db import database_sync_to_async
+from django.apps import apps
 
 
 def import_and_verify_type_class(klass, klass_repr):
@@ -25,3 +26,6 @@ def import_and_verify_type_function(func, func_repr):
     if not inspect.isfunction(func) and not isinstance(func, database_sync_to_async):
         raise ImproperlyConfigured(f"{func_repr} should be a function")
     return func
+
+def import_model(model_str):
+    apps.get_model(model_str)

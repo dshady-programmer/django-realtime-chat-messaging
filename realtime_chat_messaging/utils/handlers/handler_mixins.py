@@ -1,7 +1,7 @@
 from realtime_chat_messaging.utils.decorators import sqlite_safe_db_sync_to_async
 from .helper_mixins import MessageHelperMixins, RoomHelperMixins, ChatNotificationHelperMixins
 from realtime_chat_messaging.conf import realtime_chat_settings
-from realtime_chat_messaging.utils.loader import import_and_verify_type_class
+from realtime_chat_messaging.utils.loader import import_model
 from operator import itemgetter
 models = realtime_chat_settings.MODELS
 
@@ -12,15 +12,10 @@ class ChatNotificationHandlerMixin(ChatNotificationHelperMixins):
         "ChatNotification",
         "Message"
     )(models)
-    ChatNotification = import_and_verify_type_class(
-        _ChatNotification,
-        "ChatNotification"
-    )
-    Message = import_and_verify_type_class(
-        _Message,
-        "Message"
-    )
 
+    ChatNotification = import_model(_ChatNotification)
+    Message = import_model(_Message)
+    
 
 
     @sqlite_safe_db_sync_to_async
@@ -126,6 +121,6 @@ class RoomHandlerMixin(RoomHelperMixins):
         return self._join_room(user, room_id)
     
     @sqlite_safe_db_sync_to_async
-    def modify_room(self, user, data, room):
-        return self._modify_room(user, data, room)
+    def modify_room(self, data, room):
+        return self._modify_room(data, room)
 

@@ -5,7 +5,7 @@ from collections import defaultdict
 from django.db.models import Prefetch, Q
 from django.core.paginator import Paginator
 from guardian.shortcuts import remove_perm, assign_perm
-from realtime_chat_messaging.utils.loader import import_and_verify_type_class, import_and_verify_type_function
+from realtime_chat_messaging.utils.loader import import_and_verify_type_class, import_model
 from realtime_chat_messaging.conf import realtime_chat_settings 
 from django.contrib.auth import get_user_model
 
@@ -16,7 +16,6 @@ soft_delete = realtime_chat_settings.MESSAGE_SOFT_DELETE
 enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
 
 (
-
     _RoomListPolymorphicSerializer,
     _RoomPolymorphicSerializer,
     _ReactionSerializer,
@@ -40,7 +39,6 @@ enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
     _Channel,
     _Message,
     _ReadReceipt,
-    _ChatNotification,
     _Reaction,
 ) = itemgetter(
         "Room",
@@ -49,25 +47,34 @@ enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
         "Channel",
         "Message",
         "ReadReceipt",
-        "ChatNotification",
         "Reaction",
     )(models)
+
+
+
 
 class MessageHelperMixins:
     """
     Message handler helper mixins
     Functionality can be extended
     """
- 
+    
+    # models
+    Message = import_model(_Message)
+    ReadReceipt = import_model(_ReadReceipt)
+    Reaction = import_model(_Reaction)
+
+
+    # serializers
+    MessageSerializer = import_and_verify_type_class(_MessageSerializer, "MessageSerializer")
+    ReactionSerializer = import_and_verify_type_class(_ReactionSerializer, "ReactionSerializer")
+    MessageMediaAssetSerializer = import_and_verify_type_class(
+        _MessageMediaAssetSerializer,
+        "MessageMediaAssetSerializer"
+    )
+
+    
     def _create_message(self, data, user):
-        MessageSerializer = import_and_verify_type_class(
-            _MessageSerializer,
-            "MessageSerializer",
-        )
-        MessageMediaAssetSerializer = import_and_verify_type_class(
-            _MessageMediaAssetSerializer,
-            "MessageMediaAssetSerializer"
-        )
 
         create_chat_notification = self.create_chat_notification
 
@@ -91,7 +98,7 @@ class MessageHelperMixins:
         if "forwarded_from_id" in new_data:
             new_data['is_forwarded'] = True        
 
-        serializer = MessageSerializer(data=new_data)
+        serializer = MessageHelperMixins.MessageSerializer(data=new_data)
         serializer.is_valid(raise_exception=True)
         message = serializer.save()
         if hasattr(message.room, 'last_message'):
@@ -101,28 +108,25 @@ class MessageHelperMixins:
         if media:
             for file in media:
                 file.update({"message_id": message.id})   
-            media_asset = MessageMediaAssetSerializer(data = media, many=True)
+            media_asset = MessageHelperMixins.MessageMediaAssetSerializer(data = media, many=True)
             media_asset.is_valid(raise_exception=True)
             media = media_asset.save()
         
         if enable_notification:
             create_chat_notification(message, message_type, user)
-        message_serializer = MessageSerializer(message)
+        message_serializer = MessageHelperMixins.MessageSerializer(message)
         return message_serializer.data
     
 
     def _react_to_message(self, data, user):
-        Reaction = import_and_verify_type_class(_Reaction, "Reaction")
-        Message = import_and_verify_type_class(_Message, "Message")
-        MessageSerializer = import_and_verify_type_class(_MessageSerializer, "MessageSerializer")
-        ReactionSerializer = import_and_verify_type_class(_ReactionSerializer, "ReactionSerializer")
+
         create_chat_notification = create_chat_notification = self.create_chat_notification
 
         type = data.pop('type') if 'type' in data else None
         response = None
         if type == 'remove':
             message_id = data.pop('message_id')
-            reaction = Reaction.objects.filter(message__id=message_id, user=user)
+            reaction = MessageHelperMixins.Reaction.objects.filter(message__id=message_id, user=user)
             status = None
             if reaction.exists():
                 reaction.delete()
@@ -130,10 +134,10 @@ class MessageHelperMixins:
             else:
                 status = "failed"
             try:
-                message = get_object_or_404(Message.objects.prefetch_related('delivered_to'), pk=message_id)
+                message = get_object_or_404(MessageHelperMixins.Message.objects.prefetch_related('delivered_to'), pk=message_id)
             except AttributeError:
-                message = get_object_or_404(Message, pk=message_id)
-            serialized_message = MessageSerializer(message).data
+                message = get_object_or_404(MessageHelperMixins.Message, pk=message_id)
+            serialized_message = MessageHelperMixins.MessageSerializer(message).data
             response = {
                 "status": status,
                 "message": serialized_message,
@@ -144,12 +148,12 @@ class MessageHelperMixins:
             data["user_id"] = user.id
             message_id = data.pop("message_id")
             data["message"] = message_id
-            serializer = ReactionSerializer(data=data)
+            serializer = MessageHelperMixins.ReactionSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             instance = serializer.save()
             if enable_notification:
                 create_chat_notification(instance.message, "REACTION", user)
-            message_serializer = MessageSerializer(instance.message)
+            message_serializer = MessageHelperMixins.MessageSerializer(instance.message)
             response = {"status": "successful", "type": type, "message": message_serializer.data}
         else:
             raise ValidationError('invalid reaction type')
@@ -171,18 +175,15 @@ class MessageHelperMixins:
     @staticmethod
     def _modify_message(data):
 
-        Message = import_and_verify_type_class(_Message, "Message")
-        MessageSerializer = import_and_verify_type_class(_MessageSerializer, "MessageSerializer")
-
         action = data.get('action')
         message_ids = data.get('message_id')
         if action == "delete":
             if not isinstance(message_ids, list):
                 message_ids = [message_ids]
             if soft_delete:
-                Message.objects.filter(pk__in=message_ids).update(is_deleted=True)
+                MessageHelperMixins.Message.objects.filter(pk__in=message_ids).update(is_deleted=True)
             else:
-                Message.objects.filter(pk__in=message_ids).delete() 
+                MessageHelperMixins.Message.objects.filter(pk__in=message_ids).delete() 
             return {"status": "successful", "action": "delete", "message_ids": message_ids}
         elif action == "update":
             message_id = None
@@ -192,13 +193,13 @@ class MessageHelperMixins:
                 message_id = message_ids[0]
             else:
                 message_id = message_ids
-            message = get_object_or_404(Message.objects.prefetch_related('delivered_to'), pk=message_id)
+            message = get_object_or_404(MessageHelperMixins.Message.objects.prefetch_related('delivered_to'), pk=message_id)
             content = data.get('extra_fields').get('content')
             if content:
-                serializer = MessageSerializer(instance=message, data={"content": content, "is_edited": True}, partial=True)
+                serializer = MessageHelperMixins.MessageSerializer(instance=message, data={"content": content, "is_edited": True}, partial=True)
                 serializer.is_valid(raise_exception=True)
                 instance = serializer.save()
-                serialized_message = MessageSerializer(instance)
+                serialized_message = MessageHelperMixins.MessageSerializer(instance)
                 return {"status": "successful", "action": "update", "message": serialized_message.data}
             else:
                 raise ValidationError("Content should be provided for update action")
@@ -210,22 +211,18 @@ class MessageHelperMixins:
     @staticmethod
     def _create_read_receipt(user, message_id):
 
-        Message = import_and_verify_type_class(_Message, "Message")
-        ReadReceipt = import_and_verify_type_class(_ReadReceipt, "ReadReceipt")
-        MessageSerializer = import_and_verify_type_class(_MessageSerializer, "MessageSerializer")
-
         if isinstance(message_id, list):
             try:
-                messages = Message.objects.filter(id__in=message_id).exclude(sender=user).prefetch_related('delivered_to').distinct()
+                messages = MessageHelperMixins.Message.objects.filter(id__in=message_id).exclude(sender=user).prefetch_related('delivered_to').distinct()
             except AttributeError:
-                 messages = Message.objects.filter(id__in=message_id).exclude(sender=user).distinct()
+                 messages = MessageHelperMixins.Message.objects.filter(id__in=message_id).exclude(sender=user).distinct()
             room_ids = set()
             receipts = []
             for message in messages:
                 room_ids.add(str(message.room.id))
-                receipts.append(ReadReceipt(message=message, reader=user))
-            ReadReceipt.objects.bulk_create(receipts)
-            serializer = MessageSerializer(messages, many=True)
+                receipts.append(MessageHelperMixins.ReadReceipt(message=message, reader=user))
+            MessageHelperMixins.ReadReceipt.objects.bulk_create(receipts)
+            serializer = MessageHelperMixins.MessageSerializer(messages, many=True)
             rooms = defaultdict(list)
 
             for m in serializer.data:
@@ -235,29 +232,25 @@ class MessageHelperMixins:
 
         else:
             try:
-                message = get_object_or_404(Message.objects.prefetch_related('delivered_to'), id=message_id)
+                message = get_object_or_404(MessageHelperMixins.Message.objects.prefetch_related('delivered_to'), id=message_id)
             except AttributeError:
-                message = get_object_or_404(Message, id=message_id)
+                message = get_object_or_404(MessageHelperMixins.Message, id=message_id)
             if message.sender != user:
                 room_id = message.room.id
 
-                ReadReceipt.objects.create(message=message, reader=user)
-                serializer = MessageSerializer(message)
+                MessageHelperMixins.ReadReceipt.objects.create(message=message, reader=user)
+                serializer = MessageHelperMixins.MessageSerializer(message)
 
                 return room_id, serializer.data
-            return None, {}
+        return None, {}
 
     @staticmethod 
     def _retreive_messages(room, data):
 
-        Message = import_and_verify_type_class(_Message, "Message")
-        MessageSerializer = import_and_verify_type_class(_MessageSerializer, "MessageSerializer")
-
-
         try:
-            messages = Message.objects.filter(room=room).prefetch_related('read_receipts', 'reactions', 'attachments', 'delivered_to').order_by('-created_at')
+            messages = MessageHelperMixins.Message.objects.filter(room=room).prefetch_related('read_receipts', 'reactions', 'attachments', 'delivered_to').order_by('-created_at')
         except AttributeError:
-            messages = Message.objects.filter(room=room).prefetch_related('read_receipts', 'reactions', 'attachments').order_by('-created_at')
+            messages = MessageHelperMixins.Message.objects.filter(room=room).prefetch_related('read_receipts', 'reactions', 'attachments').order_by('-created_at')
         paginate = data.get('paginate')
         response = {}
         if paginate and isinstance(paginate, dict):
@@ -289,7 +282,7 @@ class MessageHelperMixins:
             })
             messages = get_page.object_list
 
-        serialized_messages = MessageSerializer(messages, many=True)
+        serialized_messages = MessageHelperMixins.MessageSerializer(messages, many=True)
 
         response["data"] = {
             "room_id": str(room.id),
@@ -306,29 +299,37 @@ class RoomHelperMixins:
     Room handler helper mixins
     Functionality can be extended
     """
+
+    # models
+    Room = import_model(_Room)
+    GroupChat = import_model(_GroupChat)
+    OneToOneChat = import_model(_OneToOneChat)
+    Channel = import_model(_Channel)
+
+    # serializers
+    RoomPolymorphicSerializer = import_and_verify_type_class(_RoomPolymorphicSerializer, "RoomPolymorphicSerializer")
+    RoomListPolymorphicSerializer = import_and_verify_type_class(_RoomListPolymorphicSerializer, "RoomListPolymorphicSerializer")
+
+
     @staticmethod
     def _create_room(user, data):
-    
-        RoomPolymorphicSerializer = import_and_verify_type_class(
-            _RoomPolymorphicSerializer,
-            "RoomPolymorphicSerializer"
-        )
 
-        serializer = RoomPolymorphicSerializer(data=data, context={"user": user})
+        serializer = RoomHelperMixins.RoomPolymorphicSerializer(data=data, context={"user": user})
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
-        room_serializer = RoomPolymorphicSerializer(instance)
+        room_serializer = RoomHelperMixins.RoomPolymorphicSerializer(instance)
         return room_serializer.data
 
 
     @staticmethod
     def _list_rooms(user):
-        Room = import_and_verify_type_class(_Room, "Room")
 
-        RoomListPolymorphicSerializer = import_and_verify_type_class(_RoomListPolymorphicSerializer, "RoomListPolymorphicSerializer")
-        rooms = Room.objects.filter(Q(onetoonechat__participants=user) | Q(channel__subscribers=user) | Q(groupchat__participants=user)).select_related('last_message').order_by('-last_message__created_at')
+        rooms = RoomHelperMixins.Room.objects.filter(
+            Q(onetoonechat__participants=user) | Q(channel__subscribers=user) | Q(groupchat__participants=user)
+        ).select_related('last_message').order_by('-last_message__created_at')
+
         if rooms.exists():
-            serializer = RoomListPolymorphicSerializer(rooms, many=True, context={"user": user})
+            serializer = RoomHelperMixins.RoomListPolymorphicSerializer(rooms, many=True, context={"user": user})
             return serializer.data
 
         else:
@@ -336,17 +337,15 @@ class RoomHelperMixins:
 
     @staticmethod
     def _retreive_room(room):
-        RoomPolymorphicSerializer = import_and_verify_type_class(_RoomPolymorphicSerializer, "RoomPolymorphicSerializer")
 
-        serializer = RoomPolymorphicSerializer(room)
+        serializer = RoomHelperMixins.RoomPolymorphicSerializer(room)
         return serializer.data
 
     
     @staticmethod
     def _add_members_to_room(user_ids, room):
-        GroupChat = import_and_verify_type_class(_GroupChat, "GroupChat")
-        RoomPolymorphicSerializer = import_and_verify_type_class(_RoomPolymorphicSerializer, "RoomPolymorphicSerializer")
-        members = room.participants if isinstance(room, GroupChat) else room.subscribers
+
+        members = room.participants if isinstance(room, RoomHelperMixins.GroupChat) else room.subscribers
         user_ids = list(set(user_ids))
         existing_room_members = set(members.all())
 
@@ -358,15 +357,13 @@ class RoomHelperMixins:
                 newly_added_users.append(user)
                 new_member_usernames.append(user.username)
         members.add(*newly_added_users)
-        serialized_room = RoomPolymorphicSerializer(room).data
+        serialized_room = RoomHelperMixins.RoomPolymorphicSerializer(room).data
         return newly_added_users, serialized_room, new_member_usernames
     
     @staticmethod
     def _remove_members_from_room(user_ids, room, session_user):
 
-        GroupChat = import_and_verify_type_class(_GroupChat, "GroupChat")
-        RoomPolymorphicSerializer = import_and_verify_type_class(_RoomPolymorphicSerializer, "RoomPolymorphicSerializer")
-        members = room.participants if isinstance(room, GroupChat) else room.subscribers
+        members = room.participants if isinstance(room, RoomHelperMixins.GroupChat) else room.subscribers
         user_ids = list(set(user_ids))
         existing_room_members = set(members.all())
 
@@ -383,20 +380,18 @@ class RoomHelperMixins:
                 newly_removed_users.append(user)
                 removed_members_username.append(user.username)
         members.remove(*newly_removed_users)
-        serialized_room = RoomPolymorphicSerializer(room).data
+        serialized_room = RoomHelperMixins.RoomPolymorphicSerializer(room).data
         return newly_removed_users, serialized_room, removed_members_username
     
     @staticmethod
     def _leave_room(user, room):
-        GroupChat = import_and_verify_type_class(_GroupChat, "GroupChat")
-        Channel = import_and_verify_type_class(_Channel, "Channel")
-        RoomPolymorphicSerializer = import_and_verify_type_class(_RoomPolymorphicSerializer, "RoomPolymorphicSerializer")
-        if not isinstance(room, (GroupChat, Channel)):
+
+        if not isinstance(room, (RoomHelperMixins.GroupChat, RoomHelperMixins.Channel)):
             raise ValidationError("You can only leave a channel/group chat")
-        members = room.participants if isinstance(room, GroupChat) else room.subscribers
+        members = room.participants if isinstance(room, RoomHelperMixins.GroupChat) else room.subscribers
         members.remove(user)
 
-        serialized_room = RoomPolymorphicSerializer(room).data
+        serialized_room = RoomHelperMixins.RoomPolymorphicSerializer(room).data
         return serialized_room
     
 
@@ -405,18 +400,12 @@ class RoomHelperMixins:
 
         # if you have a different functionality for joining GroupChat or Channels override this method to replace with your custom functionality
 
+        room = get_object_or_404(RoomHelperMixins.Room, pk=room_id)
 
-        GroupChat = import_and_verify_type_class(_GroupChat, "GroupChat")
-        Channel = import_and_verify_type_class(_Channel, "Channel")
-        Room = import_and_verify_type_class(_Room, "Room")
-        RoomPolymorphicSerializer = import_and_verify_type_class(_RoomPolymorphicSerializer, "RoomPolymorphicSerializer")
-
-        room = get_object_or_404(Room, pk=room_id)
-
-        if isinstance(room, GroupChat):
+        if isinstance(room, RoomHelperMixins.GroupChat):
             # User should implement a custom functionality for this or leave the exception
             raise ValidationError("Ask an admin to add you to the group")
-        elif isinstance(room, Channel):
+        elif isinstance(room, RoomHelperMixins.Channel):
             if room.is_public:
                 room.subscribers.add(user)
             else:
@@ -424,20 +413,17 @@ class RoomHelperMixins:
         else:
             raise ValidationError("You can only join a channel/group chat")
         
-        serialized_room = RoomPolymorphicSerializer(room).data
+        serialized_room = RoomHelperMixins.RoomPolymorphicSerializer(room).data
         return serialized_room
 
-    def _modify_room(user, data, room):
+    @staticmethod
+    def _modify_room(data, room):
 
         VALID_ACTIONS = [
             "update", "add_permission", "remove_permission",
             "add_moderator", "add_admin", 
             "remove_moderator", "remove_admin"
         ]
-        GroupChat = import_and_verify_type_class(_GroupChat, "GroupChat")
-        Channel = import_and_verify_type_class(_Channel, "Channel")
-        OneToOneChat = import_and_verify_type_class(_OneToOneChat, "OneToOneChat")
-        RoomPolymorphicSerializer = import_and_verify_type_class(_RoomPolymorphicSerializer, "RoomPolymorphicSerializer")
 
         action = data.get('action')
         field_data = data.get('data')
@@ -450,7 +436,7 @@ class RoomHelperMixins:
         if not field_data:
             raise ValidationError("data must be provided")
         if action == "update":
-            if type(room) in [GroupChat, Channel]:
+            if type(room) in [RoomHelperMixins.GroupChat, RoomHelperMixins.Channel]:
                 if "name" in field_data:
                     room.name = field_data.get("name")
                 if "description" in field_data:
@@ -458,7 +444,7 @@ class RoomHelperMixins:
             if "preference" in field_data:
                 room.preference = field_data.get("preference")
             room.save()
-        if not isinstance(room, OneToOneChat) and action in [
+        if not isinstance(room, RoomHelperMixins.OneToOneChat) and action in [
             "add_permission", "remove_permission",
             "add_moderator", "add_admin", 
             "remove_moderator", "remove_admin"
@@ -484,7 +470,7 @@ class RoomHelperMixins:
                     raise ValidationError("Permission must be a list")
                 permissions = list(set(permissions))
                 
-                if isinstance(room, GroupChat):
+                if isinstance(room, RoomHelperMixins.GroupChat):
                     for perm in permissions:
                         if perm not in VALID_GROUP_CHAT_PERMS:
                             raise ValidationError(f"Permission '{perm}' is not a valid group chat permission")
@@ -499,20 +485,20 @@ class RoomHelperMixins:
                         else:
                             remove_perm(perm, member, room)
             elif action in ["add_admin", "remove_admin"]:
-                if not isinstance(room, GroupChat):
+                if not isinstance(room, RoomHelperMixins.GroupChat):
                     raise ValidationError("Room should be a group chat to modify the admins")
                 if action == "add_admin":
                     room.admins.add(*members)
                 else:
                     room.admins.remove(*members)
             else:
-                if not isinstance(room, Channel):
+                if not isinstance(room, RoomHelperMixins.Channel):
                     raise ValidationError("Room should be a channel to modify the moderators")
                 if action == "add_moderator":
                     room.moderators.add(*members)
                 else:
                     room.moderators.remove(*members)
-        return RoomPolymorphicSerializer(room).data
+        return RoomHelperMixins.RoomPolymorphicSerializer(room).data
 
             
             
@@ -521,29 +507,26 @@ class ChatNotificationHelperMixins:
     Notification handler helper mixins
     Functionality can be extended
     """
-    @staticmethod
-    def _get_and_group_chat_notifications(user):
+
+    ChatNotificationSerializer = import_and_verify_type_class(
+        _ChatNotificationSerializer,
+        "ChatNotificationSerializer"
+    )
     
-        ChatNotification = import_and_verify_type_class(_ChatNotification, "ChatNotification")
-        Room = import_and_verify_type_class(_Room, "Room")
-
-        ChatNotificationSerializer = import_and_verify_type_class(
-            _ChatNotificationSerializer,
-            "ChatNotificationSerializer"
-        )
+    def _get_and_group_chat_notifications(self, user):
 
 
-        chat_notifications = ChatNotification.objects.filter(recipients=user).prefetch_related(
+        chat_notifications = self.ChatNotification.objects.filter(recipients=user).prefetch_related(
             Prefetch(
                 "message__room",
-                queryset=Room.objects.all() # using Prefetch is redundant here (prefetch_related() alone works)..
+                queryset=RoomHelperMixins.Room.objects.all() # using Prefetch is redundant here (prefetch_related() alone works)..
             )
 
             # using prefetch_related() because it fetches room objects separately and maps it to their respectively subclasses (onetoone, group, channel)
             # using select_related() just returns the direct room object (Room <room_id>) which affects serialization...
         ).distinct().order_by("-message__room__created_at")
         
-        serialized_chat_notifications = ChatNotificationSerializer(chat_notifications, many=True).data
+        serialized_chat_notifications = self.ChatNotificationSerializer(chat_notifications, many=True).data
 
         grouped_chat_notifications = defaultdict(list)
         for chat_notification in serialized_chat_notifications:

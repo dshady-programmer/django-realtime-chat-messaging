@@ -51,6 +51,8 @@ def _validate_dict_keys(key, value):
         if nested_key not in VALID_KEYS:
             raise ImproperlyConfigured(f"{key} key '{nested_key}' not in valid {key.lower()} keys")
 
+        
+
 
 
 def validate_and_update(user_settings):
@@ -64,7 +66,14 @@ def validate_and_update(user_settings):
                 "PERMISSION_HANDLER_CLASS", "EVENT_HANDLER_CLASS", "ENABLE_NOTIFICATION"
             ]:
             raise ImproperlyConfigured(f"Invalid setting '{k}'")
+    update_settings_with_models(user_settings.get('MODELS') or DEFAULTS['MODELS'])
+    
 
 
     
 
+
+def update_settings_with_models(models):
+    for k, v in models.items():
+        setattr(settings, f"{SETTINGS_NAMESPACE}_{k.upper()}_MODEL", v)
+        

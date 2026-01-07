@@ -193,7 +193,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         """
         receive_message_acknowledged_event
         
-        this also mean message is delivered to the recipient...
+        this also means message is delivered to the recipient...
 
         data: {
             message_id: string/int or List<string/int>,
@@ -506,7 +506,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         you should rewrite your modify_room. See docs to implement this properly
         """
 
-        room_data = await self.EventHandler.modify_room(self.user, data, room)
+        room_data = await self.EventHandler.modify_room(data, room)
         group = GROUP_STRING.format(group_id=room.id)
         await self.send_group(group, "roomupdate.dispatch", room_data)
 
