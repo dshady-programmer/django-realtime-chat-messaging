@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings 
 # Create your models here.
 from django.db.models import F,Q
 import uuid
@@ -12,7 +12,7 @@ from .model_mixins import (
     AbstractChatNotification, AbstractMessageMediaAsset
 )
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 
 
