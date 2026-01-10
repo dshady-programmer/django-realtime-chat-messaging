@@ -470,7 +470,7 @@ Built with:
 
 ## ⭐ Show Your Support
 
-If this package helps your project, please give it a star on [GitHub](https://github.com/yourusername/django-realtime-chat-messaging)!
+If this package helps your project, please give it a star on [GitHub](https://github.com/shady-cj/django-realtime-chat-messaging)!
 
 ---
 
