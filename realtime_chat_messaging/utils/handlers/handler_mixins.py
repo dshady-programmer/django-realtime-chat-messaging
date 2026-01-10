@@ -1,20 +1,14 @@
 from realtime_chat_messaging.utils.decorators import sqlite_safe_db_sync_to_async
 from .helper_mixins import MessageHelperMixins, RoomHelperMixins, ChatNotificationHelperMixins
-from realtime_chat_messaging.conf import realtime_chat_settings
-from realtime_chat_messaging.utils.loader import import_model
-from operator import itemgetter
-models = realtime_chat_settings.MODELS
+from realtime_chat_messaging.utils.loader import get_model
+
 
 
 class ChatNotificationHandlerMixin(ChatNotificationHelperMixins):
 
-    _ChatNotification, _Message = itemgetter(
-        "ChatNotification",
-        "Message"
-    )(models)
 
-    ChatNotification = import_model(_ChatNotification)
-    Message = import_model(_Message)
+    ChatNotification = get_model("ChatNotification")
+    Message = get_model("Message")
     
 
 

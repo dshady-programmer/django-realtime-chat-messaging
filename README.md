@@ -1,343 +1,433 @@
-# Django Realtime Chat Messaging Package
+# Django Realtime Chat Messaging
 
-[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
-[![Django Version](https://img.shields.io/badge/django-4.2%2B-green.svg)](https://www.djangoproject.com/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+<!-- [![PyPI version](https://badge.fury.io/py/django-realtime-chat-messaging.svg)](https://badge.fury.io/py/django-realtime-chat-messaging)
+[![Python versions](https://img.shields.io/pypi/pyversions/django-realtime-chat-messaging.svg)](https://pypi.org/project/django-realtime-chat-messaging/)
+[![Django versions](https://img.shields.io/badge/django-3.2%20%7C%204.0%20%7C%204.1%20%7C%204.2%20%7C%205.0-blue.svg)](https://www.djangoproject.com/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) -->
 
-A production-ready, reusable Django application that provides comprehensive real-time messaging functionality out of the box. Build chat applications faster by abstracting away the complexity of WebSocket connections, message persistence, and real-time features.
-
----
-
-## 🚀 Features
-
-### Core Messaging
-- **Multiple Chat Types**: One-to-one conversations, group chats, and broadcast channels
-- **Real-time Delivery**: WebSocket-based instant messaging using Django Channels
-- **Message Threading**: Reply to specific messages with parent-child relationships
-- **Message Forwarding**: Forward messages between conversations with smart restrictions
-- **Rich Media Support**: Images, videos, documents, stickers, and GIFs with metadata
-- **Message Management**: Edit and soft-delete messages with full history tracking
-
-### Social Features
-- **Emoji Reactions**: React to messages with emoji tracking per user
-- **Read Receipts**: Track which users have read specific messages
-- **Typing Indicators**: Real-time typing status broadcasts
-- **Online Presence**: User online/away/offline status management
-- **Smart Notifications**: Categorized notifications for replies, mentions, and reactions
-- **Interaction Tracking**: Monitor message engagement (replies, reactions, forwards)
-
-### Technical Features
-- **WebSocket-Only Architecture**: All operations via real-time events for optimal performance
-- **Polymorphic Rooms**: Flexible room model supporting different chat types through inheritance
-- **Redis Caching**: Intelligent caching for frequently accessed data
-- **Auto Cleanup**: Automatic WebSocket channel layer management
-- **Token Authentication**: Flexible, configurable token-based authentication
-- **Signal-Based Cache Invalidation**: Automatic cache updates on data changes
-- **Extensible Design**: Easy to customize and extend with your own functionality
-- **Production Ready**: Built with scalability and performance in mind
-
-### Optional Features
-- **End-to-End Encryption**: Available in enhanced version with `[encryption]` extra
-
----
-
-## 📋 Requirements
-
-- **Python**: 3.8+
-- **Django**: 4.2+
-- **Redis**: 4.0+
-- **Django Channels**: 4.0+
-- **django-polymorphic**: 3.1+
-
----
+**The easiest way to add real-time chat to your Django application.** No WebSocket code required—just install, configure Django Channels, and start chatting.
 
 ## 🎯 Why This Package?
 
-Building real-time messaging in Django requires:
-- Complex WebSocket configuration
-- Database schema design for multiple chat types
-- Real-time event handling and broadcasting
-- Caching strategies for performance
-- Read receipts, reactions, and presence tracking
-- Media upload and management
+Most real-time chat solutions require writing custom WebSocket consumers, routing configuration, permission systems, and extensive frontend integration. **Django Realtime Chat Messaging** eliminates all that complexity:
 
-**This package handles all of that for you.**
+- ✅ **Zero WebSocket Code** - Pre-built consumers handle everything
+- ✅ **Three Chat Types** - OneToOne, GroupChat, Channels (broadcast)
+- ✅ **Rich Features** - Replies, forwarding, reactions, read receipts, typing indicators
+- ✅ **Media Support** - Images, videos, audio, documents
+- ✅ **Granular Permissions** - Object-level permissions with django-guardian
+- ✅ **Fully Customizable** - Swap models, serializers, handlers, permissions
+- ✅ **Production Ready** - Scales with Redis, handles concurrent connections
+- ✅ **Type Safe** - Full type hints and validation
 
-Install, configure, and start building your chat application in minutes instead of weeks.
+## 🚀 Quick Start
 
----
-
-## 🏗️ Architecture
-
-### Database Models
-
-The package uses a **polymorphic room model** for flexibility:
-
-```
-Room (Base Model)
-├── OneToOneChat (Direct messaging between two users)
-├── GroupChat (Multi-user conversations with admin controls)
-└── Channel (Broadcast channels with subscriber management)
-```
-
-**Core Models:**
-- **Message**: Stores messages with threading, forwarding, and edit history
-- **ReadReceipt**: Tracks read status per user per message
-- **Reaction**: Emoji reactions with user tracking
-- **Notification**: User notification queue with categorization
-- **Interaction**: Message engagement analytics
-- **MessageMediaAsset**: Media attachments with comprehensive metadata
-
-### WebSocket API
-
-**Connection Endpoint**: `/ws/chat/{room_id}/?token={auth_token}`
-
-The package provides **45 WebSocket events** organized into:
-- **Connection Management**: Authentication and lifecycle handling
-- **Room Operations**: Create, join, leave, and manage chat rooms
-- **Message Operations**: Send, edit, delete, forward, and reply
-- **Media Management**: Upload and retrieve media assets
-- **Social Features**: Reactions, read receipts, typing indicators
-- **Notifications**: Real-time notification delivery
-- **Presence System**: Online status tracking
-
-All operations are event-driven for real-time responsiveness.
-
----
-
-## 🛠️ Installation
-
-### Standard Version
+### Installation
 
 ```bash
-pip install django-realtime-chat-package
+pip install django-realtime-chat-messaging
 ```
 
-### Enhanced Version (with End-to-End Encryption)
+### Basic Setup (5 minutes)
 
-```bash
-pip install django-realtime-chat-package[encryption]
-```
-
----
-
-## ⚡ Quick Start
-
-### 1. Add to Installed Apps
+**1. Add to INSTALLED_APPS:**
 
 ```python
 # settings.py
 INSTALLED_APPS = [
-    # ...
+    'daphne',  # Must be BEFORE django.contrib.staticfiles
     'channels',
-    'django_realtime_chat_package',
-    # ...
+    'rest_framework',
+    'polymorphic',
+    'guardian',
+    'realtime_chat_messaging',
+    # ... your apps
 ]
+
+ASGI_APPLICATION = 'myproject.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"  # Dev only
+    }
+}
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
+)
 ```
 
-### 2. Configure Channel Layers
+**2. Configure ASGI:**
+
+```python
+# myproject/asgi.py
+import os
+import django
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings')
+django.setup()  # IMPORTANT: Prevents AppRegistryNotReady errors
+
+from django.core.asgi import get_asgi_application
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+from channels.auth import AuthMiddlewareStack
+from realtime_chat_messaging.routing import websocket_urlpatterns
+
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(),
+    "websocket": AllowedHostsOriginValidator(
+        AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
+    ),
+})
+```
+
+**3. Run migrations:**
+
+```bash
+python manage.py migrate
+python manage.py runserver
+```
+
+**4. Connect from frontend:**
+
+```javascript
+const socket = new WebSocket('ws://localhost:8000/messaging/');
+
+socket.onopen = () => {
+    // Create a one-to-one chat
+    socket.send(JSON.stringify({
+        event_type: 'room.create',
+        data: {
+            type: 'OneToOneChat',
+            participants: [2]  // Other user's ID
+        }
+    }));
+};
+
+socket.onmessage = (e) => {
+    const response = JSON.parse(e.data);
+    console.log('Received:', response);
+};
+```
+
+That's it! You now have real-time chat. 🎉
+
+## 📚 Features
+
+### Three Room Types
+
+**OneToOneChat** - Private conversations between two users
+```javascript
+{ type: 'OneToOneChat', participants: [user_id] }
+```
+
+**GroupChat** - Group conversations with admins and permissions
+```javascript
+{ type: 'GroupChat', name: 'Team', participants: [2, 3, 4] }
+```
+
+**Channel** - Broadcast channels with moderators (like Telegram channels)
+```javascript
+{ type: 'Channel', name: 'Announcements', is_public: true }
+```
+
+### Rich Messaging
+
+- **Text Messages** - HTML sanitization included (XSS protection)
+- **Replies** - Thread-style conversations
+- **Forwarding** - Forward messages across rooms
+- **Media Attachments** - Images, videos, audio, documents
+- **Message Editing** - Edit sent messages
+- **Message Deletion** - Soft or hard delete (configurable)
+
+### Engagement Features
+
+- **Reactions** - Emoji reactions on messages
+- **Read Receipts** - Track who read each message
+- **Typing Indicators** - Real-time typing notifications
+- **Delivery Status** - Track message delivery
+- **Notifications** - Unread message tracking (integrates with push services)
+
+### Permissions & Moderation
+
+- **Object-Level Permissions** - Fine-grained access control
+- **Admin/Moderator Roles** - GroupChat admins, Channel moderators
+- **Permission Decorators** - Easy-to-use permission checks
+- **Group Locking** - Restrict messaging to admins only
+- **Member Management** - Add/remove members, transfer ownership
+
+## 🎨 Complete Example
+
+```javascript
+// Create a group chat
+socket.send(JSON.stringify({
+    event_type: 'room.create',
+    data: {
+        type: 'GroupChat',
+        name: 'Project Team',
+        participants: [2, 3, 4],
+        extra_fields: {
+            max_participants: 50,
+            join_approval_required: true
+        }
+    }
+}));
+
+// Send a message with media
+socket.send(JSON.stringify({
+    event_type: 'message.send',
+    data: {
+        room_id: 'room-uuid',
+        content: 'Check out this design!',
+        extra_fields: {
+            media: [{
+                media_url: 'https://cdn.example.com/image.jpg',
+                media_type: 'image',
+                mime_type: 'image/jpeg',
+                file_size: 204800,
+                metadata: {
+                    width: 1920,
+                    height: 1080
+                }
+            }]
+        }
+    }
+}));
+
+// Reply to a message
+socket.send(JSON.stringify({
+    event_type: 'message.send',
+    data: {
+        room_id: 'room-uuid',
+        content: 'Looks great!',
+        parent_message_id: 'message-uuid'  // Creates a reply thread
+    }
+}));
+
+// React to a message
+socket.send(JSON.stringify({
+    event_type: 'message.react',
+    data: {
+        type: 'add',
+        message_id: 'message-uuid',
+        reaction_content: '👍'
+    }
+}));
+
+// Mark messages as read
+socket.send(JSON.stringify({
+    event_type: 'message.read',
+    data: {
+        message_id: ['msg-uuid-1', 'msg-uuid-2']
+    }
+}));
+```
+
+## 🔧 Advanced: Customization
+
+### Custom Models
+
+Extend any model to add your own fields:
+
+```python
+# models.py
+from realtime_chat_messaging.models import Message
+from realtime_chat_messaging.model_mixins import AbstractMessage
+
+class CustomMessage(AbstractMessage):
+    priority = models.CharField(max_length=10, default='normal')
+    is_pinned = models.BooleanField(default=False)
+    
+    class Meta:
+        swappable = 'REALTIME_CHAT_MESSAGING_MESSAGE_MODEL'
+
+# settings.py
+REALTIME_CHAT_MESSAGING = {
+    "MODELS": {
+        "Message": "myapp.CustomMessage",
+    }
+}
+```
+
+### Custom Serializers
+
+```python
+# serializers.py
+from realtime_chat_messaging.serializers import MessageSerializer as BaseMessageSerializer
+
+class CustomMessageSerializer(BaseMessageSerializer):
+    class Meta(BaseMessageSerializer.Meta):
+        fields = BaseMessageSerializer.Meta.fields + ['priority', 'is_pinned']
+
+# settings.py
+REALTIME_CHAT_MESSAGING = {
+    "SERIALIZERS": {
+        "MessageSerializer": "myapp.serializers.CustomMessageSerializer",
+    }
+}
+```
+
+### Custom Events
+
+```python
+# consumers.py
+from realtime_chat_messaging.consumers import ChatMessagingConsumer
+
+class CustomChatConsumer(ChatMessagingConsumer):
+    
+    @ExceptionHandler.exception_handler_decorator
+    async def receive_pin_message_event(self, data):
+        # Your custom logic
+        message = await self.pin_message(data['message_id'])
+        await self.send_group(
+            f"group-{data['room_id']}", 
+            "message.pinned", 
+            message
+        )
+
+# routing.py
+from myapp.consumers import CustomChatConsumer
+
+websocket_urlpatterns = [
+    path("messaging/", CustomChatConsumer.as_asgi())
+]
+
+# variables/consumers.py
+def custom_event_mapper(self):
+    default = map_event_type_to_handlers(self)
+    default['message.pin'] = self.receive_pin_message_event
+    return default
+
+# settings.py
+REALTIME_CHAT_MESSAGING = {
+    "EVENT_MAPPER": "myapp.consumers.custom_event_mapper"
+}
+```
+
+## 📖 Documentation
+
+- **[Full Documentation](https://django-realtime-chat-messaging.readthedocs.io/)** - Complete guides and API reference
+- **[Quickstart Guide](https://django-realtime-chat-messaging.readthedocs.io/en/latest/getting-started/quickstart.html)** - Get started in 10 minutes
+- **[Event Reference](https://django-realtime-chat-messaging.readthedocs.io/en/latest/api-reference/events.html)** - All WebSocket events
+- **[Customization Guide](https://django-realtime-chat-messaging.readthedocs.io/en/latest/customization/)** - Extend the package
+- **[Deployment Guide](https://django-realtime-chat-messaging.readthedocs.io/en/latest/deployment/)** - Production setup
+
+## 🏗️ Architecture
+
+```
+┌─────────────┐
+│   Frontend  │
+│ (WebSocket) │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────┐
+│  ChatConsumer       │  ← WebSocket handler (no code needed!)
+│  - Permissions      │
+│  - Event routing    │
+└──────┬──────────────┘
+       │
+       ▼
+┌─────────────────────┐
+│  Event Handlers     │  ← Business logic
+│  - Message creation │
+│  - Room management  │
+│  - Notifications    │
+└──────┬──────────────┘
+       │
+       ▼
+┌─────────────────────┐
+│  Models             │  ← Database (fully swappable)
+│  - Room (polymorphic)
+│  - Message          │
+│  - ReadReceipt      │
+└─────────────────────┘
+```
+
+## 🔐 Security Features
+
+- **XSS Protection** - HTML sanitization with bleach
+- **Permission Checks** - Object-level permissions on every action
+- **Authentication Required** - Anonymous users automatically rejected
+- **WebSocket Origin Validation** - CORS protection
+- **SQL Injection Protection** - Django ORM
+- **Rate Limiting Ready** - Add your own rate limiting decorators
+
+## 🚢 Production Setup
+
+### Redis Configuration (Required)
 
 ```python
 # settings.py
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
         },
     },
 }
 ```
 
-### 3. Configure ASGI
+### JWT Authentication (Recommended)
+
+```bash
+pip install djangochannelsrestframework djangochannels-jwt-auth-middleware
+```
 
 ```python
 # asgi.py
-import os
-from django.core.asgi import get_asgi_application
-from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
-from django_realtime_chat_package.routing import websocket_urlpatterns
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'your_project.settings')
+from django_channels_jwt_auth_middleware.auth import JWTAuthMiddlewareStack
 
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
-        URLRouter(websocket_urlpatterns)
+    "websocket": AllowedHostsOriginValidator(
+        JWTAuthMiddlewareStack(URLRouter(websocket_urlpatterns))
     ),
 })
 ```
 
-### 4. Run Migrations
-
-```bash
-python manage.py migrate django_realtime_chat_package
-```
-
-### 5. Start Your Server
-
-```bash
-daphne -b 0.0.0.0 -p 8000 your_project.asgi:application
-```
-
----
-
-## 📖 Usage
-
-### JavaScript Client Example
-
-```javascript
-// Connect to a chat room
-const socket = new WebSocket(
-  `ws://localhost:8000/ws/chat/${roomId}/?token=${authToken}`
-);
-
-// Handle connection
-socket.onopen = () => {
-  console.log('Connected to chat');
-};
-
-// Send a message
-socket.send(JSON.stringify({
-  type: 'send_message',
-  room_id: 123,
-  content: 'Hello, world!',
-  parent_message_id: null
-}));
-
-// Receive messages
-socket.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  
-  if (data.type === 'new_message') {
-    console.log('New message:', data.data);
-  }
-};
-```
-
-### Python Backend Example
-
-```python
-from django_realtime_chat_package.models import OneToOneChat, Message
-
-# Create a one-to-one chat
-chat = OneToOneChat.objects.create(
-    participant_1=user1,
-    participant_2=user2
-)
-
-# Send a message programmatically
-message = Message.objects.create(
-    room=chat,
-    sender=user1,
-    content="Hello from Django!"
-)
-```
-
-For detailed examples, see the [Usage Examples Documentation](docs/examples.md).
-
----
-
-## ⚙️ Configuration
-
-Customize the package behavior with these settings:
+### Environment Variables
 
 ```python
 # settings.py
-
-# Authentication token keyword (default: 'token')
-CHAT_TOKEN_KEYWORD = 'token'
-
-# Maximum message length (default: 5000 characters)
-CHAT_MAX_MESSAGE_LENGTH = 5000
-
-# Media upload path (default: 'chat/media/')
-CHAT_MEDIA_UPLOAD_PATH = 'chat/media/'
-
-# Enable encryption features (default: False)
-CHAT_ENABLE_ENCRYPTION = False
-
-# Cache timeout in seconds (default: 300)
-CHAT_CACHE_TIMEOUT = 300
-
-# Maximum upload size in bytes (default: 10MB)
-CHAT_MAX_UPLOAD_SIZE = 10485760
-
-# Typing indicator timeout in seconds (default: 3)
-CHAT_TYPING_TIMEOUT = 3
-
-# Redis cache key prefix (default: 'chat')
-CHAT_CACHE_PREFIX = 'chat'
+REALTIME_CHAT_MESSAGING = {
+    "MESSAGE_SOFT_DELETE": True,  # False = hard delete
+    "ENABLE_NOTIFICATION": True,  # Track unread messages
+}
 ```
-
-See the [Configuration Guide](docs/configuration.md) for complete options.
-
----
 
 ## 🧪 Testing
 
-```bash
-# Run tests
-python manage.py test django_realtime_chat_package
+```python
+from channels.testing import WebsocketCommunicator
+from realtime_chat_messaging.consumers import ChatMessagingConsumer
 
-# Run with coverage
-coverage run --source='django_realtime_chat_package' manage.py test
-coverage report -m
+async def test_message_send():
+    communicator = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+    connected, _ = await communicator.connect()
+    assert connected
+    
+    await communicator.send_json_to({
+        "event_type": "message.send",
+        "data": {"room_id": room_id, "content": "Test"}
+    })
+    
+    response = await communicator.receive_json_from()
+    assert response["eventType"] == "message.dispatch"
 ```
 
----
+## 📊 Performance
 
-## 📚 Documentation
-
-- **[Installation Guide](docs/installation.md)** - Detailed setup instructions
-- **[WebSocket API Reference](docs/api-reference.md)** - Complete event documentation
-- **[Configuration Guide](docs/configuration.md)** - All available settings
-- **[Usage Examples](docs/examples.md)** - Code examples and patterns
-- **[Extension Guide](docs/extending.md)** - Customize and extend functionality
-- **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
-- **[Migration Guide](docs/migration.md)** - Upgrade between versions
-
----
-
-## 🔒 Security
-
-This package follows Django security best practices:
-
-- **Input Validation**: All user inputs are sanitized and validated
-- **Rate Limiting**: Configurable rate limits on WebSocket events
-- **Permission Checks**: Room-level and message-level authorization
-- **Token Authentication**: Secure WebSocket authentication
-- **XSS Prevention**: Content escaping and sanitization
-- **File Upload Security**: MIME type validation and size restrictions
-- **SQL Injection Protection**: Uses Django ORM exclusively
-
-For security concerns, please email [security@example.com].
-
----
-
-## 🚀 Performance
-
-Optimized for production use:
-
-- **Redis Caching**: Frequently accessed data cached automatically
-- **Database Optimization**: Efficient queries with select_related/prefetch_related
-- **Connection Pooling**: Efficient WebSocket connection management
-- **Message Pagination**: Large chat histories paginated automatically
-- **Signal-Based Invalidation**: Cache updates only when necessary
-- **Bulk Operations**: Batch database writes where possible
-
-Tested with:
-- ✅ 1000+ concurrent WebSocket connections
-- ✅ 10,000+ messages per second throughput
-- ✅ Sub-100ms message delivery latency
-
----
+- **Optimized Queries** - `select_related` and `prefetch_related` throughout
+- **Pagination** - Built-in message pagination
+- **Caching** - Redis caching for user sessions and groups
+- **Async/Await** - Non-blocking I/O
+- **Database Indexes** - Indexed foreign keys and common queries
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md).
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -345,74 +435,54 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-Please ensure:
-- All tests pass
-- Code follows PEP 8 style guidelines
-- New features include tests and documentation
-- Commit messages are descriptive
+## 📝 Requirements
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+- Python 3.8+
+- Django 3.2+
+- Django Channels 3.0+
+- Redis (production)
 
----
+**Dependencies (automatically installed):**
+- `channels`
+- `channels-redis`
+- `daphne`
+- `django-polymorphic`
+- `django-guardian`
+- `djangorestframework`
+- `bleach`
 
-## 📝 License
+## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
+## 🙏 Acknowledgments
 
-## 🔮 Roadmap
-
-Features planned for future releases:
-
-- **Voice/Video Calls**: WebRTC signaling support
-- **Message Search**: Full-text search with Elasticsearch
-- **Message Translation**: Automatic language translation
-- **Scheduled Messages**: Send messages at specific times
-- **Bots & Webhooks**: Chatbot and external integrations
-- **Analytics Dashboard**: Usage statistics and engagement metrics
-- **Push Notifications**: Firebase Cloud Messaging integration
-- **Message Pinning**: Pin important messages in rooms
-- **Advanced Moderation**: Automated content filtering and user management
-- **Export Functionality**: Export chat history in multiple formats
-- **Voice Messages**: Record and send audio messages
-- **Link Previews**: Automatic URL metadata extraction
-
-Vote on features or suggest new ones in [GitHub Discussions](https://github.com/yourusername/django-realtime-chat-package/discussions).
-
----
+Built with:
+- [Django Channels](https://channels.readthedocs.io/) - WebSocket support
+- [django-polymorphic](https://django-polymorphic.readthedocs.io/) - Polymorphic models
+- [django-guardian](https://django-guardian.readthedocs.io/) - Object permissions
 
 ## 📞 Support
 
-- **Documentation**: [https://django-realtime-chat.readthedocs.io](https://django-realtime-chat.readthedocs.io)
-- **GitHub Issues**: [Report bugs or request features](https://github.com/yourusername/django-realtime-chat-package/issues)
-- **Stack Overflow**: Tag questions with `django-realtime-chat`
-- **Discord Community**: [Join our Discord server](https://discord.gg/your-invite-link)
-- **Email**: support@example.com
+- **Documentation**: [Read the Docs](https://django-realtime-chat-messaging.readthedocs.io/)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/django-realtime-chat-messaging/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/django-realtime-chat-messaging/discussions)
+- **Stack Overflow**: Tag with `django-realtime-chat-messaging`
 
----
+## 🗺️ Roadmap
 
-## 🙏 Acknowledgments
-
-Built with these excellent open-source projects:
-
-- [Django](https://www.djangoproject.com/) - The web framework for perfectionists
-- [Django Channels](https://channels.readthedocs.io/) - WebSocket support for Django
-- [Redis](https://redis.io/) - In-memory data structure store
-- [django-polymorphic](https://django-polymorphic.readthedocs.io/) - Model inheritance made easy
-
-Special thanks to the Django community for inspiration and support.
-
----
+- [ ] Multi-device support (concurrent connections)
+- [ ] Message search and indexing
+- [ ] Voice/video call signaling
+- [ ] End-to-end encryption support
+- [ ] Message scheduling
+- [ ] Auto-moderation hooks
+- [ ] GraphQL API support
 
 ## ⭐ Show Your Support
 
-If this package helped you, please consider:
-- ⭐ Starring the repository
-- 🐦 Sharing on social media
-- 📝 Writing a blog post about your experience
-- 💬 Recommending to colleagues
+If this package helps your project, please give it a star on [GitHub](https://github.com/yourusername/django-realtime-chat-messaging)!
 
 ---
 
-**Made with ❤️ by me**
+**Made with ❤️ for the Django community**

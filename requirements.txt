@@ -11,3 +11,5 @@ daphne
 django-channels-jwt-auth-middleware
 djangorestframework-simplejwt
 pytest
+pytest-django
+pytest-asyncio

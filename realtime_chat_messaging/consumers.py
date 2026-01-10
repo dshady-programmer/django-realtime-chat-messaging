@@ -65,7 +65,6 @@ modify_channel_moderators
 remove_subscriber (admin only)
 remove_participant (admin only)
 add_user_chat_permission (channel and group)
-# user_last_seen (heartbeat ping) 
 
 """
 
@@ -90,6 +89,11 @@ roomupdate.dispatch
 
 
 """
+
+e_handler = import_and_verify_type_class(event_handler_class, "EVENT_HANDLER_CLASS")
+
+EventHandler = e_handler()
+
 class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
     
@@ -98,13 +102,11 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         
         user = self.scope["user"]
         
-        if user.id is None or user == database_sync_to_async(get_anonymous_user)():
+        if user.id is None or user == await database_sync_to_async(get_anonymous_user)():
             await self.close(code=4001)  # custom close code
             return
         
-        e_handler = import_and_verify_type_class(event_handler_class, "EVENT_HANDLER_CLASS")
 
-        self.EventHandler = e_handler()
         self.user = user
 
         await self.channel_cleanup(user.id)
@@ -144,7 +146,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @ExceptionHandler.exception_handler_decorator
     async def dispatch_chat_notifications(self):
 
-        chat_notifications = await self.EventHandler.get_and_group_chat_notifications(self.user)
+        chat_notifications = await EventHandler.get_and_group_chat_notifications(self.user)
         await self.send_group(
             USER_OWN_GROUP.format(user_id=self.user.id),
             "chat.notifications",
@@ -181,7 +183,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         note: extra field value must contain model fields validated by the provided serializer
         """
         room_id = room.id
-        message = await self.EventHandler.create_message(data, self.user)
+        message = await EventHandler.create_message(data, self.user)
         group_string = GROUP_STRING.format(group_id=room_id)
         # print(group_string)
         await self.send_group(group_string, "message.dispatch", message)
@@ -200,7 +202,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
 
-        await self.EventHandler.message_acknowledged(self.user, data["message_id"])
+        await EventHandler.message_acknowledged(self.user, data["message_id"])
 
         await self.send(text_data=json.dumps({"status": "successful"}))
 
@@ -217,7 +219,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         broadcasts the message/messages with the updated read_receipts
         """
 
-        room_id, message = await self.EventHandler.create_read_receipt(self.user, data["message_id"])
+        room_id, message = await EventHandler.create_read_receipt(self.user, data["message_id"])
         
         if room_id:
             if isinstance(room_id, set):
@@ -241,7 +243,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
 
-        response = await self.EventHandler.react_to_message(data, self.user)
+        response = await EventHandler.react_to_message(data, self.user)
         room_id = response['message']['room']['id']
         group_string = GROUP_STRING.format(group_id=room_id)
         # print(group_string)
@@ -285,7 +287,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         """
 
 
-        response = await self.EventHandler.modify_message(self.user, data)
+        response = await EventHandler.modify_message(self.user, data)
         if response:
             group_string = GROUP_STRING.format(group_id=room.id)
             await self.send_group(group_string, "messagemodification.dispatch", response)
@@ -309,7 +311,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
 
-        response = await self.EventHandler.retreive_messages(room, data)
+        response = await EventHandler.retreive_messages(room, data)
     
 
         user_group = USER_OWN_GROUP.format(user_id=self.user.id)
@@ -341,7 +343,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         """
 
 
-        room = await self.EventHandler.create_room(self.user, data)
+        room = await EventHandler.create_room(self.user, data)
 
         members = None
         if "participants" in room:
@@ -369,7 +371,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         data: empty
         """
 
-        rooms = await self.EventHandler.list_rooms(self.user)
+        rooms = await EventHandler.list_rooms(self.user)
 
         await self.send_group(
             USER_OWN_GROUP.format(user_id=self.user.id),
@@ -391,7 +393,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
 
 
-        room = await self.EventHandler.retreive_room(room)
+        room = await EventHandler.retreive_room(room)
 
         
         await self.send_group(
@@ -415,7 +417,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
 
 
-        users_added, serialized_room, new_member_usernames = await self.EventHandler.add_members_to_room(data.get('members'), room)
+        users_added, serialized_room, new_member_usernames = await EventHandler.add_members_to_room(data.get('members'), room)
         group = GROUP_STRING.format(group_id=room.id)
         for user in users_added:
             await self.add_channel_to_group(group, user.id)
@@ -433,7 +435,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         """
 
 
-        users_removed, serialized_room, removed_member_usernames = await self.EventHandler.remove_members_from_room(data.get('members'), room, self.user)
+        users_removed, serialized_room, removed_member_usernames = await EventHandler.remove_members_from_room(data.get('members'), room, self.user)
         group = GROUP_STRING.format(group_id=room.id) 
         for user in users_removed:
             await self.discard_channel_from_group(group, user.id)
@@ -455,7 +457,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         """
 
 
-        serialized_room = await self.EventHandler.leave_room(self.user, room)
+        serialized_room = await EventHandler.leave_room(self.user, room)
 
         group = GROUP_STRING.format(group_id=room.id)
         user_group = USER_OWN_GROUP.format(user_id=self.user.id)
@@ -476,7 +478,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
 
-        serialized_room = await self.EventHandler.join_room(self.user, data.get('room_id'))
+        serialized_room = await EventHandler.join_room(self.user, data.get('room_id'))
 
         group = GROUP_STRING.format(group_id=serialized_room["id"])
         await self.add_channel_to_group(group)
@@ -506,7 +508,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         you should rewrite your modify_room. See docs to implement this properly
         """
 
-        room_data = await self.EventHandler.modify_room(data, room)
+        room_data = await EventHandler.modify_room(data, room)
         group = GROUP_STRING.format(group_id=room.id)
         await self.send_group(group, "roomupdate.dispatch", room_data)
 

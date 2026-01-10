@@ -1,13 +1,14 @@
 from django.conf import settings 
 from django.db import models
 import uuid
+from polymorphic.models import PolymorphicModel
 from .types import NOTIFICATION_TYPE
 
 User = settings.AUTH_USER_MODEL
 Message = settings.REALTIME_CHAT_MESSAGING_MESSAGE_MODEL
 Room = settings.REALTIME_CHAT_MESSAGING_ROOM_MODEL
 
-class AbstractRoom(models.Model):
+class AbstractRoom(PolymorphicModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     last_message = models.ForeignKey(Message, on_delete=models.SET_NULL, related_name="message_room", null=True, blank=True, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -24,7 +25,12 @@ class AbstractGroupChat(models.Model):
 
 
     class Meta:
+        permissions = [
+            ("can_add_new_participants", "Can add new participants"),
+            ("can_remove_participants", "Can remove participants")
+        ]
         abstract = True
+
 
 class AbstractChannel(models.Model):
     name = models.CharField(max_length=64)
@@ -32,9 +38,17 @@ class AbstractChannel(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="channels_owned")
     subscribers = models.ManyToManyField(User, related_name="channels_subscribed")
 
+    
 
     class Meta:
+        permissions = [
+            ("can_add_new_subscribers", "Can add new subscribers"), 
+            ("can_remove_subscribers", "Can remove subscribers"), 
+            ("can_send_messages", "Can send messages"),
+        ]
         abstract = True
+        
+
 
 class AbstractOneToOneChat(models.Model):
     participants = models.ManyToManyField(User, related_name="chats")
@@ -47,11 +61,13 @@ class AbstractMessage(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="room_messages")
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_messages")
     content = models.TextField()
+    is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
+
 
 
 class AbstractReadReceipt(models.Model):

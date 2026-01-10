@@ -1,13 +1,16 @@
 from .models import (
         Channel, ChatNotification, GroupChat, 
         OneToOneChat, Message, MessageMediaAsset,
-        ReadReceipt, Reaction, User, Room
+        ReadReceipt, Reaction, Room
     )
-
 from rest_framework import serializers
 from rest_polymorphic.serializers import PolymorphicSerializer
 from django_rest_framework_recursive.fields import RecursiveField
 import bleach
+from django.db import transaction, IntegrityError
+from realtime_chat_messaging.utils.loader import get_model, get_serializer
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 RESOURCE_TYPES = ["OneToOne", "Group", "Channel"]
@@ -31,62 +34,62 @@ class OneToOneChatListSerializer(serializers.ModelSerializer):
         if not user:
             raise Exception("user context is required")
         peers = instance.participants.exclude(id=user.id)
-        return UserSerializer(peers.first()).data
+        return get_serializer("UserSerializer")(peers.first()).data
 
     def get_last_message(self, instance):
-        return MessageSerializer(instance.last_message).data
+        return get_serializer("MessageSerializer")(instance.last_message).data
 
 
 
 class GroupChatListSerializer(serializers.ModelSerializer):
-    creator = UserSerializer(read_only=True)
+    creator = get_serializer("UserSerializer")(read_only=True)
     last_message = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = GroupChat
         exclude = ['participants', 'admins', 'preferences']
 
     def get_last_message(self, instance):
-        return MessageSerializer(instance.last_message).data
+        return get_serializer("MessageSerializer")(instance.last_message).data
 
 class ChannelListSerializer(serializers.ModelSerializer):
-    creator = UserSerializer(read_only=True)
+    creator = get_serializer("UserSerializer")(read_only=True)
     last_message = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Channel
         exclude = ['subscribers', 'moderators', 'preferences']
     
     def get_last_message(self, instance):
-        return MessageSerializer(instance.last_message).data
+        return get_serializer("MessageSerializer")(instance.last_message).data
 
 
 class RoomListPolymorphicSerializer(PolymorphicSerializer):
     resource_type_field_name = "type"
     model_serializer_mapping = {
-        OneToOneChat: OneToOneChatListSerializer,
-        GroupChat: GroupChatListSerializer,
-        Channel: ChannelListSerializer,
+        get_model("OneToOneChat"): get_serializer("OneToOneChatListSerializer"),
+        get_model("GroupChat"): get_serializer("GroupChatListSerializer"),
+        get_model("Channel"): get_serializer("ChannelListSerializer"),
     }
 
 
 
 class OneToOneChatSerializer(serializers.ModelSerializer):
-    participants = UserSerializer(many=True, read_only=True)
+    participants = get_serializer("UserSerializer")(many=True, read_only=True)
     class Meta:
         model = OneToOneChat
         exclude = ['last_message']
 
 class GroupChatSerializer(serializers.ModelSerializer):
-    creator = UserSerializer(read_only=True)
-    participants = UserSerializer(read_only=True, many=True)
-    admins = UserSerializer(read_only=True, many=True)
+    creator = get_serializer("UserSerializer")(read_only=True)
+    participants = get_serializer("UserSerializer")(read_only=True, many=True)
+    admins = get_serializer("UserSerializer")(read_only=True, many=True)
     class Meta:
         model = GroupChat
         exclude = ['last_message']
 
 class ChannelSerializer(serializers.ModelSerializer):
-    creator = UserSerializer(read_only=True)
-    subscribers = UserSerializer(read_only=True, many=True)
-    moderators = UserSerializer(read_only=True, many=True)
+    creator = get_serializer("UserSerializer")(read_only=True)
+    subscribers = get_serializer("UserSerializer")(read_only=True, many=True)
+    moderators = get_serializer("UserSerializer")(read_only=True, many=True)
     class Meta:
         model = Channel
         exclude = ['last_message']
@@ -95,9 +98,9 @@ class ChannelSerializer(serializers.ModelSerializer):
 class RoomPolymorphicSerializer(PolymorphicSerializer):
     resource_type_field_name = "type"
     model_serializer_mapping = {
-        OneToOneChat: OneToOneChatSerializer,
-        GroupChat: GroupChatSerializer,
-        Channel: ChannelSerializer,
+        get_model("OneToOneChat"): get_serializer("OneToOneChatSerializer"),
+        get_model("GroupChat"): get_serializer("GroupChatSerializer"),
+        get_model("Channel"): get_serializer("ChannelSerializer"),
     }
 
  
@@ -106,10 +109,13 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
         user = self.context.get("user")
         # print('self.initial', self.initial_data)
         # resource_type = eval(self.initial_data.get("type")) # unsafe  
+        onetoonechat = get_model("OneToOneChat")
+        groupchat = get_model("GroupChat")
+        channel = get_model("Channel")
         mapping = {
-            "OneToOneChat": OneToOneChat,
-            "GroupChat": GroupChat,
-            "Channel": Channel,
+            "OneToOneChat": onetoonechat,
+            "GroupChat": groupchat,
+            "Channel": channel,
         }
         resource_type_str = self.initial_data.get("type")
         resource_type = mapping.get(resource_type_str)
@@ -119,7 +125,7 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
         extra_fields = self.initial_data.pop('extra_fields', {})
         preferences = extra_fields.get('preferences')
         if preferences and not isinstance(preferences, dict):
-            raise serializer.ValidationError("preferences must be a python dictionary/javascript object")
+            raise serializers.ValidationError("preferences must be a python dictionary/javascript object")
             
         data = {
             **self.initial_data,
@@ -136,28 +142,32 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
             context=self.context,
         )
         serializer.is_valid(raise_exception=True)
-        if resource_type in [GroupChat, Channel]:
+        if resource_type in [groupchat, channel]:
             instance = serializer.save(creator=user)
         else:
             instance = serializer.save()
         
         try:
-            if resource_type == OneToOneChat:
+          
+            if resource_type == onetoonechat:
                 participants = data.get("participants")
+                if not isinstance(participants, list):
+                    participants = []
                 participants = User.objects.filter(id__in=participants)
                 instance.participants.set([*participants, user])
-            elif resource_type == GroupChat:
+            elif resource_type == groupchat:
                 participants = data.get("participants")
+                if not isinstance(participants, list):
+                    participants = []
                 participants = User.objects.filter(id__in=participants)
                 instance.participants.add(*participants)
     
             else:
                 subscribers = data.get("subscribers")
-                if not subscribers:
-                    raise Exception("Channel must have at least one subscriber")
+                if not isinstance(subscribers, list):
+                    subscribers = []
                 subscribers = User.objects.filter(id__in=subscribers)
                 instance.subscribers.add(*subscribers)
-                
         except Exception as e:
             instance.delete()
             raise serializers.ValidationError(e)
@@ -165,20 +175,26 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
             return instance
 
 class ReadReceiptSerializer(serializers.ModelSerializer):
-    reader = UserSerializer(read_only=True)
+    reader = get_serializer("UserSerializer")(read_only=True)
     reader_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         source="reader", 
         write_only=True,
         required=True,
     )
+    message_id = serializers.PrimaryKeyRelatedField(
+        queryset=get_model("Message").objects.all(),
+        source="message", 
+        write_only=True,
+        required=True,
+    )
     class Meta:
         model = ReadReceipt
-        fields = ['reader_id', 'reader', 'read_at']
+        fields = ['reader_id', 'message_id', 'reader', 'read_at']
 
 
 class ReactionSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    user = get_serializer("UserSerializer")(read_only=True)
     user_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         source="user", 
@@ -186,7 +202,7 @@ class ReactionSerializer(serializers.ModelSerializer):
         required=True,
     )
     message = serializers.PrimaryKeyRelatedField(
-        queryset=Message.objects.all(), required=True,
+        queryset=get_model("Message").objects.all(), required=True,
         write_only=True
         )
     class Meta:
@@ -199,7 +215,7 @@ class ReactionSerializer(serializers.ModelSerializer):
 
 class MessageMediaAssetSerializer(serializers.ModelSerializer):
     message_id = serializers.PrimaryKeyRelatedField(
-        queryset=Message.objects.all(),
+        queryset=get_model("Message").objects.all(),
         source="message", 
         write_only=True,
         required=True,
@@ -212,12 +228,12 @@ class MessageMediaAssetSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     room = serializers.SerializerMethodField(read_only=True)
     room_id = serializers.PrimaryKeyRelatedField(
-        queryset=Room.objects.all(),
+        queryset=get_model("Room").objects.all(),
         source="room",
         write_only=True,
         required=True
     )
-    sender = UserSerializer(read_only=True)
+    sender = get_serializer("UserSerializer")(read_only=True)
     sender_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         source="sender", 
@@ -238,9 +254,9 @@ class MessageSerializer(serializers.ModelSerializer):
     )
     parent_message = RecursiveField(allow_null=True, read_only=True)
     forwarded_from = RecursiveField(allow_null=True, read_only=True)
-    read_receipts = ReadReceiptSerializer(read_only=True, many=True)
-    reactions = ReactionSerializer(read_only=True, many=True)
-    attachments = MessageMediaAssetSerializer(read_only=True, many=True)
+    read_receipts = get_serializer("ReadReceiptSerializer")(read_only=True, many=True)
+    reactions = get_serializer("ReactionSerializer")(read_only=True, many=True)
+    attachments = get_serializer("MessageMediaAssetSerializer")(read_only=True, many=True)
     delivered_to = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Message
@@ -265,9 +281,9 @@ class MessageSerializer(serializers.ModelSerializer):
 
     
 class ChatNotificationSerializer(serializers.ModelSerializer):
-    message = MessageSerializer(read_only=True)
+    message = get_serializer("MessageSerializer")(read_only=True)
     message_id = serializers.PrimaryKeyRelatedField(
-        queryset=Message.objects.all(),
+        queryset=get_model("Message").objects.all(),
         source="message",
         write_only=True,
         required=True,

@@ -10,6 +10,9 @@ from channels.testing import WebsocketCommunicator
 from channels.layers import get_channel_layer
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from asgiref.sync import async_to_sync
+import pytest_asyncio
+
 
 User = get_user_model()
 
@@ -29,11 +32,13 @@ def pytest_configure(config):
     )
 
 
-# Django settings for tests
-@pytest.fixture(scope='session')
-def django_db_setup(django_db_setup, django_db_blocker):
-    """Override Django database setup for tests"""
-    pass
+# # Django settings for tests
+# @pytest.fixture(scope='session')
+# def django_db_setup(django_db_setup, django_db_blocker):
+#     """Override Django database setup for tests"""
+#     with django_db_blocker.unblock():
+#         from django.conf import settings
+
 
 
 # Clear cache before each test
@@ -49,10 +54,10 @@ def clear_channel_layers():
     """Clear channel layers before each test"""
     channel_layer = get_channel_layer()
     if hasattr(channel_layer, 'flush'):
-        channel_layer.flush()
+        async_to_sync(channel_layer.flush)()
     yield
     if hasattr(channel_layer, 'flush'):
-        channel_layer.flush()
+        async_to_sync(channel_layer.flush)()
 
 
 # Shared user fixtures
@@ -94,7 +99,7 @@ def create_users(db):
 
 # WebSocket communicator fixtures
 @pytest.fixture
-async def websocket_communicator():
+def websocket_communicator():
     """Factory fixture for creating WebSocket communicators"""
     from realtime_chat_messaging.consumers import ChatMessagingConsumer
     
@@ -214,6 +219,40 @@ def create_notification(db):
     return _create_notification
 
 
+@pytest.fixture(
+    params=[
+        ("<script>alert('xss')</script>", "alert('xss')"),
+        ("<p>Hello<script>alert(1)</script></p>", "<p>Helloalert(1)</p>"),
+        ('<p onclick="alert(1)">Click me</p>', "<p>Click me</p>"),
+        ('<a href="javascript:alert(1)">link</a>', "<a>link</a>"),
+        ('<a href="JaVaScRiPt:alert(1)">link</a>', "<a>link</a>"),
+        ('<a href="data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==">x</a>', "<a>x</a>"),
+        ('<img src="x" onerror="alert(1)">', ""),
+        ('<svg onload="alert(1)"></svg>', ""),
+        ('<p style="background:url(javascript:alert(1))">Test</p>', "<p>Test</p>"),
+        ('<!--<script>alert(1)</script>-->', ""),
+        ('<scr<script>ipt>alert(1)</scr</script>ipt>', "ipt&gt;alert(1)ipt&gt;"),
+        ('<ul><li>Item<script>alert(1)</script></li></ul>', "<ul><li>Itemalert(1)</li></ul>"),
+        ('<iframe src="https://evil.com"></iframe>', ""),
+        ('<a href="https://example.com" onclick="alert(1)" class="x">ok</a>',
+         '<a href="https://example.com" class="x">ok</a>'),
+        ('<p id="test" class="safe">hello</p>', '<p id="test" class="safe">hello</p>'),
+        ('&lt;script&gt;alert(1)&lt;/script&gt;', '&lt;script&gt;alert(1)&lt;/script&gt;'),
+        ('<p onclick="alert(1)"><a href="javascript:alert(2)">x</a><script>alert(3)</script></p>',
+         '<p><a>x</a>alert(3)</p>'),
+        ('<a href="https://example.com" target="_blank">go</a>',
+         '<a href="https://example.com" target="_blank">go</a>'),
+        ('<p data-test="x" aria-label="y">hi</p>', '<p>hi</p>'),
+        ('Hello<br><script>alert(1)</script>World', 'Hello<br>alert(1)World'),
+    ]
+)
+def html_payload(request):
+    content, expected = request.param
+    return content, expected
+
+
+
+
 # Async helper fixtures
 @pytest.fixture
 def async_db_operations():
@@ -287,11 +326,6 @@ def cleanup_messages():
     Message.objects.all().delete()
 
 
-# Mock fixtures for external dependencies
-@pytest.fixture
-def mock_notification_service(mocker):
-    """Mock external notification service"""
-    return mocker.patch('realtime_chat_messaging.utils.external_notification_service')
 
 
 # Parametrize helpers

@@ -1,8 +1,12 @@
 from django.shortcuts import get_object_or_404
-from realtime_chat_messaging.models import Message, Room, GroupChat, Channel
 from django.core.exceptions import ValidationError
+from realtime_chat_messaging.utils.loader import get_model
 
 
+Room = get_model("Room")
+Message = get_model("Message")
+GroupChat = get_model("GroupChat")
+Channel = get_model("Channel")
 
 class PermissionHelperMixin:
     @staticmethod
@@ -10,7 +14,7 @@ class PermissionHelperMixin:
         if type(room_id) not in [str, int]:
             raise ValidationError("Invalid room_id type")
 
-        room = get_object_or_404(Room, id=room_id)
+        room = get_object_or_404(Room, pk=room_id)
         is_permitted = False
         if (hasattr(room, "participants")):
             if room.participants.filter(pk=user.pk).exists():
@@ -72,7 +76,7 @@ class PermissionHelperMixin:
             raise ValidationError("Atleast one message_id is required for modification")
         message_rooms = set()
         for id in message_id:
-            message = get_object_or_404(Message, pk=id)
+            message = get_object_or_404(Message.objects.filter(is_deleted=False), pk=id)
             message_rooms.add(message.room)
             is_permitted = message.sender == user
             if not is_permitted:
@@ -82,24 +86,25 @@ class PermissionHelperMixin:
         return is_permitted, message_rooms.pop()
     
     @staticmethod
-    def _have_room_permissions_to_add_or_remove_members(user, room_id, perm_phrase):
+    def _have_room_permissions_to_add_or_remove_members(user, room_id, perm_phrase, default_admin_names={"group": "admins", "channel": "moderators"}):
         if type(room_id) not in [str, int]:
             raise ValidationError("Invalid room_id type")
         is_permitted = False
         room = get_object_or_404(Room, pk = room_id)
         if isinstance(room, GroupChat):
-            room = GroupChat.objects.prefetch_related('participants', 'admins').get(pk=room.pk)
-            is_permitted = user in room.participants.all() and (user.has_perm(f"can_{perm_phrase}_participants", room) or room.creator == user or user in room.admins.all())
+            room = get_object_or_404(GroupChat.objects.prefetch_related('participants', default_admin_names["group"]), pk=room.pk)
+        
+            is_permitted = user in room.participants.all() and (user.has_perm(f"can_{perm_phrase}_participants", room) or room.creator == user or user in getattr(room, default_admin_names["group"]).all())
         elif isinstance(room, Channel):
-            room = Channel.objects.prefetch_related('subscribers', 'moderators').get(pk=room.pk)
-            is_permitted = user in room.subscribers.all() and (user.has_perm(f"can_{perm_phrase}_subscribers", room) or room.creator == user or user in room.moderators.all())
+            room = get_object_or_404(Channel.objects.prefetch_related('subscribers', default_admin_names["channel"]), pk=room.pk)
+            is_permitted = user in room.subscribers.all() and (user.has_perm(f"can_{perm_phrase}_subscribers", room) or room.creator == user or user in getattr(room, default_admin_names["channel"]).all())
         else:
             raise ValidationError("Invalid room, Can only add or remove members from Groups/Channels")
         return is_permitted, room
 
 
     @staticmethod
-    def _have_send_message_permission(user, data):
+    def _have_send_message_permission(user, data, default_admin_names={"group": "admins", "channel": "moderators"}):
         is_permitted = False 
         room_id = data.get('room_id')
         message_id = data.get('message_id')
@@ -117,7 +122,7 @@ class PermissionHelperMixin:
             message = get_object_or_404(Message, pk=message_id)
             room = message.room
         
-        # first check if to see if the room is a channel..
+        # first check if the room is a channel..
             # only creators and moderators and people with permissions can post on channels
         
         # if group
@@ -125,10 +130,10 @@ class PermissionHelperMixin:
             # else any participants of the group can send messages to the group
         
         if isinstance(room, Channel):
-            is_permitted = room.subscribers.filter(pk=user.pk).exists() and (room.creator == user or room.moderators.filter(pk=user.pk).exists() or user.has_perm('can_send_messages', room))
+            is_permitted = room.subscribers.filter(pk=user.pk).exists() and (room.creator == user or getattr(room, default_admin_names["channel"]).filter(pk=user.pk).exists() or user.has_perm('can_send_messages', room))
         elif isinstance(room, GroupChat):
             if room.group_locked:
-                is_permitted = room.participants.filter(pk=user.pk).exists() and (room.creator == user or room.admins.filter(pk=user.pk).exists())
+                is_permitted = room.participants.filter(pk=user.pk).exists() and (room.creator == user or getattr(room, default_admin_names["group"]).filter(pk=user.pk).exists())
             else:
                 is_permitted = room.participants.filter(pk=user.pk).exists()
         else:
@@ -137,14 +142,14 @@ class PermissionHelperMixin:
         return is_permitted, room
 
     @staticmethod
-    def _have_admin_privileges(user, room_id):
+    def _have_admin_privileges(user, room_id, default_admin_names={"group": "admins", "channel": "moderators"}):
         is_permitted = True
         room = get_object_or_404(Room, pk = room_id)
         if isinstance(room, GroupChat):
-            room = GroupChat.objects.prefetch_related('participants', 'admins').get(pk=room.pk)
-            is_permitted = user in room.participants.all() and (room.creator == user or user in room.admins.all())
+            room = GroupChat.objects.prefetch_related('participants', default_admin_names["group"]).get(pk=room.pk)
+            is_permitted = user in room.participants.all() and (room.creator == user or user in getattr(room, default_admin_names["group"]).all())
         elif isinstance(room, Channel):
-            room = Channel.objects.prefetch_related('subscribers', 'moderators').get(pk=room.pk)
-            is_permitted = user in room.subscribers.all() and (room.creator == user or user in room.moderators.all())
+            room = Channel.objects.prefetch_related('subscribers', default_admin_names["channel"]).get(pk=room.pk)
+            is_permitted = user in room.subscribers.all() and (room.creator == user or user in getattr(room, default_admin_names["channel"]).all())
 
         return is_permitted, room

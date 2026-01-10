@@ -2,7 +2,9 @@ from django.dispatch import receiver
 from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.core.exceptions import ValidationError
 from guardian.shortcuts import assign_perm,remove_perm
-from .models import OneToOneChat, GroupChat, Channel, ChatNotification,Reaction, User
+from .models import OneToOneChat, GroupChat, Channel, ChatNotification,Reaction
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 @receiver(m2m_changed, sender=OneToOneChat.participants.through)
@@ -41,11 +43,12 @@ def delete_channels_and_groups_with_no_participants_and_max_participants_enforce
         if (hasattr(instance, "participants") and instance.participants.count() < 1) or (hasattr(instance, "subscribers") and instance.subscribers.count() < 1):
             instance.delete()
     elif action == "pre_add":
+
         if sender == GroupChat.participants.through:
-            if instance.participants.count() + len(pk_set) > instance.max_participants:
+            if (instance.participants.count() + len(pk_set)) > instance.max_participants:
                 raise ValidationError("Maximum number of group participants exceeded")
         else:
-            if instance.subscribers.count() + len(pk_set) > instance.max_subscribers:
+            if (instance.subscribers.count() + len(pk_set)) > instance.max_subscribers:
                 raise ValidationError("Maximum number of channel subscribers exceeded")
 
 

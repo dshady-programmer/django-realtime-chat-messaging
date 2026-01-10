@@ -1,9 +1,7 @@
 from django.db import models
 from django.conf import settings 
 # Create your models here.
-from django.db.models import F,Q
-import uuid
-from polymorphic.models import PolymorphicModel
+from django.db.models import Q
 from .types import ALLOWED_MIME_TYPES, MEDIATYPE_CHOICES
 from .model_mixins import (
     AbstractRoom, AbstractChannel, AbstractGroupChat, 
@@ -16,7 +14,7 @@ User = settings.AUTH_USER_MODEL
 
 
 
-class Room(PolymorphicModel, AbstractRoom):
+class Room(AbstractRoom):
     """Generic models for all chat types"""
     preferences = models.JSONField(default=dict)
 
@@ -36,11 +34,8 @@ class GroupChat(Room, AbstractGroupChat):
     join_approval_required = models.BooleanField(default=False)
     group_locked = models.BooleanField(default=False) # in the case of "only admins can send messages"
 
-    class Meta:
-        permissions = [
-            ("can_add_new_participants", "Can add new participants"),
-            ("can_remove_participants", "Can remove participants")
-        ]
+    class Meta(AbstractGroupChat.Meta):
+        abstract = False
         swappable = 'REALTIME_CHAT_MESSAGING_GROUPCHAT_MODEL'
 
 class Channel(Room, AbstractChannel):
@@ -49,12 +44,8 @@ class Channel(Room, AbstractChannel):
     moderators = models.ManyToManyField(User, related_name="channels_moderated")
     max_subscribers = models.PositiveBigIntegerField(default=300)
     
-    class Meta:
-        permissions = [
-            ("can_add_new_subscribers", "Can add new subscribers"), 
-            ("can_remove_subscribers", "Can remove subscribers"), 
-            ("can_send_messages", "Can send messages"),
-        ]
+    class Meta(AbstractChannel.Meta):
+        abstract = False
         swappable = 'REALTIME_CHAT_MESSAGING_CHANNEL_MODEL'
 
     
@@ -65,7 +56,6 @@ class Message(AbstractMessage):
     is_forwarded = models.BooleanField(default=False)
     forwarded_from = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, related_name="forwarded")
     is_edited = models.BooleanField(default=False)
-    is_deleted = models.BooleanField(default=False)
     delivered_to  = models.ManyToManyField(User, related_name="messages_received")
 
     class Meta:

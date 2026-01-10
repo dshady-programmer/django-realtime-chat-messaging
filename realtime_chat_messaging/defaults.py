@@ -10,7 +10,15 @@ DEFAULTS = {
                 "ReactionSerializer": "realtime_chat_messaging.serializers.ReactionSerializer",
                 "MessageMediaAssetSerializer": "realtime_chat_messaging.serializers.MessageMediaAssetSerializer",
                 "MessageSerializer": "realtime_chat_messaging.serializers.MessageSerializer",
-                "ChatNotificationSerializer": "realtime_chat_messaging.serializers.ChatNotificationSerializer"
+                "ChatNotificationSerializer": "realtime_chat_messaging.serializers.ChatNotificationSerializer",
+                "UserSerializer": "realtime_chat_messaging.serializers.UserSerializer",
+                "OneToOneChatListSerializer": "realtime_chat_messaging.serializers.OneToOneChatListSerializer",
+                "GroupChatListSerializer": "realtime_chat_messaging.serializers.GroupChatListSerializer",
+                "ChannelListSerializer": "realtime_chat_messaging.serializers.ChannelListSerializer",
+                "OneToOneChatSerializer": "realtime_chat_messaging.serializers.OneToOneChatSerializer",
+                "GroupChatSerializer": "realtime_chat_messaging.serializers.GroupChatSerializer",
+                "ChannelSerializer": "realtime_chat_messaging.serializers.ChannelSerializer",
+                "ReadReceiptSerializer": "realtime_chat_messaging.serializers.ReadReceiptSerializer"
         },
         "MODELS": {
                 "Room": "realtime_chat_messaging.Room", 

@@ -11,14 +11,9 @@ User = get_user_model()
 
 
 @pytest.fixture
-def users(db):
-    """Create test users"""
-    return {
-        'user1': User.objects.create_user(username='user1', email='user1@test.com', password='pass123'),
-        'user2': User.objects.create_user(username='user2', email='user2@test.com', password='pass123'),
-        'user3': User.objects.create_user(username='user3', email='user3@test.com', password='pass123'),
-        'user4': User.objects.create_user(username='user4', email='user4@test.com', password='pass123'),
-    }
+def users(create_users):
+    """Create 10 test users"""
+    return create_users(10)
 
 
 @pytest.mark.django_db
@@ -28,23 +23,23 @@ class TestOneToOneChatSignals:
     def test_enforce_two_participants_on_add(self, users):
         """Test that adding more than 2 participants raises error"""
         chat = OneToOneChat.objects.create()
-        chat.participants.set([users['user1'], users['user2']])
+        chat.participants.set([users[0], users[1]])
         
         with pytest.raises(ValidationError, match="A one to one chat can only have 2 participants"):
-            chat.participants.add(users['user3'])
+            chat.participants.add(users[2])
 
     def test_enforce_two_participants_on_remove(self, users):
         """Test that removing participant raises error"""
         chat = OneToOneChat.objects.create()
-        chat.participants.set([users['user1'], users['user2']])
+        chat.participants.set([users[0], users[1]])
         
         with pytest.raises(ValidationError, match="A one to one chat can only have 2 participants"):
-            chat.participants.remove(users['user1'])
+            chat.participants.remove(users[0])
 
     def test_enforce_two_participants_on_clear(self, users):
         """Test that clearing participants raises error"""
         chat = OneToOneChat.objects.create()
-        chat.participants.set([users['user1'], users['user2']])
+        chat.participants.set([users[0], users[1]])
         
         with pytest.raises(ValidationError, match="A one to one chat can only have 2 participants"):
             chat.participants.clear()
@@ -52,28 +47,28 @@ class TestOneToOneChatSignals:
     def test_prevent_duplicate_one_to_one_chat(self, users):
         """Test that duplicate one-to-one chats are prevented"""
         chat1 = OneToOneChat.objects.create()
-        chat1.participants.set([users['user1'], users['user2']])
+        chat1.participants.set([users[0], users[1]])
         
         chat2 = OneToOneChat.objects.create()
         with pytest.raises(ValidationError, match="Chat already exists"):
-            chat2.participants.set([users['user1'], users['user2']])
+            chat2.participants.set([users[0], users[1]])
 
     def test_prevent_duplicate_with_reversed_order(self, users):
         """Test that duplicate detection works regardless of participant order"""
         chat1 = OneToOneChat.objects.create()
-        chat1.participants.set([users['user1'], users['user2']])
+        chat1.participants.set([users[0], users[1]])
         
         chat2 = OneToOneChat.objects.create()
         with pytest.raises(ValidationError, match="Chat already exists"):
-            chat2.participants.set([users['user2'], users['user1']])
+            chat2.participants.set([users[1], users[0]])
 
     def test_different_participants_allowed(self, users):
         """Test that different participant combinations are allowed"""
         chat1 = OneToOneChat.objects.create()
-        chat1.participants.set([users['user1'], users['user2']])
+        chat1.participants.set([users[0], users[1]])
         
         chat2 = OneToOneChat.objects.create()
-        chat2.participants.set([users['user1'], users['user3']])
+        chat2.participants.set([users[0], users[2]])
         
         assert OneToOneChat.objects.count() == 2
 
@@ -86,47 +81,47 @@ class TestGroupChatSignals:
         """Test that creator is automatically added as participant"""
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1']
+            creator=users[0]
         )
         
-        assert users['user1'] in group.participants.all()
+        assert users[0] in group.participants.all()
 
     def test_creator_added_as_admin_on_creation(self, users):
         """Test that creator is automatically added as admin"""
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1']
+            creator=users[0]
         )
         
-        assert users['user1'] in group.admins.all()
+        assert users[0] in group.admins.all()
 
     def test_creator_gets_add_participants_permission(self, users):
         """Test that creator gets can_add_new_participants permission"""
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1']
+            creator=users[0]
         )
         
-        assert users['user1'].has_perm('can_add_new_participants', group)
+        assert users[0].has_perm('can_add_new_participants', group)
 
     def test_creator_gets_remove_participants_permission(self, users):
         """Test that creator gets can_remove_participants permission"""
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1']
+            creator=users[0]
         )
         
-        assert users['user1'].has_perm('can_remove_participants', group)
+        assert users[0].has_perm('can_remove_participants', group)
 
     def test_group_deleted_when_no_participants(self, users):
         """Test that group is deleted when all participants leave"""
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1']
+            creator=users[0]
         )
         group_id = group.id
         
-        group.participants.remove(users['user1'])
+        group.participants.remove(users[0])
         
         assert not GroupChat.objects.filter(id=group_id).exists()
 
@@ -134,67 +129,67 @@ class TestGroupChatSignals:
         """Test that max_participants limit is enforced"""
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1'],
+            creator=users[0],
             max_participants=2
         )
         
-        group.participants.add(users['user2'])
+        group.participants.add(users[1])
         
         with pytest.raises(ValidationError, match="Maximum number of group participants exceeded"):
-            group.participants.add(users['user3'])
+            group.participants.add(users[2])
 
     def test_max_participants_enforced_on_bulk_add(self, users):
         """Test that max_participants is enforced on bulk add"""
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1'],
+            creator=users[0],
             max_participants=2
         )
         
         # Try to add 2 users when only 1 spot available
         with pytest.raises(ValidationError, match="Maximum number of group participants exceeded"):
-            group.participants.add(users['user2'], users['user3'])
+            group.participants.add(users[1], users[2])
 
     def test_admin_gets_permissions_on_add(self, users):
         """Test that adding admin grants permissions"""
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1']
+            creator=users[0]
         )
-        group.participants.add(users['user2'])
+        group.participants.add(users[1])
         
         # Add as admin
-        group.admins.add(users['user2'])
+        group.admins.add(users[1])
         
-        assert users['user2'].has_perm('can_add_new_participants', group)
-        assert users['user2'].has_perm('can_remove_participants', group)
+        assert users[1].has_perm('can_add_new_participants', group)
+        assert users[1].has_perm('can_remove_participants', group)
 
     def test_admin_loses_permissions_on_remove(self, users):
         """Test that removing admin revokes permissions"""
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1']
+            creator=users[0]
         )
-        group.participants.add(users['user2'])
-        group.admins.add(users['user2'])
+        group.participants.add(users[1])
+        group.admins.add(users[1])
         
         # Remove admin
-        group.admins.remove(users['user2'])
+        group.admins.remove(users[1])
         
-        assert not users['user2'].has_perm('can_add_new_participants', group)
-        assert not users['user2'].has_perm('can_remove_participants', group)
+        assert not users[1].has_perm('can_add_new_participants', group)
+        assert not users[1].has_perm('can_remove_participants', group)
 
     def test_multiple_admins_can_be_added(self, users):
         """Test that multiple admins can be added"""
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1']
+            creator=users[0]
         )
-        group.participants.add(users['user2'], users['user3'])
-        group.admins.add(users['user2'], users['user3'])
+        group.participants.add(users[1], users[2])
+        group.admins.add(users[1], users[2])
         
-        assert users['user2'].has_perm('can_add_new_participants', group)
-        assert users['user3'].has_perm('can_add_new_participants', group)
+        assert users[1].has_perm('can_add_new_participants', group)
+        assert users[2].has_perm('can_add_new_participants', group)
 
 
 @pytest.mark.django_db
@@ -205,40 +200,40 @@ class TestChannelSignals:
         """Test that creator is automatically added as subscriber"""
         channel = Channel.objects.create(
             name="Test Channel",
-            creator=users['user1']
+            creator=users[0]
         )
         
-        assert users['user1'] in channel.subscribers.all()
+        assert users[0] in channel.subscribers.all()
 
     def test_creator_added_as_moderator_on_creation(self, users):
         """Test that creator is automatically added as moderator"""
         channel = Channel.objects.create(
             name="Test Channel",
-            creator=users['user1']
+            creator=users[0]
         )
         
-        assert users['user1'] in channel.moderators.all()
+        assert users[0] in channel.moderators.all()
 
     def test_creator_gets_channel_permissions(self, users):
         """Test that creator gets all channel permissions"""
         channel = Channel.objects.create(
             name="Test Channel",
-            creator=users['user1']
+            creator=users[0]
         )
         
-        assert users['user1'].has_perm('can_add_new_subscribers', channel)
-        assert users['user1'].has_perm('can_remove_subscribers', channel)
-        assert users['user1'].has_perm('can_send_messages', channel)
+        assert users[0].has_perm('can_add_new_subscribers', channel)
+        assert users[0].has_perm('can_remove_subscribers', channel)
+        assert users[0].has_perm('can_send_messages', channel)
 
     def test_channel_deleted_when_no_subscribers(self, users):
         """Test that channel is deleted when all subscribers leave"""
         channel = Channel.objects.create(
             name="Test Channel",
-            creator=users['user1']
+            creator=users[0]
         )
         channel_id = channel.id
         
-        channel.subscribers.remove(users['user1'])
+        channel.subscribers.remove(users[0])
         
         assert not Channel.objects.filter(id=channel_id).exists()
 
@@ -246,45 +241,45 @@ class TestChannelSignals:
         """Test that max_subscribers limit is enforced"""
         channel = Channel.objects.create(
             name="Test Channel",
-            creator=users['user1'],
+            creator=users[0],
             max_subscribers=2
         )
         
-        channel.subscribers.add(users['user2'])
+        channel.subscribers.add(users[1])
         
         with pytest.raises(ValidationError, match="Maximum number of channel subscribers exceeded"):
-            channel.subscribers.add(users['user3'])
+            channel.subscribers.add(users[2])
 
     def test_moderator_gets_permissions_on_add(self, users):
         """Test that adding moderator grants permissions"""
         channel = Channel.objects.create(
             name="Test Channel",
-            creator=users['user1']
+            creator=users[0]
         )
-        channel.subscribers.add(users['user2'])
+        channel.subscribers.add(users[1])
         
         # Add as moderator
-        channel.moderators.add(users['user2'])
+        channel.moderators.add(users[1])
         
-        assert users['user2'].has_perm('can_add_new_subscribers', channel)
-        assert users['user2'].has_perm('can_remove_subscribers', channel)
-        assert users['user2'].has_perm('can_send_messages', channel)
+        assert users[1].has_perm('can_add_new_subscribers', channel)
+        assert users[1].has_perm('can_remove_subscribers', channel)
+        assert users[1].has_perm('can_send_messages', channel)
 
     def test_moderator_loses_permissions_on_remove(self, users):
         """Test that removing moderator revokes permissions"""
         channel = Channel.objects.create(
             name="Test Channel",
-            creator=users['user1']
+            creator=users[0]
         )
-        channel.subscribers.add(users['user2'])
-        channel.moderators.add(users['user2'])
+        channel.subscribers.add(users[1])
+        channel.moderators.add(users[1])
         
         # Remove moderator
-        channel.moderators.remove(users['user2'])
+        channel.moderators.remove(users[1])
         
-        assert not users['user2'].has_perm('can_add_new_subscribers', channel)
-        assert not users['user2'].has_perm('can_remove_subscribers', channel)
-        assert not users['user2'].has_perm('can_send_messages', channel)
+        assert not users[1].has_perm('can_add_new_subscribers', channel)
+        assert not users[1].has_perm('can_remove_subscribers', channel)
+        assert not users[1].has_perm('can_send_messages', channel)
 
 
 @pytest.mark.django_db
@@ -294,11 +289,11 @@ class TestChatNotificationSignals:
     def test_notification_deleted_when_no_recipients(self, users):
         """Test that notification is deleted when all recipients are removed"""
         chat = OneToOneChat.objects.create()
-        chat.participants.set([users['user1'], users['user2']])
+        chat.participants.set([users[0], users[1]])
         
         message = Message.objects.create(
             room=chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Test"
         )
         
@@ -306,22 +301,22 @@ class TestChatNotificationSignals:
             message=message,
             notification_type='NEW_MESSAGE'
         )
-        notification.recipients.add(users['user2'])
+        notification.recipients.add(users[1])
         notification_id = notification.id
         
         # Remove all recipients
-        notification.recipients.remove(users['user2'])
+        notification.recipients.remove(users[1])
         
         assert not ChatNotification.objects.filter(id=notification_id).exists()
 
     def test_notification_not_deleted_when_recipients_exist(self, users):
         """Test that notification is not deleted when recipients still exist"""
         chat = OneToOneChat.objects.create()
-        chat.participants.set([users['user1'], users['user2']])
+        chat.participants.set([users[0], users[1]])
         
         message = Message.objects.create(
             room=chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Test"
         )
         
@@ -329,10 +324,10 @@ class TestChatNotificationSignals:
             message=message,
             notification_type='NEW_MESSAGE'
         )
-        notification.recipients.add(users['user2'], users['user3'])
+        notification.recipients.add(users[1], users[2])
         
         # Remove one recipient
-        notification.recipients.remove(users['user2'])
+        notification.recipients.remove(users[1])
         
         # Notification should still exist
         assert ChatNotification.objects.filter(id=notification.id).exists()
@@ -341,11 +336,11 @@ class TestChatNotificationSignals:
     def test_notification_deleted_on_clear(self, users):
         """Test that notification is deleted when recipients are cleared"""
         chat = OneToOneChat.objects.create()
-        chat.participants.set([users['user1'], users['user2']])
+        chat.participants.set([users[0], users[1]])
         
         message = Message.objects.create(
             room=chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Test"
         )
         
@@ -353,7 +348,7 @@ class TestChatNotificationSignals:
             message=message,
             notification_type='NEW_MESSAGE'
         )
-        notification.recipients.add(users['user2'])
+        notification.recipients.add(users[1])
         notification_id = notification.id
         
         # Clear all recipients
@@ -369,17 +364,17 @@ class TestReactionSignals:
     def test_empty_reaction_content_raises_error(self, users):
         """Test that empty reaction_content raises ValidationError"""
         chat = OneToOneChat.objects.create()
-        chat.participants.set([users['user1'], users['user2']])
+        chat.participants.set([users[0], users[1]])
         
         message = Message.objects.create(
             room=chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Test"
         )
         
         reaction = Reaction(
             message=message,
-            user=users['user2'],
+            user=users[1],
             reaction_content=""
         )
         
@@ -389,18 +384,18 @@ class TestReactionSignals:
     def test_reaction_update_deletes_old_reaction(self, users):
         """Test that updating reaction deletes old one"""
         chat = OneToOneChat.objects.create()
-        chat.participants.set([users['user1'], users['user2']])
+        chat.participants.set([users[0], users[1]])
         
         message = Message.objects.create(
             room=chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Test"
         )
         
         # Create first reaction
         reaction1 = Reaction.objects.create(
             message=message,
-            user=users['user2'],
+            user=users[1],
             reaction_content="👍"
         )
         reaction1_id = reaction1.id
@@ -408,7 +403,7 @@ class TestReactionSignals:
         # Create second reaction with different content
         reaction2 = Reaction(
             message=message,
-            user=users['user2'],
+            user=users[1],
             reaction_content="❤️"
         )
         reaction2.save()
@@ -417,25 +412,25 @@ class TestReactionSignals:
         assert not Reaction.objects.filter(id=reaction1_id).exists()
         
         # New reaction should exist
-        assert Reaction.objects.filter(message=message, user=users['user2']).count() == 1
-        current_reaction = Reaction.objects.get(message=message, user=users['user2'])
+        assert Reaction.objects.filter(message=message, user=users[1]).count() == 1
+        current_reaction = Reaction.objects.get(message=message, user=users[1])
         assert current_reaction.reaction_content == "❤️"
 
     def test_same_reaction_content_not_deleted(self, users):
         """Test that same reaction content doesn't trigger deletion"""
         chat = OneToOneChat.objects.create()
-        chat.participants.set([users['user1'], users['user2']])
+        chat.participants.set([users[0], users[1]])
         
         message = Message.objects.create(
             room=chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Test"
         )
         
         # Create reaction
         reaction1 = Reaction.objects.create(
             message=message,
-            user=users['user2'],
+            user=users[1],
             reaction_content="👍"
         )
         reaction1_id = reaction1.id
@@ -451,23 +446,23 @@ class TestReactionSignals:
     def test_different_users_can_have_different_reactions(self, users):
         """Test that different users can react to same message"""
         chat = OneToOneChat.objects.create()
-        chat.participants.set([users['user1'], users['user2']])
+        chat.participants.set([users[0], users[1]])
         
         message = Message.objects.create(
             room=chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Test"
         )
         
         reaction1 = Reaction.objects.create(
             message=message,
-            user=users['user2'],
+            user=users[1],
             reaction_content="👍"
         )
         
         reaction2 = Reaction.objects.create(
             message=message,
-            user=users['user3'],
+            user=users[2],
             reaction_content="❤️"
         )
         
@@ -484,14 +479,14 @@ class TestSignalEdgeCases:
         """Test complex scenario: removing last admin also triggers group deletion"""
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1'],
+            creator=users[0],
             max_participants=1
         )
         
         # Creator is the only participant and admin
         group_id = group.id
         
-        group.participants.remove(users['user1'])
+        group.participants.remove(users[0])
         
         # Group should be deleted
         assert not GroupChat.objects.filter(id=group_id).exists()
@@ -501,43 +496,43 @@ class TestSignalEdgeCases:
         # Create group (triggers post_save signal)
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1']
+            creator=users[0]
         )
         
         # Add participants (triggers m2m_changed)
-        group.participants.add(users['user2'])
+        group.participants.add(users[1])
         
         # Add admin (triggers m2m_changed for permissions)
-        group.admins.add(users['user2'])
+        group.admins.add(users[1])
         
         # Verify all signals worked correctly
-        assert users['user1'] in group.participants.all()
-        assert users['user2'] in group.participants.all()
-        assert users['user2'].has_perm('can_add_new_participants', group)
+        assert users[0] in group.participants.all()
+        assert users[1] in group.participants.all()
+        assert users[1].has_perm('can_add_new_participants', group)
 
     def test_bulk_operations_handle_signals_correctly(self, users):
         """Test that bulk operations handle signals correctly"""
         group = GroupChat.objects.create(
             name="Test Group",
-            creator=users['user1'],
+            creator=users[0],
             max_participants=10
         )
         
         # Bulk add participants
-        group.participants.add(users['user2'], users['user3'], users['user4'])
+        group.participants.add(users[1], users[2], users[3])
         
         assert group.participants.count() == 4
 
     def test_signal_rollback_on_error(self, users):
         """Test that errors in signals prevent operation"""
         chat = OneToOneChat.objects.create()
-        chat.participants.set([users['user1'], users['user2']])
+        chat.participants.set([users[0], users[1]])
         
         initial_count = chat.participants.count()
         
         # Try to add third participant (should fail)
         with pytest.raises(ValidationError):
-            chat.participants.add(users['user3'])
+            chat.participants.add(users[2])
         
         # Count should remain unchanged
         assert chat.participants.count() == initial_count

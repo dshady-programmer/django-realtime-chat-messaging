@@ -9,57 +9,43 @@ from realtime_chat_messaging.models import (
     OneToOneChat, GroupChat, Channel, Message,
     ReadReceipt, Reaction, ChatNotification
 )
+import pytest_asyncio
 
 User = get_user_model()
 
 
 @pytest.fixture
-def users(db):
-    """Create test users"""
-    return {
-        'user1': User.objects.create_user(username='user1', email='user1@test.com', password='pass123'),
-        'user2': User.objects.create_user(username='user2', email='user2@test.com', password='pass123'),
-        'user3': User.objects.create_user(username='user3', email='user3@test.com', password='pass123'),
-    }
+def users(create_users):
+    """Create 10 test users"""
+    return create_users(10)
 
 
-@pytest.fixture
-async def communicator(users):
+@pytest_asyncio.fixture
+async def communicator(websocket_communicator, users):
     """Create a WebSocket communicator"""
-    communicator = WebsocketCommunicator(
-        ChatMessagingConsumer.as_asgi(),
-        "/messaging/"
-    )
-    communicator.scope['user'] = users['user1']
-    return communicator
+    return await websocket_communicator(users[0])
+     
 
 
 @pytest.fixture
-def one_to_one_chat(users, db):
+def one_to_one_chat(users, create_one_to_one_chat):
     """Create a one-to-one chat"""
-    chat = OneToOneChat.objects.create()
-    chat.participants.set([users['user1'], users['user2']])
-    return chat
+    return create_one_to_one_chat(users[0], users[1])
+    
 
 
 @pytest.fixture
-def group_chat(users, db):
+def group_chat(users, create_group_chat):
     """Create a group chat"""
-    return GroupChat.objects.create(
-        name="Test Group",
-        description="A test group",
-        creator=users['user1']
-    )
 
+    return create_group_chat(users[0], "Test Group", description="A test group")
+    
 
 @pytest.fixture
-def channel_fixture(users, db):
+def channel(users, create_channel):
     """Create a channel"""
-    return Channel.objects.create(
-        name="Test Channel",
-        description="A test channel",
-        creator=users['user1']
-    )
+    return create_channel(users[0], "Test Channel", description="A test channel", is_public=True)
+
 
 
 @pytest.mark.asyncio
@@ -67,25 +53,16 @@ def channel_fixture(users, db):
 class TestWebSocketConnection:
     """Test WebSocket connection and disconnection"""
 
-    async def test_authenticated_user_can_connect(self, users):
+    async def test_authenticated_user_can_connect(self, communicator):
         """Test that authenticated user can connect"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user1']
-        
         connected, _ = await communicator.connect()
         assert connected
         
         await communicator.disconnect()
 
-    async def test_unauthenticated_user_cannot_connect(self):
+    async def test_unauthenticated_user_cannot_connect(self, communicator):
         """Test that unauthenticated user cannot connect"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
+
         
         # Mock anonymous user
         class AnonymousUser:
@@ -97,16 +74,10 @@ class TestWebSocketConnection:
         connected, close_code = await communicator.connect()
         
         # Should close with custom code 4001
-        assert not connected or close_code == 4001
+        assert not connected and close_code == 4001
 
-    async def test_disconnect_cleanup(self, users):
+    async def test_disconnect_cleanup(self, communicator):
         """Test that disconnect properly cleans up"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user1']
-        
         await communicator.connect()
         await communicator.disconnect()
         
@@ -118,7 +89,7 @@ class TestWebSocketConnection:
         # Create a notification for the user
         message = await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user2'],
+            sender=users[1],
             content="Test message"
         )
         
@@ -126,18 +97,18 @@ class TestWebSocketConnection:
             message=message,
             notification_type='NEW_MESSAGE'
         )
-        await database_sync_to_async(notification.recipients.add)(users['user1'])
+        await database_sync_to_async(notification.recipients.add)(users[0])
         
         communicator = WebsocketCommunicator(
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         
         await communicator.connect()
         
         response = await communicator.receive_json_from()
-        
+        # print(response)
         assert response['eventType'] == 'chat.notifications'
         assert 'data' in response
         
@@ -149,21 +120,19 @@ class TestWebSocketConnection:
 class TestRoomCreation:
     """Test room creation events"""
 
-    async def test_create_one_to_one_chat(self, users):
+    async def test_create_one_to_one_chat(self, communicator, users):
         """Test creating a one-to-one chat via WebSocket"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user1']
+
+        communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
+
         # Send room creation event
         await communicator.send_json_to({
-            'event_type': 'receive_room_create_event',
+            'event_type': 'room.create',
             'data': {
                 'type': 'OneToOneChat',
-                'participants': [users['user2'].id]
+                'participants': [users[1].id]
             }
         })
         
@@ -175,22 +144,44 @@ class TestRoomCreation:
         
         await communicator.disconnect()
 
-    async def test_create_group_chat(self, users):
-        """Test creating a group chat via WebSocket"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user1']
+    async def test_create_one_to_one_chat_with_more_than_2_participants(self, communicator, users):
+        """Test creating a one-to-one chat via WebSocket with more than 2 participants"""
+
+        communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
+
+        # Send room creation event
         await communicator.send_json_to({
-            'event_type': 'receive_room_create_event',
+            'event_type': 'room.create',
+            'data': {
+                'type': 'OneToOneChat',
+                'participants': [users[1].id, users[2].id]
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert 'eventType' not in response
+        assert 'error' in response
+        assert 'A one to one chat can only have 2 participants' in str(response['error']['detail'])
+        
+        await communicator.disconnect()
+
+    async def test_create_group_chat(self, communicator,  users):
+        """Test creating a group chat via WebSocket"""
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+
+        await communicator.send_json_to({
+            'event_type': 'room.create',
             'data': {
                 'type': 'GroupChat',
                 'name': 'New Group',
                 'description': 'Test group',
-                'participants': [users['user2'].id]
+                'participants': [u.id for u in users[1:8]]
             }
         })
         
@@ -199,25 +190,78 @@ class TestRoomCreation:
         assert response['eventType'] == 'roomcreate.dispatch'
         assert response['data']['type'] == 'GroupChat'
         assert response['data']['name'] == 'New Group'
+        assert len(response['data']['participants']) == 8
         
         await communicator.disconnect()
 
-    async def test_create_channel(self, users):
-        """Test creating a channel via WebSocket"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user1']
+    async def test_create_group_chat_with_extra_fields(self, communicator, users):
+        "Test creating a groupchat with extra args via WebSocket"
+        communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
+
         await communicator.send_json_to({
-            'event_type': 'receive_room_create_event',
+            'event_type': 'room.create',
+            'data': {
+                'type': 'GroupChat',
+                'name': 'New Group',
+                'description': 'Test group',
+                'participants': [u.id for u in users[1:8]],
+                'extra_fields': {
+                    'max_participants': 10,
+                    'join_approval_required': True,
+                    'group_locked': True
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomcreate.dispatch'
+        assert response['data']['max_participants'] == 10
+        assert response['data']['join_approval_required'] == True
+        assert response['data']['group_locked'] == True
+
+    async def test_create_groupchat_with_max_participants_enforcement(self, communicator, users):
+        "Test creating a groupchat will enforce max_participants if provided"
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+
+        await communicator.send_json_to({
+            'event_type': 'room.create',
+            'data': {
+                'type': 'GroupChat',
+                'name': 'New GroupChat',
+                'description': 'Test groupchat',
+                'participants': [u.id for u in users[1:8]],
+                'extra_fields': {
+
+                    'max_participants': 5
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert 'error' in response
+        assert 'Maximum number of group participants exceeded' in str(response['error']['detail'])
+
+
+
+    async def test_create_channel(self, communicator, users):
+        """Test creating a channel via WebSocket"""
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.create',
             'data': {
                 'type': 'Channel',
                 'name': 'New Channel',
                 'description': 'Test channel',
-                'subscribers': [users['user2'].id]
+                'subscribers': [u.id for u in users[1:8]]
             }
         })
         
@@ -226,20 +270,71 @@ class TestRoomCreation:
         assert response['eventType'] == 'roomcreate.dispatch'
         assert response['data']['type'] == 'Channel'
         assert response['data']['name'] == 'New Channel'
+        assert len(response['data']['subscribers']) == 8
         
         await communicator.disconnect()
-
-    async def test_create_room_with_preferences(self, users):
-        """Test creating room with custom preferences"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user1']
+    
+    async def test_create_channel_with_extra_fields(self, communicator, users):
+        "Test creating a channel with extra args via WebSocket"
+        communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
+
         await communicator.send_json_to({
-            'event_type': 'receive_room_create_event',
+            'event_type': 'room.create',
+            'data': {
+                'type': 'Channel',
+                'name': 'New Channel',
+                'description': 'Test channel',
+                'participants': [u.id for u in users[1:8]],
+                'extra_fields': {
+                    'is_public': True,
+                    'max_subscribers': 10
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomcreate.dispatch'
+        assert response['data']['is_public'] == True
+        assert response['data']['max_subscribers'] == 10
+
+    async def test_create_channel_with_max_sub_enforcement(self, communicator, users):
+        "Test creating a channel will enforce max_subscribers if provided"
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+
+        await communicator.send_json_to({
+            'event_type': 'room.create',
+            'data': {
+                'type': 'Channel',
+                'name': 'New Channel',
+                'description': 'Test channel',
+                'subscribers': [u.id for u in users[1:8]],
+                'extra_fields': {
+
+                    'max_subscribers': 5
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert 'error' in response
+        assert 'Maximum number of channel subscribers exceeded' in str(response['error']['detail'])
+
+
+    async def test_create_room_with_preferences(self, communicator, users):
+        """Test creating room with custom preferences"""
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+
+        await communicator.send_json_to({
+            'event_type': 'room.create',
             'data': {
                 'type': 'GroupChat',
                 'name': 'Pref Group',
@@ -250,22 +345,21 @@ class TestRoomCreation:
         })
         
         response = await communicator.receive_json_from()
-        
+
         assert response['data']['preferences'] == {'theme': 'dark'}
+        assert len(response['data']['participants']) == 1
+
         
         await communicator.disconnect()
 
-    async def test_invalid_room_type_returns_error(self, users):
+    async def test_invalid_room_type_returns_error(self, communicator, users):
         """Test that invalid room type returns error"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
+
         await communicator.send_json_to({
-            'event_type': 'receive_room_create_event',
+            'event_type': 'room.create',
             'data': {
                 'type': 'InvalidType',
                 'name': 'Test'
@@ -279,6 +373,38 @@ class TestRoomCreation:
         
         await communicator.disconnect()
 
+    async def test_create_room_dispatches_event_to_members(self, communicator, users):
+        """
+        test room create event propagates to all members of the group.
+        """
+        communicator1= WebsocketCommunicator(
+            ChatMessagingConsumer.as_asgi(),
+            "/messaging/"
+        )
+        communicator1.scope['user'] = users[3]
+
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator1.connect()
+        await communicator1.receive_json_from()
+
+        await communicator.send_json_to({
+            'event_type': 'room.create',
+            'data': {
+                'type': 'GroupChat',
+                'name': 'New Group',
+                'description': 'Test group',
+                'participants': [u.id for u in users[1:8]]
+            }
+        })
+        response1 = await communicator.receive_json_from()
+        response2 = await communicator1.receive_json_from()
+
+        assert response1['eventType'] == 'roomcreate.dispatch'
+        assert response2['eventType'] == 'roomcreate.dispatch'
+        assert response1['data']['type'] == response2['data']['type'] 
 
 @pytest.mark.asyncio
 @pytest.mark.django_db(transaction=True)
@@ -1140,7 +1266,7 @@ class TestErrorHandling:
         await communicator.connect()
         
         await communicator.send_json_to({
-            'event_type': 'receive_room_create_event',
+            'event_type': 'room.create',
             'data': {
                 'type': 'GroupChat'
                 # Missing required 'name' field

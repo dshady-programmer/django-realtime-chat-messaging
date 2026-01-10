@@ -1,6 +1,5 @@
 from functools import wraps
 from django.core.exceptions import PermissionDenied
-from operator import itemgetter
 from realtime_chat_messaging.conf import realtime_chat_settings 
 from realtime_chat_messaging.utils.loader import import_and_verify_type_class
 permissions = realtime_chat_settings.PERMISSION_HANDLER_CLASS
