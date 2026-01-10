@@ -84,6 +84,7 @@ application = ProtocolTypeRouter({
 **3. Run migrations:**
 
 ```bash
+python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 ```
@@ -348,10 +349,7 @@ REALTIME_CHAT_MESSAGING = {
 
 - **XSS Protection** - HTML sanitization with bleach
 - **Permission Checks** - Object-level permissions on every action
-- **Authentication Required** - Anonymous users automatically rejected
-- **WebSocket Origin Validation** - CORS protection
 - **SQL Injection Protection** - Django ORM
-- **Rate Limiting Ready** - Add your own rate limiting decorators
 
 ## 🚢 Production Setup
 
@@ -392,7 +390,7 @@ application = ProtocolTypeRouter({
 # settings.py
 REALTIME_CHAT_MESSAGING = {
     "MESSAGE_SOFT_DELETE": True,  # False = hard delete
-    "ENABLE_NOTIFICATION": True,  # Track unread messages
+    "ENABLE_NOTIFICATION": True,  # Track undelivered messages
 }
 ```
 
@@ -464,19 +462,11 @@ Built with:
 ## 📞 Support
 
 - **Documentation**: [Read the Docs](https://django-realtime-chat-messaging.readthedocs.io/)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/django-realtime-chat-messaging/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/django-realtime-chat-messaging/discussions)
-- **Stack Overflow**: Tag with `django-realtime-chat-messaging`
+- **Issues**: [GitHub Issues](https://github.com/shady-cj/django-realtime-chat-messaging/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/shady-cj/django-realtime-chat-messaging/discussions)
 
-## 🗺️ Roadmap
 
-- [ ] Multi-device support (concurrent connections)
-- [ ] Message search and indexing
-- [ ] Voice/video call signaling
-- [ ] End-to-end encryption support
-- [ ] Message scheduling
-- [ ] Auto-moderation hooks
-- [ ] GraphQL API support
+
 
 ## ⭐ Show Your Support
 
