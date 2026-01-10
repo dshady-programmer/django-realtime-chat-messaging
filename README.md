@@ -13,9 +13,19 @@ Most real-time chat solutions require writing custom WebSocket consumers, routin
 
 - ✅ **Zero WebSocket Code** - Pre-built consumers handle everything
 - ✅ **Three Chat Types** - OneToOne, GroupChat, Channels (broadcast)
-- ✅ **Rich Features** - Replies, forwarding, reactions, read receipts, typing indicators
-- ✅ **Media Support** - Images, videos, audio, documents
-- ✅ **Granular Permissions** - Object-level permissions with django-guardian
+- ✅ **Rich Features**
+    - Real-time message sending and receiving (with replies and forwarding)
+    - Instant chat notification delivery for messages, reactions, and replies
+    - Message reactions and engagement support
+    - Threaded replies for contextual conversations
+    - User typing indicators to show live activity
+    - Read receipt tracking for message status
+    - Group and channel joining
+    - Group and channel leaving
+    - Participant and subscriber removal (admin-controlled)
+    - Group admin management
+    - Channel moderator management
+- ✅ **Granular Permissions** - Object-level permission management for chats, groups, and channels with django-guardian
 - ✅ **Fully Customizable** - Models, serializers, handlers, permissions
 - ✅ **Production Ready** - Scales with Redis, handles concurrent connections
 
