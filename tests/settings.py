@@ -107,23 +107,20 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-
+# Caches (LocMem for dev/testing)
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://localhost:6379",
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-dev-cache",
     }
 }
 
-# Channels
+# Channels (In-Memory for dev/testing)
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {"hosts": [('localhost', '6379')]},
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
     }
 }
-
 
 
 

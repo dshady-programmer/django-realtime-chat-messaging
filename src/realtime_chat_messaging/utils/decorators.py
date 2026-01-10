@@ -5,6 +5,7 @@ import logging
 from django.db import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, ValidationError as DjangoValidationError
 from rest_framework.exceptions import ValidationError as DRFValidationError
+from django.http.response import Http404
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +63,14 @@ class ExceptionHandler:
                 )
             # ORM object not found
             except ObjectDoesNotExist as e:
+                await cls.send_error(
+                    self,
+                    "Resource not found.",
+                    func,
+                    e,
+                    code=4004,
+                )
+            except Http404 as e:
                 await cls.send_error(
                     self,
                     "Resource not found.",
