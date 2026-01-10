@@ -16,9 +16,8 @@ Most real-time chat solutions require writing custom WebSocket consumers, routin
 - ✅ **Rich Features** - Replies, forwarding, reactions, read receipts, typing indicators
 - ✅ **Media Support** - Images, videos, audio, documents
 - ✅ **Granular Permissions** - Object-level permissions with django-guardian
-- ✅ **Fully Customizable** - Swap models, serializers, handlers, permissions
+- ✅ **Fully Customizable** - Models, serializers, handlers, permissions
 - ✅ **Production Ready** - Scales with Redis, handles concurrent connections
-- ✅ **Type Safe** - Full type hints and validation
 
 ## 🚀 Quick Start
 
