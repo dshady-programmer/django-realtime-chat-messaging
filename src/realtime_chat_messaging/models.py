@@ -58,11 +58,8 @@ class Message(AbstractMessage):
     is_edited = models.BooleanField(default=False)
     delivered_to  = models.ManyToManyField(User, related_name="messages_received")
 
-    class Meta:
-        indexes = [
-            models.Index(fields=["content"], name="idx_content"),
-            models.Index(fields=["content", "sender"], name="idx_sender_content")
-        ]
+    class Meta(AbstractMessage.Meta):
+        abstract = False
         constraints = [
             models.CheckConstraint(
                 condition=~Q(is_forwarded=True, parent_message__isnull=False),
@@ -74,10 +71,8 @@ class Message(AbstractMessage):
 
 class ReadReceipt(AbstractReadReceipt):
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['message', 'reader'], name='unique_read_receipts'),
-        ]
+    class Meta(AbstractReadReceipt.Meta):
+        abstract = False
         swappable = 'REALTIME_CHAT_MESSAGING_READRECEIPT_MODEL'
 
 
@@ -103,10 +98,8 @@ class ChatNotification(AbstractChatNotification):
 
 
 class Reaction(AbstractReaction):
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['message', 'user'], name='unique_reaction'),
-        ]
+    class Meta(AbstractReaction.Meta):
+        abstract = False
         swappable = 'REALTIME_CHAT_MESSAGING_REACTION_MODEL'
 
 

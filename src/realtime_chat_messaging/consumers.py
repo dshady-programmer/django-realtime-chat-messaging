@@ -76,6 +76,7 @@ chat.notifications
 message.dispatch
 messagetyping.dispatch
 messagemodification.dispatch
+messagedelivered.dispatch
 reaction.dispatch
 readreceipt.dispatch
 roomcreate.dispatch
@@ -201,9 +202,11 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         }
         """
 
-        await EventHandler.message_acknowledged(self.user, data["message_id"])
+        message_senders = await EventHandler.message_acknowledged(self.user, data["message_id"])
+        for sender_id, message in message_senders.items():
+            user_group = USER_OWN_GROUP.format(user_id=sender_id)
+            await self.send_group(user_group, "messagedelivered.dispatch", message)
 
-        await self.send(text_data=json.dumps({"status": "successful"}))
 
     @ExceptionHandler.exception_handler_decorator
     @can_access_message

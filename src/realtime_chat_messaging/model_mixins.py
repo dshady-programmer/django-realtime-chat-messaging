@@ -67,6 +67,10 @@ class AbstractMessage(models.Model):
 
     class Meta:
         abstract = True
+        indexes = [
+            models.Index(fields=["content"], name="idx_content"),
+            models.Index(fields=["content", "sender"], name="idx_sender_content")
+        ]
 
 
 
@@ -82,6 +86,9 @@ class AbstractReadReceipt(models.Model):
 
     class Meta:
         abstract = True
+        constraints = [
+            models.UniqueConstraint(fields=['message', 'reader'], name='unique_read_receipts'),
+        ]
 
 class AbstractReaction(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
@@ -92,6 +99,9 @@ class AbstractReaction(models.Model):
 
     class Meta:
         abstract = True
+        constraints = [
+            models.UniqueConstraint(fields=['message', 'user'], name='unique_reaction'),
+        ]
 
 
 class AbstractChatNotification(models.Model):

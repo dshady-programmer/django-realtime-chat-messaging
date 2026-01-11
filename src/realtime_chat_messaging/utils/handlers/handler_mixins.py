@@ -1,7 +1,8 @@
 from realtime_chat_messaging.utils.decorators import sqlite_safe_db_sync_to_async
 from .helper_mixins import MessageHelperMixins, RoomHelperMixins, ChatNotificationHelperMixins
 from realtime_chat_messaging.utils.loader import get_model
-
+from realtime_chat_messaging.conf import realtime_chat_settings 
+enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
 
 
 class ChatNotificationHandlerMixin(ChatNotificationHelperMixins):
@@ -31,7 +32,8 @@ class ChatNotificationHandlerMixin(ChatNotificationHelperMixins):
                 recipients.remove(user)
             notification = ChatNotificationHandlerMixin.ChatNotification.objects.create(message=message, notification_type=type)
             notification.recipients.set(recipients)
-
+        return recipients
+    
     @staticmethod
     def update_chat_notification(message_id, user, many=False):
         ids = []
@@ -43,17 +45,23 @@ class ChatNotificationHandlerMixin(ChatNotificationHelperMixins):
             ids.extend(message_id)
         else:
             ids.append(message_id)
-        
-        notifications = ChatNotificationHandlerMixin.ChatNotification.objects.filter(message__id__in=ids, recipients=user)
-        if notifications.exists():
-            for notification in notifications:
-                notification.recipients.remove(user)
 
-        for m_id in ids:
-            message = get_object_or_404(ChatNotificationHandlerMixin.Message, pk=m_id)
+        ids = set(ids)
+        if enable_notification:
+            notifications = ChatNotificationHandlerMixin.ChatNotification.objects.filter(message__id__in=ids, recipients=user).distinct()
+            if notifications.exists():
+                for notification in notifications:
+                    notification.recipients.remove(user)
+
+        try:
+            messages = ChatNotificationHandlerMixin.Message.objects.prefetch_related('delivered_to').filter(pk__in=ids)
+        except AttributeError:
+            messages = ChatNotificationHandlerMixin.Message.objects.filter(pk__in=ids)
+        for message in messages:
             if hasattr(message, 'delivered_to'):
                 message.delivered_to.add(user)
 
+        return messages
 
 
 class MessageHandlerMixin(MessageHelperMixins):

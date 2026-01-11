@@ -29,7 +29,7 @@ def can_access_message(method):
         
         is_permitted = await PERMISSION_HANDLER.have_message_permission(self.user, message_id)
         if is_permitted:
-            return await method(*args, **kwargs)
+            return await method(self, data, *args, **kwargs)
         else:
             raise PermissionDenied("User is not authorized to access this message")
         

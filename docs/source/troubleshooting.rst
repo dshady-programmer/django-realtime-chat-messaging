@@ -1,706 +1,377 @@
 Troubleshooting
 ===============
 
-Common issues and solutions when working with Django Realtime Chat Messaging.
+Common issues and solutions.
 
-Connection Issues
------------------
+.. contents:: Table of Contents
+   :local:
+   :depth: 2
 
-WebSocket Connection Fails
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Installation Issues
+-------------------
 
-**Symptom**: Cannot establish WebSocket connection
+ModuleNotFoundError: No module named 'daphne'
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Possible Causes:**
+**Solution:**
 
-1. **Server not running**
+.. code-block:: bash
 
-   Check if Django server is running:
+   pip install daphne
 
-   .. code-block:: bash
+Ensure it's in ``INSTALLED_APPS`` before ``django.contrib.staticfiles``.
 
-      python manage.py runserver
+ImproperlyConfigured: ASGI_APPLICATION not set
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-2. **Wrong WebSocket URL**
+**Solution:**
 
-   Verify the URL matches your routing:
+.. code-block:: python
 
-   .. code-block:: javascript
+   # settings.py
+   ASGI_APPLICATION = 'myproject.asgi.application'
 
-      // Correct for default setup
-      const ws = new WebSocket('ws://127.0.0.1:8000/messaging/');
-      
-      // Check your routing.py for actual path
+AppRegistryNotReady: Apps aren't loaded yet
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-3. **ASGI not configured**
+**Solution:**
 
-   Ensure ``ASGI_APPLICATION`` is set in settings:
-
-   .. code-block:: python
-
-      # settings.py
-      ASGI_APPLICATION = 'yourproject.asgi.application'
-
-4. **Firewall/Network issues**
-
-   Test with:
-
-   .. code-block:: bash
-
-      # In browser console
-      const ws = new WebSocket('ws://127.0.0.1:8000/messaging/');
-      ws.onopen = () => console.log('Connected');
-      ws.onerror = (e) => console.error('Error:', e);
-
-Connection Closes Immediately (Code 4001)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Symptom**: WebSocket connects then immediately closes with code 4001
-
-**Cause**: Authentication failed - user is not authenticated or is anonymous
-
-**Solutions:**
-
-1. **For Session Auth:**
-
-   Ensure user is logged in:
-
-   .. code-block:: python
-
-      # Check if user is authenticated
-      python manage.py shell
-      >>> from django.contrib.auth import get_user_model
-      >>> User = get_user_model()
-      >>> User.objects.all()  # Verify users exist
-
-   Login before connecting:
-
-   .. code-block:: javascript
-
-      // Login first, then connect
-      await fetch('/login/', {
-           method: 'POST',
-           body: JSON.stringify({ username, password })
-      });
-      
-      // Now WebSocket will work
-      const ws = new WebSocket('ws://127.0.0.1:8000/messaging/');
-
-2. **For JWT Auth:**
-
-   Verify token is valid and not expired:
-
-   .. code-block:: javascript
-
-      const token = localStorage.getItem('access_token');
-      
-      // Check token expiry
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const isExpired = payload.exp < Date.now() / 1000;
-      
-      if (isExpired) {
-          // Refresh token first
-          await refreshAccessToken();
-      }
-
-3. **Check Middleware Configuration:**
-
-   Verify auth middleware in ``asgi.py``:
-
-   .. code-block:: python
-
-      # For session auth
-      from channels.auth import AuthMiddlewareStack
-      
-      # For JWT
-      from django_channels_jwt_auth_middleware.auth import JWTAuthMiddlewareStack
-
-AppRegistryNotReady Error
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Symptom**: ``django.core.exceptions.AppRegistryNotReady: Apps aren't loaded yet``
-
-**Cause**: Django not initialized before importing models/middleware
-
-**Solution**: Add ``django.setup()`` to ``asgi.py``:
+Add ``django.setup()`` at top of ``asgi.py``:
 
 .. code-block:: python
 
    import os
    import django
+   
+   os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings')
+   django.setup()  # Add this
 
-   os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'yourproject.settings')
-   django.setup()  # Add this line
+Connection Issues
+-----------------
 
-   # Now safe to import
-   from django.core.asgi import get_asgi_application
-   from realtime_chat_messaging.routing import websocket_urlpatterns
+WebSocket connection failed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is **required** when running with Daphne directly.
+**Symptoms:**
 
-Redis Connection Errors
------------------------
-
-Cannot Connect to Redis
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Error**: ``redis.exceptions.ConnectionError: Error 111 connecting to localhost:6379``
+* Connection refused
+* 404 error
+* Connection closes immediately
 
 **Solutions:**
 
-1. **Start Redis:**
+1. Check server is running:
 
    .. code-block:: bash
 
-      # Check if running
-      redis-cli ping
+      python manage.py runserver
 
-      # Start Redis
-      # Ubuntu/Debian
-      sudo systemctl start redis
-      
-      # macOS
-      brew services start redis
-      
-      # Windows (WSL)
-      sudo service redis-server start
-      
-      # Docker
-      docker run -d -p 6379:6379 redis:latest
-
-2. **Check Redis Configuration:**
-
-   .. code-block:: python
-
-      # settings.py
-      CHANNEL_LAYERS = {
-          'default': {
-              'BACKEND': 'channels_redis.core.RedisChannelLayer',
-              'CONFIG': {
-                  "hosts": [('127.0.0.1', 6379)],  # Verify host/port
-              },
-          },
-      }
-
-3. **Test Redis Connection:**
-
-   .. code-block:: python
-
-      import redis
-      r = redis.Redis(host='localhost', port=6379, db=0)
-      r.ping()  # Should return True
-
-Redis Authentication Failed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Error**: ``WRONGPASS invalid username-password pair``
-
-**Solution**: Add password to Redis configuration:
-
-.. code-block:: python
-
-   CHANNEL_LAYERS = {
-       'default': {
-           'BACKEND': 'channels_redis.core.RedisChannelLayer',
-           'CONFIG': {
-               "hosts": ['redis://:your_password@localhost:6379/0'],
-           },
-       },
-   }
-
-Migration Issues
-----------------
-
-Table Does Not Exist
-~~~~~~~~~~~~~~~~~~~~~
-
-**Error**: ``django.db.utils.OperationalError: no such table: realtime_chat_messaging_room``
-
-**Solution**: Run migrations:
-
-.. code-block:: bash
-
-   python manage.py migrate realtime_chat_messaging
-
-Migration Conflicts
-~~~~~~~~~~~~~~~~~~~
-
-**Error**: ``Conflicting migrations detected``
-
-**Solution**: Remove conflicting migrations and re-run:
-
-.. code-block:: bash
-
-   python manage.py migrate realtime_chat_messaging zero
-   python manage.py migrate realtime_chat_messaging
-
-.. warning::
-   This deletes all chat data. Only use in development.
-
-Permission Errors
------------------
-
-Permission Denied (4002)
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Symptom**: WebSocket sends error with code 4002
-
-**Causes and Solutions:**
-
-1. **User not in room:**
-
-   .. code-block:: python
-
-      # Verify user is participant/subscriber
-      from realtime_chat_messaging.models import Room
-      
-      room = Room.objects.get(id='room-uuid')
-      if hasattr(room, 'participants'):
-          print(room.participants.filter(id=user.id).exists())
-      elif hasattr(room, 'subscribers'):
-          print(room.subscribers.filter(id=user.id).exists())
-
-2. **Missing object permissions:**
-
-   .. code-block:: python
-
-      # Check guardian permissions
-      from guardian.shortcuts import get_perms
-      
-      perms = get_perms(user, room)
-      print(perms)  # Shows user's permissions for this room
-
-3. **Channel posting restriction:**
-
-   Channels require posting permission. Grant it:
+2. Verify WebSocket URL:
 
    .. code-block:: javascript
 
-      // Via WebSocket (as moderator)
-      ws.send(JSON.stringify({
-          event_type: "room.modify",
-          data: {
-              room_id: "channel-uuid",
-              action: "add_permission",
-              data: {
-                  users: [user_id],
-                  permission: ["can_send_messages"]
-              }
-          }
-      }));
+      // Correct
+      const socket = new WebSocket('ws://localhost:8000/messaging/');
+      
+      // Wrong
+      const socket = new WebSocket('http://localhost:8000/messaging/');
 
-Cannot Add Members to Room
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3. Check routing configured:
 
-**Cause**: User lacks ``can_add_new_participants`` or ``can_add_new_subscribers`` permission
+   .. code-block:: python
 
-**Solution**: Verify user is admin/moderator or has explicit permission:
+      # urls.py or routing.py
+      from realtime_chat_messaging.routing import websocket_urlpatterns
 
-.. code-block:: python
+Connection closes with code 4001
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   # Check if user can add members
-   from guardian.shortcuts import has_perm
-   
-   # For GroupChat
-   can_add = has_perm('can_add_new_participants', user, room)
-   
-   # For Channel
-   can_add = has_perm('can_add_new_subscribers', user, room)
-
-Validation Errors
------------------
-
-Maximum Participants Exceeded
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Error**: ``Maximum number of group participants exceeded``
-
-**Cause**: Trying to add more members than ``max_participants`` allows
+**Cause:** Authentication failed
 
 **Solutions:**
 
-1. **Increase limit:**
+For session auth:
 
-   .. code-block:: python
+* Ensure user is logged in
+* Check session cookie is sent
+* Verify ``SESSION_COOKIE_HTTPONLY = False``
 
-      room.max_participants = 200
-      room.save()
+For JWT auth:
 
-2. **Remove inactive members:**
+* Verify token is valid
+* Check token is passed correctly: ``?token=...``
+* Ensure middleware is configured
 
-   .. code-block:: javascript
+Connection drops after 30-60 seconds
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-      ws.send(JSON.stringify({
-          event_type: "room.remove_members",
-          data: {
-              room_id: "room-uuid",
-              members: [inactive_user_ids]
-          }
-      }));
+**Cause:** Nginx/proxy timeout
 
-Forwarded Messages Can't Be Replies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Solution:**
 
-**Error**: Database constraint violation
+.. code-block:: nginx
 
-**Cause**: Trying to create a message that is both forwarded and a reply
-
-**Solution**: Choose one - message can be either forwarded OR a reply, not both:
-
-.. code-block:: javascript
-
-   // Correct - Reply
-   {
-       content: "Great point!",
-       extra_fields: {
-           parent_message: "reply-to-uuid"
-       }
+   # nginx.conf
+   location /messaging/ {
+       proxy_read_timeout 86400;
+       proxy_send_timeout 86400;
    }
-
-   // Correct - Forward
-   {
-       content: "Check this out",
-       extra_fields: {
-           is_forwarded: true,
-           forwarded_from_id: "original-uuid"
-       }
-   }
-
-   // WRONG - Both (will fail)
-   {
-       content: "Message",
-       extra_fields: {
-           parent_message: "reply-to-uuid",
-           is_forwarded: true,
-           forwarded_from_id: "original-uuid"
-       }
-   }
-
-OneToOneChat Must Have 2 Participants
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Error**: ``A one to one chat can only have 2 participants``
-
-**Cause**: Signals enforce exactly 2 participants for OneToOneChat
-
-**Solution**: Ensure exactly 2 users when creating:
-
-.. code-block:: javascript
-
-   {
-       type: "OneToOneChat",
-       participants: [user1_id, user2_id]  // Exactly 2
-   }
-
-Duplicate OneToOneChat
-~~~~~~~~~~~~~~~~~~~~~~
-
-**Error**: ``Chat already exists``
-
-**Cause**: System prevents duplicate chats between same pair of users
-
-**Solution**: Query existing chat first:
-
-.. code-block:: python
-
-   from realtime_chat_messaging.models import OneToOneChat
-   
-   # Find existing chat
-   chat = OneToOneChat.objects.filter(
-       participants=user1
-   ).filter(
-       participants=user2
-   ).first()
-   
-   if chat:
-       # Use existing chat
-       return chat
-   else:
-       # Create new chat
-       chat = OneToOneChat.objects.create()
-       chat.participants.add(user1, user2)
 
 Message Issues
 --------------
 
-Messages Not Appearing
-~~~~~~~~~~~~~~~~~~~~~~
-
-**Symptoms**: Send message event succeeds but others don't receive it
-
-**Debugging Steps:**
-
-1. **Check room membership:**
-
-   .. code-block:: python
-
-      # Verify all users are in the room
-      room.participants.all()  # or room.subscribers.all()
-
-2. **Check channel layer:**
-
-   .. code-block:: python
-
-      from channels.layers import get_channel_layer
-      from asgiref.sync import async_to_sync
-      
-      channel_layer = get_channel_layer()
-      async_to_sync(channel_layer.group_send)(
-          'group-room-uuid',
-          {'type': 'test.message', 'data': 'test'}
-      )
-
-3. **Check WebSocket connections:**
-
-   All users must be connected to receive broadcasts.
-
-4. **Check Redis:**
-
-   .. code-block:: bash
-
-      redis-cli
-      > KEYS *  # Should show channel layer keys
-
-Soft Deleted Messages Still Showing
+Messages not appearing in real-time
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Cause**: ``MESSAGE_SOFT_DELETE = True`` but frontend not filtering
+**Cause:** Using InMemoryChannelLayer in production
 
-**Solution**: Filter deleted messages in frontend:
-
-.. code-block:: javascript
-
-   ws.onmessage = (event) => {
-       const response = JSON.parse(event.data);
-       
-       if (response.eventType === 'message.dispatch') {
-           const message = response.data;
-           
-           // Filter soft-deleted messages
-           if (!message.is_deleted) {
-               displayMessage(message);
-           }
-       }
-   };
-
-   // When loading messages
-   function displayMessages(messages) {
-       const activeMessages = messages.filter(m => !m.is_deleted);
-       renderMessages(activeMessages);
-   }
-
-HTML Tags Being Stripped
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Cause**: Bleach sanitization removes disallowed tags
-
-**Allowed tags**: ``b``, ``i``, ``strong``, ``em``, ``a``, ``span``, ``p``, ``ul``, ``ol``, ``li``, ``br``
-
-**Solution**: Use only allowed tags or override serializer:
-
-.. code-block:: python
-
-   # Custom serializer with more tags
-   from realtime_chat_messaging.serializers import MessageSerializer
-   import bleach
-
-   class CustomMessageSerializer(MessageSerializer):
-       def validate_content(self, value):
-           ALLOWED_TAGS = ['b', 'i', 'strong', 'em', 'a', 'span', 'p', 
-                          'ul', 'ol', 'li', 'br', 'code', 'pre']
-           ALLOWED_ATTRS = {
-               'a': ['href', 'title', 'target'],
-               '*': ['class', 'id'],
-               'code': ['class']
-           }
-           return bleach.clean(value, tags=ALLOWED_TAGS, 
-                             attributes=ALLOWED_ATTRS, strip=True)
-
-   # Configure in settings
-   REALTIME_CHAT_MESSAGING = {
-       'SERIALIZERS': {
-           'MessageSerializer': 'myapp.serializers.CustomMessageSerializer',
-       },
-   }
-
-Performance Issues
-------------------
-
-Slow Message Loading
-~~~~~~~~~~~~~~~~~~~~
-
-**Cause**: Loading too many messages at once
-
-**Solution**: Always use pagination:
-
-.. code-block:: javascript
-
-   // Load messages with pagination
-   ws.send(JSON.stringify({
-       event_type: "room.messages",
-       data: {
-           room_id: currentRoomId,
-           paginate: {
-               page: 1,
-               size: 50  // Adjust based on needs
-           }
-       }
-   }));
-
-Many Rooms Causing Lag
-~~~~~~~~~~~~~~~~~~~~~~~
-
-**Cause**: Loading full data for hundreds of rooms
-
-**Solution**: The ``room.list`` event already returns simplified data. For very large lists, implement virtual scrolling in frontend.
-
-Concurrent Connection Issues
------------------------------
-
-Multiple Devices Not Working
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Limitation**: Version 0.1.0 supports one connection per user
-
-**Current Behavior**: Last connection wins, earlier connections disconnected
-
-**Workaround**: None currently available
-
-**Coming**: Multi-device support in v0.2.0
-
-Debugging Tools
----------------
-
-Enable Django Logging
-~~~~~~~~~~~~~~~~~~~~~
+**Solution:**
 
 .. code-block:: python
 
    # settings.py
-   LOGGING = {
-       'version': 1,
-       'disable_existing_loggers': False,
-       'handlers': {
-           'console': {
-               'class': 'logging.StreamHandler',
-           },
-       },
-       'root': {
-           'handlers': ['console'],
-           'level': 'INFO',
-       },
-       'loggers': {
-           'realtime_chat_messaging': {
-               'handlers': ['console'],
-               'level': 'DEBUG',
-               'propagate': False,
-           },
-           'channels': {
-               'handlers': ['console'],
-               'level': 'DEBUG',
-               'propagate': False,
+   CHANNEL_LAYERS = {
+       "default": {
+           "BACKEND": "channels_redis.core.RedisChannelLayer",
+           "CONFIG": {
+               "hosts": [("127.0.0.1", 6379)],
            },
        },
    }
 
-Browser DevTools
-~~~~~~~~~~~~~~~~
+Messages save but don't broadcast
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. **Network Tab**: Check WebSocket connection status
-2. **Console**: Monitor WebSocket messages:
+**Symptoms:**
 
-   .. code-block:: javascript
+* Messages appear after page refresh
+* Messages save to database
+* WebSocket connected
 
-      ws.onmessage = (event) => {
-          console.log('Received:', JSON.parse(event.data));
-      };
+**Causes:**
 
-      // Log all sends
-      const originalSend = ws.send.bind(ws);
-      ws.send = (data) => {
-          console.log('Sending:', JSON.parse(data));
-          originalSend(data);
-      };
+1. InMemoryChannelLayer (use Redis)
+2. Redis not running
+3. Channel layer misconfigured
 
-3. **Application Tab**: Check localStorage/sessionStorage for tokens
+**Solutions:**
 
-Django Shell Testing
-~~~~~~~~~~~~~~~~~~~~
+.. code-block:: bash
+
+   # Check Redis
+   redis-cli ping  # Should return PONG
+   
+   # Test channel layer
+   python manage.py shell
+   >>> from channels.layers import get_channel_layer
+   >>> channel_layer = get_channel_layer()
+   >>> import asyncio
+   >>> asyncio.run(channel_layer.send('test', {'type': 'test'}))
+
+Chat already exists error (Code 4005)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Cause:** Trying to create duplicate OneToOneChat
+
+**Solution:**
+
+Check for existing chat first:
+
+.. code-block:: javascript
+
+   socket.send(JSON.stringify({
+       event_type: 'room.list',
+       data: {}
+   }));
+   
+   // Check if chat exists before creating
+
+Permission Issues
+-----------------
+
+Permission denied (Code 4002)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Symptoms:**
+
+* Cannot send messages
+* Cannot add/remove members
+* Cannot modify room
+
+**Solutions:**
+
+1. Check user is room member
+2. Verify user has required permissions
+3. For GroupChat: Check if user is admin
+4. For Channel: Check if user is moderator
+
+**Debug:**
+
+.. code-block:: javascript
+
+   // Get room info
+   socket.send(JSON.stringify({
+       event_type: 'room.info',
+       data: {room_id: 'room-uuid'}
+   }));
+   
+   // Check current user's role
+   console.log(room.admins);  // GroupChat
+   console.log(room.moderators);  // Channel
+
+Cannot send to locked GroupChat
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Cause:** ``group_locked=True`` and user is not admin
+
+**Solution:**
+
+.. code-block:: javascript
+
+   // Unlock group
+   socket.send(JSON.stringify({
+       event_type: 'room.modify',
+       data: {
+           room_id: 'group-uuid',
+           action: 'update',
+           data: {group_locked: false}
+       }
+   }));
+
+Database Issues
+---------------
+
+django.db.utils.IntegrityError
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Causes:**
+
+* Duplicate OneToOneChat
+* Invalid foreign key
+* Unique constraint violation
+
+**Solutions:**
+
+Check error message for specific constraint:
 
 .. code-block:: python
 
-   python manage.py shell
-
-   # Test channel layer
-   from channels.layers import get_channel_layer
-   from asgiref.sync import async_to_sync
+   # Duplicate OneToOneChat
+   # Solution: Use room.list to check existing chats
    
-   channel_layer = get_channel_layer()
-   async_to_sync(channel_layer.send)('test', {'type': 'test'})
+   # Invalid foreign key
+   # Solution: Verify IDs exist in database
 
-   # Test room access
-   from realtime_chat_messaging.models import Room
-   room = Room.objects.first()
-   print(room.participants.all())
+Migration conflicts
+~~~~~~~~~~~~~~~~~~~
 
-   # Test permissions
-   from guardian.shortcuts import get_perms
-   print(get_perms(user, room))
+**Cause:** Swapping models after migrations
 
-Getting More Help
------------------
+**Solution:**
 
-Still stuck? Here's how to get help:
+.. code-block:: bash
 
-1. **Check Documentation**: Review relevant sections:
-   - :doc:`quickstart` - Basic setup
-   - :doc:`websocket/message-events` - Event reference
-   - :doc:`customization/overview` - Customization guide
+   # 1. Create new migrations
+   python manage.py makemigrations
+   
+   # 2. If conflicts, squash migrations
+   python manage.py squashmigrations app_name 0001 0005
 
-2. **GitHub Issues**: `Report bugs <https://github.com/shady-cj/django-realtime-chat-messaging/issues>`_
+Performance Issues
+------------------
 
-3. **Include in Bug Reports**:
-   - Django version
-   - Channels version
-   - Package version
-   - Error messages with full stack trace
-   - Relevant code snippets
-   - Steps to reproduce
+Slow message sending
+~~~~~~~~~~~~~~~~~~~~
 
-4. **Search Existing Issues**: Check if someone already solved your problem
+**Symptoms:** Messages take >1 second to send
 
-Common Error Reference
-----------------------
+**Solutions:**
 
-Quick reference for error codes:
+1. Add database indexes
+2. Optimize queries
+3. Use ``select_related`` and ``prefetch_related``
+4. Check Redis latency
 
-.. list-table::
-   :header-rows: 1
-   :widths: 10 30 60
+High memory usage
+~~~~~~~~~~~~~~~~~
 
-   * - Code
-     - Meaning
-     - Common Causes
-   * - 4001
-     - Authentication failed
-     - User not logged in, token expired
-   * - 4002
-     - Permission denied
-     - User not in room, lacks required permission
-   * - 4003
-     - Validation error
-     - Invalid data, max participants exceeded
-   * - 4004
-     - Resource not found
-     - Room/message doesn't exist
-   * - 4005
-     - Integrity error
-     - Duplicate chat, constraint violation
-   * - 4006
-     - Internal server error
-     - Unexpected error, check server logs
+**Cause:** Redis memory not limited
 
-Next Steps
-----------
+**Solution:**
 
-- :doc:`customization/overview` - Customize the package
+.. code-block:: redis
+
+   # redis.conf
+   maxmemory 2gb
+   maxmemory-policy allkeys-lru
+
+Frontend Issues
+---------------
+
+CORS errors
+~~~~~~~~~~~
+
+**Solution:**
+
+.. code-block:: python
+
+   # settings.py
+   INSTALLED_APPS = ['corsheaders', ...]
+   MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware', ...]
+   CORS_ALLOWED_ORIGINS = ['http://localhost:3000']
+   CORS_ALLOW_CREDENTIALS = True
+
+Token expired during session
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Cause:** JWT token expired
+
+**Solution:**
+
+Implement token refresh:
+
+.. code-block:: javascript
+
+   setInterval(async () => {
+       const token = localStorage.getItem('access_token');
+       const decoded = jwt_decode(token);
+       
+       if (decoded.exp * 1000 - Date.now() < 5 * 60 * 1000) {
+           await refreshToken();
+       }
+   }, 60 * 1000);
+
+Getting Help
+------------
+
+If your issue isn't listed:
+
+1. **Check logs:**
+
+   .. code-block:: bash
+
+      # Django logs
+      python manage.py runserver
+      
+      # Daphne logs
+      daphne -v 2 myproject.asgi:application
+
+2. **Enable debug mode temporarily:**
+
+   .. code-block:: python
+
+      DEBUG = True  # Only for debugging!
+
+3. **GitHub Issues:**
+   
+   https://github.com/shady-cj/django-realtime-chat-messaging/issues
+
+4. **Stack Overflow:**
+   
+   Tag: ``django-realtime-chat-messaging``
+
+See Also
+--------
+
+* :doc:`faq` - Frequently asked questions
+* :doc:`deployment/production-checklist` - Deployment guide

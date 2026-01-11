@@ -2,7 +2,6 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from collections import defaultdict
 from django.db.models import Prefetch, Q
-from django.db import transaction
 from django.core.paginator import Paginator
 from guardian.shortcuts import remove_perm, assign_perm
 from realtime_chat_messaging.utils.loader import get_serializer, get_model
@@ -38,7 +37,7 @@ class MessageHelperMixins:
     def _create_message(self, data, user):
 
         create_chat_notification = self.create_chat_notification
-        print('entry', data)
+
 
         message_type = 'NEW_MESSAGE'
         media = None
@@ -82,7 +81,7 @@ class MessageHelperMixins:
 
     def _react_to_message(self, data, user):
 
-        create_chat_notification = create_chat_notification = self.create_chat_notification
+        create_chat_notification = self.create_chat_notification
 
         type = data.pop('type') if 'type' in data else None
         response = None
@@ -131,8 +130,16 @@ class MessageHelperMixins:
             message_id = list(set(message_id))
             many = True
 
-        if enable_notification:
-            update_chat_notification(message_id, user, many)
+        message_senders = defaultdict(list)
+        messages = update_chat_notification(message_id, user, many)
+        
+        serialized_messages = MessageHelperMixins.MessageSerializer(messages, many=True).data
+
+        for serialized_message in serialized_messages:
+            message_senders[serialized_message['sender']['id']].append(serialized_message)
+        
+        return message_senders
+        
 
 
     @staticmethod
