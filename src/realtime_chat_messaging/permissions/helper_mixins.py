@@ -121,6 +121,15 @@ class PermissionHelperMixin:
                 raise ValidationError("Invalid message_id type")
             message = get_object_or_404(Message, pk=message_id)
             room = message.room
+
+        # Commented this out because developer might end up wanting cross room replies e.g in the case of whatsapp you can reply to group messages privately
+        # check if parent_message_id is present if present check if the parent_message_id room is same as room
+        # if "extra_fields" in data and "parent_message_id" in data["extra_fields"] and (parent_message_id := data["extra_fields"]["parent_message_id"]):
+        #     p_message = get_object_or_404(Message, pk=parent_message_id)
+        #     if p_message.room != room :
+        #         raise ValidationError("You can only reply to message in the same room")
+
+
         
         # first check if the room is a channel..
             # only creators and moderators and people with permissions can post on channels

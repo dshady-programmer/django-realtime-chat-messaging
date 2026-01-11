@@ -38,6 +38,7 @@ class MessageHelperMixins:
     def _create_message(self, data, user):
 
         create_chat_notification = self.create_chat_notification
+        print('entry', data)
 
         message_type = 'NEW_MESSAGE'
         media = None
@@ -53,12 +54,11 @@ class MessageHelperMixins:
             "content": "Media Files" if media else data["content"],
             **extra_fields
         }
-        if "parent_message_id" in data:
+        if "parent_message_id" in new_data:
             message_type = 'REPLY'
 
         if "forwarded_from_id" in new_data:
             new_data['is_forwarded'] = True        
-
         serializer = MessageHelperMixins.MessageSerializer(data=new_data)
         serializer.is_valid(raise_exception=True)
         message = serializer.save()
@@ -76,6 +76,7 @@ class MessageHelperMixins:
         if enable_notification:
             create_chat_notification(message, message_type, user)
         message_serializer = MessageHelperMixins.MessageSerializer(message)
+
         return message_serializer.data
     
 

@@ -160,13 +160,12 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         receive_message_send_event
 
         data: {
-            parent_message_id: <only for reply messages>
             room_id: string/int,
             content: text, 
             extra_fields: {
                 ... 
                 forwarded_from_id: <only if message is forwarded>
-
+                parent_message_id: <only for reply messages>
                 media: [
                     {
                         media_url: string

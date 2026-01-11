@@ -201,7 +201,10 @@ socket.send(JSON.stringify({
     "data": {
         "room_id": "room-uuid",
         "content": "Replying here",
-        "parent_message_id": "message-uuid"
+        "extra_fields": {
+
+            "parent_message_id": "message-uuid"
+        }
     }
 }));
 ```

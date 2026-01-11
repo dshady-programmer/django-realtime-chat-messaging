@@ -5,10 +5,13 @@ from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from realtime_chat_messaging.consumers import ChatMessagingConsumer
+from realtime_chat_messaging.utils.cache_utils import add_group_to_user_groups
+from realtime_chat_messaging.consumers import GROUP_STRING
 from realtime_chat_messaging.models import (
     OneToOneChat, GroupChat, Channel, Message,
     ReadReceipt, Reaction, ChatNotification
 )
+from asgiref.sync import async_to_sync
 import pytest_asyncio
 
 User = get_user_model()
@@ -28,24 +31,39 @@ async def communicator(websocket_communicator, users):
 
 
 @pytest.fixture
-def one_to_one_chat(users, create_one_to_one_chat):
-    """Create a one-to-one chat"""
-    return create_one_to_one_chat(users[0], users[1])
+def register_room_with_user():
+    async def _register_room(user_id, room_id):
+        group = GROUP_STRING.format(group_id=room_id)
+        await add_group_to_user_groups(user_id, group)
+    return _register_room
     
+
+@pytest.fixture
+def one_to_one_chat(users, register_room_with_user, create_one_to_one_chat):
+    """Create a one-to-one chat"""
+    room = create_one_to_one_chat(users[0], users[1])
+    async_to_sync(register_room_with_user)(users[0].id, room.id)
+    async_to_sync(register_room_with_user)(users[1].id, room.id)
+    return room
+
 
 
 @pytest.fixture
-def group_chat(users, create_group_chat):
+def group_chat(users, register_room_with_user, create_group_chat):
     """Create a group chat"""
 
-    return create_group_chat(users[0], "Test Group", description="A test group")
+    room = create_group_chat(users[0], "Test Group", description="A test group")
+    async_to_sync(register_room_with_user)(users[0].id, room.id)
+    return room
     
 
 @pytest.fixture
-def channel(users, create_channel):
+def channel(users, register_room_with_user, create_channel):
     """Create a channel"""
-    return create_channel(users[0], "Test Channel", description="A test channel", is_public=True)
+    room = create_channel(users[0], "Test Channel", description="A test channel", is_public=True)
 
+    async_to_sync(register_room_with_user)(users[0].id, room.id)
+    return room
 
 
 @pytest.mark.asyncio
@@ -221,6 +239,7 @@ class TestRoomCreation:
         assert response['data']['max_participants'] == 10
         assert response['data']['join_approval_required'] == True
         assert response['data']['group_locked'] == True
+        await communicator.disconnect()
 
     async def test_create_groupchat_with_max_participants_enforcement(self, communicator, users):
         "Test creating a groupchat will enforce max_participants if provided"
@@ -246,7 +265,7 @@ class TestRoomCreation:
         
         assert 'error' in response
         assert 'Maximum number of group participants exceeded' in str(response['error']['detail'])
-
+        await communicator.disconnect()
 
 
     async def test_create_channel(self, communicator, users):
@@ -299,6 +318,7 @@ class TestRoomCreation:
         assert response['eventType'] == 'roomcreate.dispatch'
         assert response['data']['is_public'] == True
         assert response['data']['max_subscribers'] == 10
+        await communicator.disconnect()
 
     async def test_create_channel_with_max_sub_enforcement(self, communicator, users):
         "Test creating a channel will enforce max_subscribers if provided"
@@ -324,6 +344,7 @@ class TestRoomCreation:
         
         assert 'error' in response
         assert 'Maximum number of channel subscribers exceeded' in str(response['error']['detail'])
+        await communicator.disconnect()
 
 
     async def test_create_room_with_preferences(self, communicator, users):
@@ -405,23 +426,21 @@ class TestRoomCreation:
         assert response1['eventType'] == 'roomcreate.dispatch'
         assert response2['eventType'] == 'roomcreate.dispatch'
         assert response1['data']['type'] == response2['data']['type'] 
+        await communicator.disconnect()
 
 @pytest.mark.asyncio
 @pytest.mark.django_db(transaction=True)
 class TestMessageSending:
     """Test message sending events"""
 
-    async def test_send_message_to_one_to_one_chat(self, users, one_to_one_chat):
+    async def test_send_message_to_one_to_one_chat(self, communicator, users, one_to_one_chat):
         """Test sending a message to one-to-one chat"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
+        await communicator.receive_json_from()
         
         await communicator.send_json_to({
-            'event_type': 'receive_message_send_event',
+            'event_type': 'message.send',
             'data': {
                 'room_id': str(one_to_one_chat.id),
                 'content': 'Hello World'
@@ -432,21 +451,17 @@ class TestMessageSending:
         
         assert response['eventType'] == 'message.dispatch'
         assert response['data']['content'] == 'Hello World'
-        assert response['data']['sender']['username'] == 'user1'
+        assert response['data']['sender']['username'] == 'user0'
         
         await communicator.disconnect()
 
-    async def test_send_message_to_group_chat(self, users, group_chat):
+    async def test_send_message_to_group_chat(self, communicator, users, group_chat):
         """Test sending message to group chat"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()       
         await communicator.send_json_to({
-            'event_type': 'receive_message_send_event',
+            'event_type': 'message.send',
             'data': {
                 'room_id': str(group_chat.id),
                 'content': 'Group message'
@@ -460,17 +475,14 @@ class TestMessageSending:
         
         await communicator.disconnect()
 
-    async def test_send_message_with_media(self, users, one_to_one_chat):
+    async def test_send_message_with_media(self, communicator, users, one_to_one_chat):
         """Test sending message with media attachments"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user1']
+
+        communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()        
         await communicator.send_json_to({
-            'event_type': 'receive_message_send_event',
+            'event_type': 'message.send',
             'data': {
                 'room_id': str(one_to_one_chat.id),
                 'content': 'Media message',
@@ -495,61 +507,55 @@ class TestMessageSending:
         
         await communicator.disconnect()
 
-    async def test_send_reply_message(self, users, one_to_one_chat):
+    async def test_send_reply_message(self, communicator, users, one_to_one_chat):
         """Test sending a reply to a message"""
         # Create parent message
         parent_message = await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Parent message"
         )
         
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user2']
+        communicator.scope['user'] = users[1]
         await communicator.connect()
-        
+        await communicator.receive_json_from()        
         await communicator.send_json_to({
-            'event_type': 'receive_message_send_event',
+            'event_type': 'message.send',
             'data': {
                 'room_id': str(one_to_one_chat.id),
                 'content': 'Reply message',
-                'parent_message': str(parent_message.id)
+                'extra_fields': {
+                    'parent_message_id': str(parent_message.id)
+                }
             }
         })
         
         response = await communicator.receive_json_from()
+        print(response)
         
         assert response['eventType'] == 'message.dispatch'
         assert response['data']['parent_message']['content'] == 'Parent message'
         
         await communicator.disconnect()
 
-    async def test_send_forwarded_message(self, users, one_to_one_chat, group_chat):
+    async def test_send_forwarded_message(self, users, communicator, one_to_one_chat, group_chat):
         """Test forwarding a message"""
         # Create original message
         original_message = await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Original message"
         )
         
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()        
         await communicator.send_json_to({
-            'event_type': 'receive_message_send_event',
+            'event_type': 'message.send',
             'data': {
                 'room_id': str(group_chat.id),
                 'content': 'Original message',
                 'extra_fields': {
-                    'is_forwarded': True,
                     'forwarded_from_id': str(original_message.id)
                 }
             }
@@ -559,21 +565,18 @@ class TestMessageSending:
         
         assert response['eventType'] == 'message.dispatch'
         assert response['data']['is_forwarded'] is True
+        assert response['data']['content'] == original_message.content
         
         await communicator.disconnect()
 
-    async def test_unauthorized_user_cannot_send_message(self, users, one_to_one_chat):
+    async def test_unauthorized_user_cannot_send_message(self, communicator, users, one_to_one_chat):
         """Test that unauthorized user cannot send message to room"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
         # user3 is not a participant
-        communicator.scope['user'] = users['user3']
+        communicator.scope['user'] = users[2]
         await communicator.connect()
-        
+        await communicator.receive_json_from()        
         await communicator.send_json_to({
-            'event_type': 'receive_message_send_event',
+            'event_type': 'message.send',
             'data': {
                 'room_id': str(one_to_one_chat.id),
                 'content': 'Unauthorized message'
@@ -587,24 +590,20 @@ class TestMessageSending:
         
         await communicator.disconnect()
 
-    async def test_send_message_to_locked_group_as_non_admin(self, users, group_chat):
+    async def test_send_message_to_locked_group_as_non_admin(self, communicator, users, group_chat):
         """Test that non-admin cannot send message to locked group"""
         # Lock the group
         await database_sync_to_async(setattr)(group_chat, 'group_locked', True)
         await database_sync_to_async(group_chat.save)()
         
         # Add user2 as participant but not admin
-        await database_sync_to_async(group_chat.participants.add)(users['user2'])
+        await database_sync_to_async(group_chat.participants.add)(users[1])
         
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
-        communicator.scope['user'] = users['user2']
+        communicator.scope['user'] = users[1]
         await communicator.connect()
-        
+        await communicator.receive_json_from()        
         await communicator.send_json_to({
-            'event_type': 'receive_message_send_event',
+            'event_type': 'message.send',
             'data': {
                 'room_id': str(group_chat.id),
                 'content': 'Message to locked group'
@@ -618,6 +617,40 @@ class TestMessageSending:
         
         await communicator.disconnect()
 
+    async def test_send_message_with_invalid_room_id(self, communicator, users, group_chat):
+        """ Test message sending to a room that doesn't exist """
+        communicator.scope['user'] = users[0]
+        import uuid
+        await communicator.connect()
+        await communicator.receive_json_from()  
+        await communicator.send_json_to({
+            'event_type': 'message.send',
+            'data': {
+                'room_id': str(uuid.uuid4()),
+                'content': 'Message to locked group'
+            }
+        })
+
+        response = await communicator.receive_json_from()
+        assert 'error' in response
+        assert response['error']['code'] == 4004
+        assert response['error']['detail'] == "Resource not found."
+
+        await communicator.send_json_to({
+            'event_type': 'message.send',
+            'data': {
+                'room_id': str(group_chat.id),
+                'content': 'Original message',
+                'extra_fields': {
+                    'forwarded_from_id': str(uuid.uuid4())
+                }
+            }
+        })
+        response = await communicator.receive_json_from()
+        assert 'error' in response
+        assert response['error']['code'] == 4003
+        await communicator.disconnect()
+
 
 @pytest.mark.asyncio
 @pytest.mark.django_db(transaction=True)
@@ -628,7 +661,7 @@ class TestMessageOperations:
         """Test marking message as read"""
         message = await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Test message"
         )
         
@@ -657,12 +690,12 @@ class TestMessageOperations:
         """Test marking multiple messages as read"""
         message1 = await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Message 1"
         )
         message2 = await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Message 2"
         )
         
@@ -690,7 +723,7 @@ class TestMessageOperations:
         """Test message acknowledgment (delivery)"""
         message = await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Test message"
         )
         
@@ -717,7 +750,7 @@ class TestMessageOperations:
         """Test adding reaction to message"""
         message = await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Test message"
         )
         
@@ -749,7 +782,7 @@ class TestMessageOperations:
         """Test removing reaction from message"""
         message = await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Test message"
         )
         
@@ -787,7 +820,7 @@ class TestMessageOperations:
         """Test editing message"""
         message = await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Original content"
         )
         
@@ -795,7 +828,7 @@ class TestMessageOperations:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -820,7 +853,7 @@ class TestMessageOperations:
         """Test deleting message"""
         message = await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user1'],
+            sender=users[0],
             content="To be deleted"
         )
         
@@ -828,7 +861,7 @@ class TestMessageOperations:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -851,7 +884,7 @@ class TestMessageOperations:
         """Test that non-sender cannot edit message"""
         message = await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Original content"
         )
         
@@ -884,7 +917,7 @@ class TestMessageOperations:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -913,7 +946,7 @@ class TestRoomOperations:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -934,7 +967,7 @@ class TestRoomOperations:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -956,7 +989,7 @@ class TestRoomOperations:
         # Create some messages
         await database_sync_to_async(Message.objects.create)(
             room=one_to_one_chat,
-            sender=users['user1'],
+            sender=users[0],
             content="Message 1"
         )
         await database_sync_to_async(Message.objects.create)(
@@ -969,7 +1002,7 @@ class TestRoomOperations:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -992,7 +1025,7 @@ class TestRoomOperations:
         for i in range(10):
             await database_sync_to_async(Message.objects.create)(
                 room=one_to_one_chat,
-                sender=users['user1'],
+                sender=users[0],
                 content=f"Message {i}"
             )
         
@@ -1000,7 +1033,7 @@ class TestRoomOperations:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -1077,7 +1110,7 @@ class TestRoomOperations:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -1100,7 +1133,7 @@ class TestRoomOperations:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -1128,7 +1161,7 @@ class TestRoomOperations:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -1179,7 +1212,7 @@ class TestRoomOperations:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -1209,7 +1242,7 @@ class TestRoomOperations:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -1241,7 +1274,7 @@ class TestErrorHandling:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -1262,7 +1295,7 @@ class TestErrorHandling:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
@@ -1286,7 +1319,7 @@ class TestErrorHandling:
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users['user1']
+        communicator.scope['user'] = users[0]
         await communicator.connect()
         
         await communicator.send_json_to({
