@@ -167,7 +167,7 @@ class MessageHelperMixins:
                 message = get_object_or_404(MessageHelperMixins.Message.objects.prefetch_related('delivered_to'), pk=message_id)
             except AttributeError:
                 message = get_object_or_404(MessageHelperMixins.Message, pk=message_id)
-            content = data.get('extra_fields').get('content')
+            content = extra_fields.get('content') if (extra_fields := data.get('extra_fields')) and type(extra_fields) == dict else None
             if content:
                 serializer = MessageHelperMixins.MessageSerializer(instance=message, data={"content": content, "is_edited": True}, partial=True)
                 serializer.is_valid(raise_exception=True)

@@ -289,7 +289,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         """
 
 
-        response = await EventHandler.modify_message(self.user, data)
+        response = await EventHandler.modify_message(data)
         if response:
             group_string = GROUP_STRING.format(group_id=room.id)
             await self.send_group(group_string, "messagemodification.dispatch", response)
