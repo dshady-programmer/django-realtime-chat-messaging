@@ -14,7 +14,7 @@ map_event_type_to_handlers = lambda self:  {
             "room.join": self.receive_join_room_event,
             "room.leave": self.receive_leave_room_event,
             "room.modify": self.receive_modify_room_event, # add or remove admins/moderators (for the user),  change name/description/preferences,
-            # "online_presence": _
+            "session.heartbeat": self.receive_update_session_heartbeat
 
         }
 

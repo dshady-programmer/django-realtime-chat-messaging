@@ -572,3 +572,9 @@ class SessionHelperMixins:
         active_sessions = SessionHelperMixins.Session.objects.filter(user__id=user_id, last_seen__gte=time_allowance)
         return [s.channel_name for s in active_sessions]
 
+    @staticmethod
+    def _update_session(session):
+        session.last_seen = timezone.now()
+        session.save()
+        
+

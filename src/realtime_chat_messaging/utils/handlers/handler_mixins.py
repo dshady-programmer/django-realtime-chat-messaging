@@ -142,3 +142,9 @@ class SessionHandlerMixin(SessionHelperMixins):
     @sqlite_safe_db_sync_to_async
     def get_active_sessions(self, user_id):
         return self._get_active_sessions(user_id)
+    
+    @sqlite_safe_db_sync_to_async
+    def update_session(self, session):
+        return self._update_session(session)
+    
+

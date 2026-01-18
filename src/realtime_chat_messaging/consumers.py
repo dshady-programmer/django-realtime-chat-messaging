@@ -155,6 +155,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_message_send_event(self, data, room):
         """
         receive_message_send_event
+        
+        (message.send)
 
         data: {
             room_id: string/int,
@@ -192,6 +194,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         receive_message_acknowledged_event
         
         this also means message is delivered to the recipient...
+        
+        (message.acknowledged)
 
         data: {
             message_id: string/int or List<string/int>,
@@ -210,6 +214,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         """
         receive_message_read_event
         
+        (message.read)
+
         data: {
             message_id: string/int or List<string/int>        
         }
@@ -233,7 +239,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_message_reaction_event(self, data):
         """
         receive_message_reaction_event
-        
+        (message.react)
         data: {
             type: 'add'/'remove'
             message_id: string <id>,
@@ -256,7 +262,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_message_typing_event(self, data, room):
         """
         receive_message_typing_event
-        
+        (message.typing)
         data: {
             room_id: string
         }
@@ -273,7 +279,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_message_modify_event(self, data, room):
         """
         receive_message_modify_event
-        
+        (message.modify)
         data: {
             action: "update" / "delete"
             message_id: string/int (update) / [string/int, string/int] (for delete)
@@ -297,7 +303,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_message_list(self, data, room):
         """
         receive_message_list
-        
+        (room.messages)
         data: {
             room_id: string 
             paginate: { 
@@ -324,7 +330,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_room_create_event(self, data):
         """
         receive_room_create_event
-        
+        (room.create)
         data: {
             type: OneToOneChat, GroupChat, Channel,
             participants: [user1, user2 ...] ( for groupchat and onetoone only )
@@ -365,7 +371,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_get_rooms(self, _):
         """
         receive_get_rooms
-        
+        (room.list)
         data: empty
         """
 
@@ -383,7 +389,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_get_room_info(self, data, room):
         """
         receive_get_room_info
-        
+        (room.info)
         data : {
         room_id
         }
@@ -406,7 +412,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_add_members_to_room(self, data, room):
         """
         receive_add_members_to_room
-        
+        (room.add_members)
         data: {
         room_id: "",
         members: [userIds]
@@ -426,6 +432,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_remove_members_from_room(self, data, room):
         """
         receive_remove_members_from_room
+        (room.remove_members)
         data: {
         room_id: "",
         members: [userIds]
@@ -449,7 +456,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_leave_room_event(self, data, room):
         """
         receive_leave_room_event
-        
+        (room.leave)
         data: {
             room_id: string
         }
@@ -476,7 +483,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_join_room_event(self, data):
         """
         receive_join_room_event
-        
+        (room.join)
         data: {
             room_id: string
         }
@@ -495,7 +502,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def receive_modify_room_event(self, data, room):
         """
         receive_modify_room_event
-        
+        (room.modify)
         data: {
             room_id: ""
             action: "update" / "delete" / "add_permission" /  "remove_permission" / "add_moderator" / "add_admin" / "remove_moderator" / "remove_admin"
@@ -524,7 +531,19 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             return None
         await self.send_group(group, "roomupdate.dispatch", room_data)
 
-        
+    @ExceptionHandler.exception_handler_decorator    
+    async def receive_update_session_heartbeat(self):
+        """
+
+        (session.heartbeat)
+
+        interval depends on the end user but ideally should be updated 2-3 times within the inactivity threshold time
+
+        """
+        await EventHandler.update_session(self.session)
+
+
+    
 
 
 
