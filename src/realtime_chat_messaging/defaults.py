@@ -21,6 +21,7 @@ DEFAULTS = {
                 "ReadReceiptSerializer": "realtime_chat_messaging.serializers.ReadReceiptSerializer"
         },
         "MODELS": {
+                "Session": "realtime_chat_messaging.Session",
                 "Room": "realtime_chat_messaging.Room", 
                 "OneToOneChat": "realtime_chat_messaging.OneToOneChat",
                 "GroupChat": "realtime_chat_messaging.GroupChat",
@@ -36,6 +37,6 @@ DEFAULTS = {
         "EVENT_HANDLER_CLASS": "realtime_chat_messaging.utils.handlers.EventHandler",
         "EXCEPTION_HANDLER_CLASS": "realtime_chat_messaging.utils.decorators.ExceptionHandler",
         "MESSAGE_SOFT_DELETE": False,
-        "ENABLE_NOTIFICATION": True
-
+        "ENABLE_NOTIFICATION": True,
+        "INACTIVITY_THRESHOLD": 60 # 1 minute
     }

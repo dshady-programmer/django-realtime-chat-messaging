@@ -151,14 +151,22 @@ class PermissionHelperMixin:
         return is_permitted, room
 
     @staticmethod
-    def _have_admin_privileges(user, room_id, default_admin_names={"group": "admins", "channel": "moderators"}):
+    def _have_admin_privileges(user, room_id, action, default_admin_names={"group": "admins", "channel": "moderators"}):
         is_permitted = True
         room = get_object_or_404(Room, pk = room_id)
-        if isinstance(room, GroupChat):
-            room = GroupChat.objects.prefetch_related('participants', default_admin_names["group"]).get(pk=room.pk)
-            is_permitted = user in room.participants.all() and (room.creator == user or user in getattr(room, default_admin_names["group"]).all())
-        elif isinstance(room, Channel):
-            room = Channel.objects.prefetch_related('subscribers', default_admin_names["channel"]).get(pk=room.pk)
-            is_permitted = user in room.subscribers.all() and (room.creator == user or user in getattr(room, default_admin_names["channel"]).all())
+        if action == "delete":
+            if isinstance(room, (GroupChat, Channel)):
+                is_permitted = room.creator == user
+            else:
+                is_permitted = user in room.participants.all()
+        else:
+            if isinstance(room, GroupChat):
+                room = GroupChat.objects.prefetch_related('participants', default_admin_names["group"]).get(pk=room.pk)
+                is_permitted = user in room.participants.all() and (room.creator == user or user in getattr(room, default_admin_names["group"]).all())
+            elif isinstance(room, Channel):
+                room = Channel.objects.prefetch_related('subscribers', default_admin_names["channel"]).get(pk=room.pk)
+                is_permitted = user in room.subscribers.all() and (room.creator == user or user in getattr(room, default_admin_names["channel"]).all())
+            else:
+                is_permitted = user in room.participants.all()
 
         return is_permitted, room

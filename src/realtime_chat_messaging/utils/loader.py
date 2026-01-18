@@ -38,6 +38,7 @@ from realtime_chat_messaging.conf import realtime_chat_settings
 from operator import itemgetter
 
 (
+    _Session,
     _Message, 
     _Room, 
     _GroupChat, 
@@ -46,8 +47,10 @@ from operator import itemgetter
     _MessageMediaAsset,
     _ReadReceipt,
     _ChatNotification,
-    _Reaction
+    _Reaction,
+
 ) = itemgetter(
+    "Session",
     "Message", 
     "Room", 
     "GroupChat", 
@@ -93,6 +96,7 @@ from operator import itemgetter
 
 def get_model(name: str) -> models.Model:
     map_model_name = {
+        "Session": _Session,
         "Message": _Message, 
         "Room": _Room, 
         "GroupChat": _GroupChat, 

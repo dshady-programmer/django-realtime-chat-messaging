@@ -8,6 +8,15 @@ User = settings.AUTH_USER_MODEL
 Message = settings.REALTIME_CHAT_MESSAGING_MESSAGE_MODEL
 Room = settings.REALTIME_CHAT_MESSAGING_ROOM_MODEL
 
+
+class AbstractSession(models.Model):
+    """
+    User session model to keep track of user sessions
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sessions")
+    channel_name = models.CharField()
+    last_seen = models.DateTimeField()
+
 class AbstractRoom(PolymorphicModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     last_message = models.ForeignKey(Message, on_delete=models.SET_NULL, related_name="message_room", null=True, blank=True, default=None)

@@ -1,5 +1,5 @@
-from .handler_mixins import ChatNotificationHandlerMixin, MessageHandlerMixin, RoomHandlerMixin
+from .handler_mixins import ChatNotificationHandlerMixin, MessageHandlerMixin, RoomHandlerMixin, SessionHandlerMixin
 
 
-class EventHandler(ChatNotificationHandlerMixin, MessageHandlerMixin, RoomHandlerMixin):
+class EventHandler(ChatNotificationHandlerMixin, MessageHandlerMixin, RoomHandlerMixin, SessionHandlerMixin):
     pass

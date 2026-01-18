@@ -7,11 +7,14 @@ from guardian.shortcuts import remove_perm, assign_perm
 from realtime_chat_messaging.utils.loader import get_serializer, get_model
 from realtime_chat_messaging.conf import realtime_chat_settings 
 from django.contrib.auth import get_user_model
+from asgiref.sync import async_to_sync
+import datetime
+from django.utils import timezone
 
 User = get_user_model()
 soft_delete = realtime_chat_settings.MESSAGE_SOFT_DELETE
 enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
-
+inactivity_threshold = realtime_chat_settings.INACTIVITY_THRESHOLD
 
 
 
@@ -355,28 +358,30 @@ class RoomHelperMixins:
         members.remove(*newly_removed_users)
         if isinstance(room, RoomHelperMixins.GroupChat):
             if hasattr(room, "admins"):
-                room.admins.remove(*user)
+                room.admins.remove(*newly_removed_users)
         else:
             if hasattr(room, "moderators"):
-                room.moderators.remove(*user)
-
+                room.moderators.remove(*newly_removed_users)
+        
         serialized_room = RoomHelperMixins.RoomPolymorphicSerializer(room).data
         return newly_removed_users, serialized_room, removed_members_username
     
     @staticmethod
     def _leave_room(user, room):
-
         if not isinstance(room, (RoomHelperMixins.GroupChat, RoomHelperMixins.Channel)):
             raise ValidationError("You can only leave a channel/group chat")
+        
         members = room.participants if isinstance(room, RoomHelperMixins.GroupChat) else room.subscribers
         
-        members.remove(user)
         if isinstance(room, RoomHelperMixins.GroupChat):
             if hasattr(room, "admins"):
                 room.admins.remove(user)
         else:
             if hasattr(room, "moderators"):
                 room.moderators.remove(user)
+        members.remove(user) 
+        if not room.pk:
+            return None # meaning no more participants left and room is deleted
         serialized_room = RoomHelperMixins.RoomPolymorphicSerializer(room).data
         return serialized_room
     
@@ -406,7 +411,7 @@ class RoomHelperMixins:
     def _modify_room(data, room):
 
         VALID_ACTIONS = [
-            "update", "add_permission", "remove_permission",
+            "delete", "update", "add_permission", "remove_permission",
             "add_moderator", "add_admin", 
             "remove_moderator", "remove_admin"
         ]
@@ -419,18 +424,26 @@ class RoomHelperMixins:
 
         if action not in VALID_ACTIONS:
             raise ValidationError("Invalid action type")
+        
+        if action == "delete":
+            members = list(room.subscribers.all() if type(room) == RoomHelperMixins.Channel else room.participants.all())
+            room.delete()
+            return {"room_deleted": True, "members": members}
+
+
         if not field_data:
             raise ValidationError("data must be provided")
+
         if action == "update":
             if type(room) in [RoomHelperMixins.GroupChat, RoomHelperMixins.Channel]:
                 if "name" in field_data:
                     room.name = field_data.get("name")
                 if "description" in field_data:
                     room.description = field_data.get("description")
-            if "preference" in field_data:
-                room.preference = field_data.get("preference")
+            if "preferences" in field_data and hasattr(room, "preferences"):
+                room.preferences = field_data.get("preferences")
             room.save()
-        if not isinstance(room, RoomHelperMixins.OneToOneChat) and action in [
+        elif not isinstance(room, RoomHelperMixins.OneToOneChat) and action in [
             "add_permission", "remove_permission",
             "add_moderator", "add_admin", 
             "remove_moderator", "remove_admin"
@@ -527,4 +540,35 @@ class ChatNotificationHelperMixins:
 
 
         return grouped_chat_notifications
+    
+
+class SessionHelperMixins:
+    """
+    Handle channel sessions setup and cleanups
+    """
+
+    Session = get_model("Session")
+
+    @staticmethod
+    def _get_expired_sessions(user_id):
+        time_allowance = timezone.now() - datetime.timedelta(seconds=inactivity_threshold)
+        expired_sessions = SessionHelperMixins.Session.objects.filter(user__id=user_id, last_seen__lt=time_allowance)
+        return [s.channel_name for s in expired_sessions]
+    
+    @staticmethod
+    def _register_session(user, channel_name):
+        session = SessionHelperMixins.Session.objects.create(
+            user=user, 
+            channel_name=channel_name, 
+            last_seen=timezone.now()
+        )
+        
+
+        return session
+
+    @staticmethod 
+    def _get_active_sessions(user_id):
+        time_allowance = timezone.now() - datetime.timedelta(seconds=inactivity_threshold)
+        active_sessions = SessionHelperMixins.Session.objects.filter(user__id=user_id, last_seen__gte=time_allowance)
+        return [s.channel_name for s in active_sessions]
 

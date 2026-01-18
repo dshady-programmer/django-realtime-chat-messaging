@@ -47,28 +47,3 @@ def remove_group_from_user_groups(user_id: str, group: str):
     
 
 
-
-@sync_to_async
-def set_channel_name(user_id: str, channel_name: str):
-    key = f"user:{user_id}:channel_name"
-    cache.set(key, channel_name, timeout=None)
-    persistent_key = f"user:{user_id}:persistent_channel_name"
-    cache.set(persistent_key, channel_name, timeout=None)
-
-
-@sync_to_async
-def get_previous_channel_name(user_id: str):
-    key = f"user:{user_id}:channel_name"
-    return cache.get(key)
-
-
-@sync_to_async
-def get_persistent_channel_name(user_id: str):
-    key = f"user:{user_id}:persistent_channel_name"
-    return cache.get(key)
-
-
-@sync_to_async
-def clear_previous_channel_name(user_id: str):
-    key = f"user:{user_id}:channel_name"
-    return cache.delete(key)

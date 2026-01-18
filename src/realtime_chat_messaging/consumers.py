@@ -10,11 +10,7 @@ from realtime_chat_messaging.utils.loader import import_and_verify_type_class, i
 import json
 from .utils.cache_utils import (
     fetch_user_groups,
-    get_previous_channel_name,
-    clear_previous_channel_name,
     update_user_groups,
-    set_channel_name,
-    get_persistent_channel_name,
     add_group_to_user_groups,
     remove_group_from_user_groups
 )
@@ -86,6 +82,7 @@ roominfo.dispatch
 roomaddmembers.dispatch
 roomremovemembers.dispatch
 roomexit.dispatch
+roomdelete.dispatch
 roomupdate.dispatch
 
 
@@ -109,10 +106,10 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         
 
         self.user = user
-
-        await self.channel_cleanup(user.id)
-        await self.channel_setup(user.id)
-
+        await self.channel_cleanup()
+        await self.channel_setup()
+        
+        # print(self.session, self.session.channel_name)
         await self.accept()
         # dispatch all notifications.
         if enable_notification:
@@ -120,9 +117,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         if hasattr(self, "user"):
-            user_id = self.user.id
-            if user_id:
-                await self.channel_cleanup(user_id)
+            if self.user.id:
+                await self.channel_cleanup()
 
 
     async def receive(self, text_data = None, bytes_data = None):
@@ -439,6 +435,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
         users_removed, serialized_room, removed_member_usernames = await EventHandler.remove_members_from_room(data.get('members'), room, self.user)
         group = GROUP_STRING.format(group_id=room.id) 
+
         for user in users_removed:
             await self.discard_channel_from_group(group, user.id)
             user_group = USER_OWN_GROUP.format(user_id=user.id)
@@ -461,9 +458,14 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
         serialized_room = await EventHandler.leave_room(self.user, room)
 
+
+
         group = GROUP_STRING.format(group_id=room.id)
         user_group = USER_OWN_GROUP.format(user_id=self.user.id)
         await self.discard_channel_from_group(group) # remove user channel from group
+
+        if not serialized_room and not room.pk:
+            return await self.send_group(user_group, "roomdelete.dispatch", {"room_id": str(room.id)})    
 
         await self.send_group(user_group, "roomexit.dispatch", {"room": serialized_room, "message": f"You left {room.name}"})
 
@@ -496,22 +498,30 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         
         data: {
             room_id: ""
-            action: "update" / "add_permission" /  "remove_permission" / "add_moderator" / "add_admin" / "remove_moderator" / "remove_admin"
+            action: "update" / "delete" / "add_permission" /  "remove_permission" / "add_moderator" / "add_admin" / "remove_moderator" / "remove_admin"
             data: {
                 ...
                 users: []
-                permissions: [] <Must be valid permission based on the type of room you're modifying
+                permissions: [] <Must be valid permission based on the type of room you're modifying>
             }
         }
          
          
          
-        Note: if you have a different model for Room/GroupChat/Channel other than the default provided
-        you should rewrite your modify_room. See docs to implement this properly
+        Note: if you have a different model for Room/GroupChat/Channel other than the default provided 
+        or you extended the default room models, update and other actions might not work as intended 
+        consider rewriting your _modify_room helper method. See docs to implement this properly
         """
 
         room_data = await EventHandler.modify_room(data, room)
+        
+
         group = GROUP_STRING.format(group_id=room.id)
+        if "room_deleted" in room_data and room_data['room_deleted'] is True and room.pk is None:
+            await self.send_group(group, "roomdelete.dispatch", {"room_id": str(room.id)})
+            for m in room_data["members"]:
+                await self.discard_channel_from_group(group, m.id)
+            return None
         await self.send_group(group, "roomupdate.dispatch", room_data)
 
         
@@ -544,28 +554,28 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     async def add_channel_to_group(self, group, user_id=None):
         if user_id is None or user_id == self.user.id:
             user_id = self.user.id
-            # Adds the current user to the group
-            await self.channel_layer.group_add(group, self.channel_name)
-        else:
-            # adds a user to the specified group
-            channel_name = await get_persistent_channel_name(user_id)
-            if channel_name:
-                await self.channel_layer.group_add(group, channel_name)
+ 
+        active_sessions = await EventHandler.get_active_sessions(user_id)
+        
+        for channel_name in active_sessions:
+            await self.channel_layer.group_add(group, channel_name)
 
-        # store all user groups so that can add it to their channel layer on every new connection
+        # store all user groups so it can be added it to their channel layer on every new connection
         await add_group_to_user_groups(user_id, group)
 
     async def discard_channel_from_group(self, group, user_id=None):
         if user_id is None or user_id == self.user.id:
             user_id = self.user.id
-            await self.channel_layer.group_discard(group, self.channel_name)
-        else:
-            channel_name = await get_persistent_channel_name(user_id)
-            if channel_name:
-                await self.channel_layer.group_discard(group, channel_name)
+    
+        active_sessions = await EventHandler.get_active_sessions(user_id)
+        
+        for channel_name in active_sessions:
+            await self.channel_layer.group_discard(group, channel_name)
 
         # store all user groups so that can add it to their channel layer on every new connection
         await remove_group_from_user_groups(user_id, group)
+
+
     # --------------------------------------------- #
 
     # Catch/all broadcast to client helpers
@@ -591,17 +601,16 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     # for now doesn't support concurrent connections from the same user.
     # --------------------------------------------- #
 
-    async def channel_cleanup(self, user_id: str):
+    async def channel_cleanup(self):
+        user_id = self.user.id
         groups = await fetch_user_groups(user_id)
-        prev_channel_name = await get_previous_channel_name(user_id)
-        if not (prev_channel_name):
-            # already cleaned up
-            return None
+        expired_sessions = await EventHandler.get_expired_sessions(user_id)
         for group in groups:
-            await self.channel_layer.group_discard(group, prev_channel_name)
-        await clear_previous_channel_name(user_id)
+            for channel_name in expired_sessions:
+                await self.channel_layer.group_discard(group, channel_name)
 
-    async def channel_setup(self, user_id: str):
+    async def channel_setup(self):
+        user_id = self.user.id
         groups = await fetch_user_groups(user_id)
         user_own_group = USER_OWN_GROUP.format(user_id=user_id)
         if user_own_group not in groups:
@@ -612,4 +621,5 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             await update_user_groups(user_id, groups)
         for group in groups:
             await self.channel_layer.group_add(group, self.channel_name)
-        await set_channel_name(user_id, self.channel_name)
+        self.session = await EventHandler.register_session(self.user, self.channel_name)
+    

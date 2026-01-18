@@ -1447,7 +1447,7 @@ class TestMessageOperations:
 class TestRoomOperations:
     """Test room operations (join, leave, fetch, etc.)"""
 
-    async def test_fetch_rooms(self, users, one_to_one_chat, group_chat):
+    async def test_fetch_rooms(self, users, communicator, channel, one_to_one_chat, group_chat):
         """Test fetching user's rooms"""
         communicator = WebsocketCommunicator(
             ChatMessagingConsumer.as_asgi(),
@@ -1455,16 +1455,16 @@ class TestRoomOperations:
         )
         communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
         await communicator.send_json_to({
-            'event_type': 'receive_get_rooms',
+            'event_type': 'room.list',
             'data': {}
         })
         
         response = await communicator.receive_json_from()
         
         assert response['eventType'] == 'roomlist.dispatch'
-        assert len(response['data']) >= 2
+        assert len(response['data']) >= 3
         
         await communicator.disconnect()
 
@@ -1476,22 +1476,46 @@ class TestRoomOperations:
         )
         communicator.scope['user'] = users[0]
         await communicator.connect()
+        await communicator.receive_json_from()
         
         await communicator.send_json_to({
-            'event_type': 'receive_get_room_info',
+            'event_type': 'room.info',
             'data': {
                 'room_id': str(group_chat.id)
             }
         })
         
         response = await communicator.receive_json_from()
-        
+
         assert response['eventType'] == 'roominfo.dispatch'
         assert response['data']['name'] == 'Test Group'
+        assert len(response['data']['participants']) == 1
+
         
         await communicator.disconnect()
 
-    async def test_fetch_messages(self, users, one_to_one_chat):
+    async def test_fetch_room_details_by_non_member(self, communicator, users, group_chat):
+        """Test fetching specific room details by non room member"""
+
+        communicator.scope['user'] = users[1]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        
+        await communicator.send_json_to({
+            'event_type': 'room.info',
+            'data': {
+                'room_id': str(group_chat.id)
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+
+        assert "error" in response
+        assert response["error"]["code"] == 4002
+        
+        await communicator.disconnect()
+
+    async def test_fetch_messages(self, users, communicator, one_to_one_chat):
         """Test fetching messages from room"""
         # Create some messages
         await database_sync_to_async(Message.objects.create)(
@@ -1505,15 +1529,11 @@ class TestRoomOperations:
             content="Message 2"
         )
         
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
         communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
         await communicator.send_json_to({
-            'event_type': 'receive_message_list',
+            'event_type': 'room.messages',
             'data': {
                 'room_id': str(one_to_one_chat.id)
             }
@@ -1529,6 +1549,63 @@ class TestRoomOperations:
     async def test_fetch_messages_with_pagination(self, users, one_to_one_chat):
         """Test fetching messages with pagination"""
         # Create multiple messages
+        for i in range(50):
+            await database_sync_to_async(Message.objects.create)(
+                room=one_to_one_chat,
+                sender=users[0],
+                content=f"Message {i}"
+            )
+        
+        communicator = WebsocketCommunicator(
+            ChatMessagingConsumer.as_asgi(),
+            "/messaging/"
+        )
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.messages',
+            'data': {
+                'room_id': str(one_to_one_chat.id),
+                'paginate': {
+                    'page': 1,
+                    'size': 10
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roommessages.dispatch'
+        assert len(response['data']['data']['messages']) == 10
+        assert response['data']['has_next'] is True
+        assert response['data']['has_previous'] is False
+        assert response['data']['next_page_number'] == 2
+        assert response['data']['prev_page_number'] == None
+        await communicator.send_json_to({
+            'event_type': 'room.messages',
+            'data': {
+                'room_id': str(one_to_one_chat.id),
+                'paginate': {
+                    'page': 5,
+                    'size': 10
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        assert response['eventType'] == 'roommessages.dispatch'
+        assert len(response['data']['data']['messages']) == 10
+        assert response['data']['has_next'] is False
+        assert response['data']['has_previous'] is True
+        assert response['data']['next_page_number'] == None
+        assert response['data']['prev_page_number'] == 4
+
+        await communicator.disconnect()
+
+    async def test_fetch_messages_with_pagination_overflow(self, users, one_to_one_chat):
+        """Test fetching messages with pagination overflow doesnt raise error"""
+        # Create multiple messages
         for i in range(10):
             await database_sync_to_async(Message.objects.create)(
                 room=one_to_one_chat,
@@ -1542,13 +1619,13 @@ class TestRoomOperations:
         )
         communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
         await communicator.send_json_to({
-            'event_type': 'receive_message_list',
+            'event_type': 'room.messages',
             'data': {
                 'room_id': str(one_to_one_chat.id),
                 'paginate': {
-                    'page': 1,
+                    'page': 3,
                     'size': 5
                 }
             }
@@ -1558,49 +1635,118 @@ class TestRoomOperations:
         
         assert response['eventType'] == 'roommessages.dispatch'
         assert len(response['data']['data']['messages']) == 5
-        assert response['data']['has_next'] is True
+        assert response['data']['has_next'] is False
+        assert response['data']['has_previous'] is True
+        assert response['data']['next_page_number'] == None
+        assert response['data']['prev_page_number'] == 1
+
+
         await communicator.disconnect()
 
-    async def test_join_public_channel(self, users, channel_fixture):
-        """Test joining a public channel"""
+    async def test_fetch_messages_with_pagination_with_improper_data(self, users, one_to_one_chat):
+        """Test fetching messages with pagination with improper data raises error"""
+        # Create multiple messages
+        for i in range(10):
+            await database_sync_to_async(Message.objects.create)(
+                room=one_to_one_chat,
+                sender=users[0],
+                content=f"Message {i}"
+            )
+        
         communicator = WebsocketCommunicator(
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+
+        #without size
+        await communicator.send_json_to({
+            'event_type': 'room.messages',
+            'data': {
+                'room_id': str(one_to_one_chat.id),
+                'paginate': {
+                    'page': 1,
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert "error" in response
+        assert 'page and size required' in response['error']['detail']
+        
+        #without page
+        await communicator.send_json_to({
+            'event_type': 'room.messages',
+            'data': {
+                'room_id': str(one_to_one_chat.id),
+                'paginate': {
+                    'size': 1,
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert "error" in response
+        assert 'page and size required' in response['error']['detail']
+
+        #without both doesn't paginate returns all
+        await communicator.send_json_to({
+            'event_type': 'room.messages',
+            'data': {
+                'room_id': str(one_to_one_chat.id),
+                'paginate': {
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roommessages.dispatch'
+        assert len(response['data']['data']['messages']) == 10
+        await communicator.disconnect()
+
+
+    
+
+    async def test_join_public_channel(self, communicator, users, channel):
+        """Test joining a public channel"""
+
         communicator.scope['user'] = users[1]
         await communicator.connect()
+        await communicator.receive_json_from()
+
         
         await communicator.send_json_to({
-            'event_type': 'receive_join_room_event',
+            'event_type': 'room.join',
             'data': {
-                'room_id': str(channel_fixture.id)
+                'room_id': str(channel.id)
             }
         })
         
         response = await communicator.receive_json_from()
         
         assert response['eventType'] == 'roomaddmembers.dispatch'
-        assert 'user2' in response['data']['new_members']
+        assert 'user1' in response['data']['new_members']
         
         await communicator.disconnect()
 
-    async def test_cannot_join_private_channel(self, users, channel_fixture):
+    async def test_cannot_join_private_channel(self, communicator, users, channel):
         """Test that cannot join private channel"""
         # Make channel private
-        await database_sync_to_async(setattr)(channel_fixture, 'is_public', False)
-        await database_sync_to_async(channel_fixture.save)()
-        
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
+        await database_sync_to_async(setattr)(channel, 'is_public', False)
+        await database_sync_to_async(channel.save)()
+
         communicator.scope['user'] = users[1]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
         await communicator.send_json_to({
-            'event_type': 'receive_join_room_event',
+            'event_type': 'room.join',
             'data': {
-                'room_id': str(channel_fixture.id)
+                'room_id': str(channel.id)
             }
         })
         
@@ -1610,18 +1756,51 @@ class TestRoomOperations:
         assert response['error']['code'] == 4003
         
         await communicator.disconnect()
+        
+    async def test_cannot_join_group_chat(self, communicator, users, group_chat):
+        """Test that cannot join group_chat"""
 
-    async def test_leave_room(self, users, group_chat):
-        """Test leaving a room"""
-        communicator = WebsocketCommunicator(
+        communicator.scope['user'] = users[1]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.join',
+            'data': {
+                'room_id': str(group_chat.id)
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert 'error' in response
+        assert response['error']['code'] == 4003
+        assert "Ask an admin to add you to the group" in str(response['error']['detail'])
+        
+        await communicator.disconnect()
+
+
+    async def test_leave_groupchat(self,communicator, users, group_chat):
+        """Test leaving a groupchat"""
+
+
+        await database_sync_to_async(group_chat.participants.add)(users[1])
+        communicator1 = WebsocketCommunicator(
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
-        communicator.scope['user'] = users[0]
+
+        communicator1.scope['user'] = users[0]
+
+        communicator.scope['user'] = users[1]
         await communicator.connect()
+        await communicator.receive_json_from()
+
         
+        await communicator1.connect()
+        await communicator1.receive_json_from()
+
         await communicator.send_json_to({
-            'event_type': 'receive_leave_room_event',
+            'event_type': 'room.leave',
             'data': {
                 'room_id': str(group_chat.id)
             }
@@ -1631,48 +1810,214 @@ class TestRoomOperations:
         
         assert response['eventType'] == 'roomexit.dispatch'
         assert 'You left' in response['data']['message']
-        
-        await communicator.disconnect()
+        assert len(response['data']['room']['participants']) == 1
+        # check other members of the group got an event of the exit
+        response1 = await communicator1.receive_json_from()
+        assert response1['eventType'] == 'roomremovemembers.dispatch'
+        assert 'user1' in response1['data']['removed_members']
+        assert response1['data']['removed_by'] == 'self'
 
-    async def test_add_members_to_room(self, users, group_chat):
-        """Test adding members to room"""
-        communicator = WebsocketCommunicator(
+        await communicator.disconnect()
+        await communicator1.disconnect()
+
+    async def test_leave_channel(self,communicator, users, channel):
+        """Test leaving a channel"""
+
+
+        await database_sync_to_async(channel.subscribers.add)(users[1])
+        communicator1 = WebsocketCommunicator(
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
+
+        communicator1.scope['user'] = users[0]
+
+        communicator.scope['user'] = users[1]
+        await communicator.connect()
+        await communicator.receive_json_from()
+
+
+        await communicator1.connect()
+        await communicator1.receive_json_from()
+
+        await communicator.send_json_to({
+            'event_type': 'room.leave',
+            'data': {
+                'room_id': str(channel.id)
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomexit.dispatch'
+        assert 'You left' in response['data']['message']
+        assert len(response['data']['room']['subscribers']) == 1
+
+
+        # check other members of the group got an event of the exit
+        response1 = await communicator1.receive_json_from()
+        assert response1['eventType'] == 'roomremovemembers.dispatch'
+        assert 'user1' in response1['data']['removed_members']
+        assert response1['data']['removed_by'] == 'self'
+
+
+        await communicator.disconnect()
+        await communicator1.disconnect()
+
+    async def test_leave_onetoonechat(self,communicator, users, one_to_one_chat):
+        """Test leaving a one to one chat"""
+
+  
+        communicator.scope['user'] = users[1]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.leave',
+            'data': {
+                'room_id': str(one_to_one_chat.id)
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+
+        assert "error" in response
+        assert 'You can only leave a channel/group chat' in response["error"]["detail"]
+        await communicator.disconnect()
+
+
+    async def test_leave_groupchat_as_the_last_participant(self,communicator, users, group_chat):
+        """Test leaving a groupchat as the last participant"""
         communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
+
+        # retreive rooms before leaving
         await communicator.send_json_to({
-            'event_type': 'receive_add_members_to_room',
+            'event_type': 'room.list'
+        })
+        response = await communicator.receive_json_from() 
+        assert len(response['data']) == 1
+        assert response['data'][0]["id"] == str(group_chat.id)
+
+        await communicator.send_json_to({
+            'event_type': 'room.leave',
+            'data': {
+                'room_id': str(group_chat.id)
+            }
+        }) # room is expected to be deleted after the last person leaves
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomdelete.dispatch'
+        assert response['data']['room_id'] == str(group_chat.id) 
+        # retreive rooms after leaving
+        await communicator.send_json_to({
+            'event_type': 'room.list'
+        })
+        response = await communicator.receive_json_from()
+        assert len(response['data']) == 0
+        await communicator.disconnect()
+
+        
+    async def test_leave_channel_as_the_last_subscriber(self,communicator, users, channel):
+        """Test leaving a channel as the last subscriber"""
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+
+        # retreive rooms before leaving
+        await communicator.send_json_to({
+            'event_type': 'room.list'
+        })
+        response = await communicator.receive_json_from() 
+        assert len(response['data']) == 1
+        assert response['data'][0]["id"] == str(channel.id)
+
+        await communicator.send_json_to({
+            'event_type': 'room.leave',
+            'data': {
+                'room_id': str(channel.id)
+            }
+        }) # room is expected to be deleted after the last person leaves
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomdelete.dispatch'
+        assert response['data']['room_id'] == str(channel.id) 
+        # retreive rooms after leaving
+        await communicator.send_json_to({
+            'event_type': 'room.list'
+        })
+        response = await communicator.receive_json_from()
+        assert len(response['data']) == 0
+        await communicator.disconnect()
+
+    async def test_add_members_to_group(self,communicator, users, group_chat):
+        """Test adding members to group"""
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.add_members',
             'data': {
                 'room_id': str(group_chat.id),
-                'members': [users[1].id, users['user3'].id]
+                'members': [users[1].id, users[2].id]
             }
         })
         
         response = await communicator.receive_json_from()
         
         assert response['eventType'] == 'roomaddmembers.dispatch'
+        assert 'user1' in response['data']['new_members']
         assert 'user2' in response['data']['new_members']
-        assert 'user3' in response['data']['new_members']
         
         await communicator.disconnect()
 
-    async def test_remove_members_from_room(self, users, group_chat):
-        """Test removing members from room"""
+    async def test_add_members_to_channel(self,communicator, users, channel):
+        """Test adding members to channel"""
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.add_members',
+            'data': {
+                'room_id': str(channel.id),
+                'members': [users[1].id, users[2].id]
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomaddmembers.dispatch'
+        assert 'user1' in response['data']['new_members']
+        assert 'user2' in response['data']['new_members']
+        
+        await communicator.disconnect()
+
+    async def test_remove_members_from_groupchat(self, communicator, users, group_chat):
+        """Test removing members from groupchat"""
         # Add user2 first
         await database_sync_to_async(group_chat.participants.add)(users[1])
         
-        communicator = WebsocketCommunicator(
+        communicator1 = WebsocketCommunicator(
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
+
+        communicator1.scope['user'] = users[1]
+
         communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
+
+
+        await communicator1.connect()
+        await communicator1.receive_json_from()
+
         await communicator.send_json_to({
-            'event_type': 'receive_remove_members_from_room',
+            'event_type': 'room.remove_members',
             'data': {
                 'room_id': str(group_chat.id),
                 'members': [users[1].id]
@@ -1682,27 +2027,71 @@ class TestRoomOperations:
         response = await communicator.receive_json_from()
         
         assert response['eventType'] == 'roomremovemembers.dispatch'
-        assert 'user2' in response['data']['removed_members']
+        assert 'user1' in response['data']['removed_members']
+
+        response1 = await communicator1.receive_json_from()
+        
+        assert response1['eventType'] == 'roomexit.dispatch'
+        assert response1['data']['message'] == f"You have been removed by {users[0].username}"
         
         await communicator.disconnect()
+        await communicator1.disconnect()
 
-    async def test_non_admin_cannot_add_members(self, users, group_chat):
-        """Test that non-admin cannot add members"""
-        # Add user2 as participant but not admin
-        await database_sync_to_async(group_chat.participants.add)(users[1])
+
+    async def test_remove_members_from_channel(self, communicator, users, channel):
+        """Test removing members from channel"""
+        # Add user2 first
+        await database_sync_to_async(channel.subscribers.add)(users[1])
         
-        communicator = WebsocketCommunicator(
+        communicator1 = WebsocketCommunicator(
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"
         )
+
+        communicator1.scope['user'] = users[1]
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+
+
+        await communicator1.connect()
+        await communicator1.receive_json_from()
+
+        await communicator.send_json_to({
+            'event_type': 'room.remove_members',
+            'data': {
+                'room_id': str(channel.id),
+                'members': [users[1].id]
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomremovemembers.dispatch'
+        assert 'user1' in response['data']['removed_members']
+
+        response1 = await communicator1.receive_json_from()
+        
+        assert response1['eventType'] == 'roomexit.dispatch'
+        assert response1['data']['message'] == f"You have been removed by {users[0].username}"
+        
+        await communicator.disconnect()
+        await communicator1.disconnect()
+
+    async def test_non_admin_cannot_add_members(self, communicator, users, group_chat):
+        """Test that non-admin cannot add members"""
+        # Add user 2 as participant but not admin
+        await database_sync_to_async(group_chat.participants.add)(users[1])
+        
         communicator.scope['user'] = users[1]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
         await communicator.send_json_to({
-            'event_type': 'receive_add_members_to_room',
+            'event_type': 'room.add_members',
             'data': {
                 'room_id': str(group_chat.id),
-                'members': [users['user3'].id]
+                'members': [users[2].id]
             }
         })
         
@@ -1713,17 +2102,61 @@ class TestRoomOperations:
         
         await communicator.disconnect()
 
-    async def test_modify_room_as_admin(self, users, group_chat):
-        """Test modifying room as admin"""
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
+    async def test_non_admin_cannot_remove_members(self, communicator, users, group_chat):
+        """Test that non-admin cannot remove members"""
+        # Add user 2 as participant but not admin
+        await database_sync_to_async(group_chat.participants.add)(users[1])
+        
+        communicator.scope['user'] = users[1]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.remove_members',
+            'data': {
+                'room_id': str(group_chat.id),
+                'members': [users[2].id]
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert 'error' in response
+        assert response['error']['code'] == 4002
+        
+        await communicator.disconnect()
+
+    async def test_admin_cannot_remove_creator(self, communicator, register_room_with_user, users, group_chat):
+        """Test that admin cannot remove the room creator"""
+        # Add user 2 as participant and admin
+        await database_sync_to_async(group_chat.participants.add)(users[1])
+        await database_sync_to_async(group_chat.admins.add)(users[1])
+        await register_room_with_user(users[1].id, group_chat.id)
+        communicator.scope['user'] = users[1]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.remove_members',
+            'data': {
+                'room_id': str(group_chat.id),
+                'members': [users[0].id]
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert "user0" not in response['data']['removed_members']
+        assert len(response['data']['room']['participants']) == 2
+        assert response['data']['room']['participants'][0]['id'] == users[0].id
+        await communicator.disconnect()
+
+    async def test_modify_groupchat_as_admin(self, communicator, users, group_chat):
+        """Test modifying groupchat as admin"""
+
         communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
         await communicator.send_json_to({
-            'event_type': 'receive_modify_room_event',
+            'event_type': 'room.modify',
             'data': {
                 'room_id': str(group_chat.id),
                 'action': 'update',
@@ -1740,20 +2173,67 @@ class TestRoomOperations:
         
         await communicator.disconnect()
 
-    async def test_add_admin_to_group(self, users, group_chat):
-        """Test adding admin to group"""
-        # Add user2 as participant
-        await database_sync_to_async(group_chat.participants.add)(users[1])
-        
-        communicator = WebsocketCommunicator(
-            ChatMessagingConsumer.as_asgi(),
-            "/messaging/"
-        )
+    async def test_modify_channel_as_moderator(self, communicator, users, channel):
+        """Test modifying channel as moderator"""
+
         communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
         await communicator.send_json_to({
-            'event_type': 'receive_modify_room_event',
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(channel.id),
+                'action': 'update',
+                'data': {
+                    'description': 'Updated Channel Description'
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomupdate.dispatch'
+        assert response['data']['description'] == 'Updated Channel Description'
+        
+        await communicator.disconnect()
+
+    async def test_modify_onetoonechat(self, communicator, users, one_to_one_chat):
+        """Test modifying one to one chat"""
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(one_to_one_chat.id),
+                'action': 'update',
+                'data': {
+                    'preferences': {'theme': 'dark'},
+                    'name': 'new name' # ignored
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomupdate.dispatch'
+        assert response['data']['preferences'] == {'theme': 'dark'}
+        assert 'name' not in response['data']
+        
+        await communicator.disconnect()
+
+    async def test_add_admin_to_group(self, communicator, users, group_chat):
+        """Test adding admin to group"""
+        # Add user1 as participant
+        await database_sync_to_async(group_chat.participants.add)(users[1])
+        
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.modify',
             'data': {
                 'room_id': str(group_chat.id),
                 'action': 'add_admin',
@@ -1767,9 +2247,244 @@ class TestRoomOperations:
         
         assert response['eventType'] == 'roomupdate.dispatch'
         admin_usernames = [admin['username'] for admin in response['data']['admins']]
-        assert 'user2' in admin_usernames
+        assert 'user1' in admin_usernames
         
         await communicator.disconnect()
+
+    async def test_add_admin_to_group_by_non_admin_member(self, communicator, users, group_chat):
+        """Test adding admin to group"""
+        # Add user1 as participant
+        await database_sync_to_async(group_chat.participants.add)(users[1])
+        await database_sync_to_async(group_chat.participants.add)(users[2])
+        
+
+        communicator.scope['user'] = users[1]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(group_chat.id),
+                'action': 'add_admin',
+                'data': {
+                    'users': [users[1].id, users[2].id]
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        assert "error" in response
+        assert response["error"]["code"] == 4002
+        
+        await communicator.disconnect()
+
+    async def test_add_mod_to_channel(self, communicator, users, channel):
+        """Test adding mod to channel"""
+        # Add user1 as participant
+        await database_sync_to_async(channel.subscribers.add)(users[1])
+        
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(channel.id),
+                'action': 'add_moderator',
+                'data': {
+                    'users': [users[1].id]
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomupdate.dispatch'
+        admin_usernames = [admin['username'] for admin in response['data']['moderators']]
+        assert 'user1' in admin_usernames
+        
+        await communicator.disconnect()
+
+    async def test_add_mod_to_channel_by_non_mod_member(self, communicator, users, channel):
+        """Test adding moderators to channel"""
+        # Add user1 as participant
+        await database_sync_to_async(channel.subscribers.add)(users[1])
+        await database_sync_to_async(channel.subscribers.add)(users[2])
+        
+
+        communicator.scope['user'] = users[1]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(channel.id),
+                'action': 'add_moderator',
+                'data': {
+                    'users': [users[1].id, users[2].id]
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        assert "error" in response
+        assert response["error"]["code"] == 4002
+        
+        await communicator.disconnect()
+
+    async def test_remove_admin_from_group(self, communicator, users, group_chat):
+        """Test removing admin from group"""
+        # Add user1 as participant and admin
+        await database_sync_to_async(group_chat.participants.add)(users[1])
+        await database_sync_to_async(group_chat.admins.add)(users[1])
+        
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(group_chat.id),
+                'action': 'remove_admin',
+                'data': {
+                    'users': [users[1].id]
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomupdate.dispatch'
+        admin_usernames = [admin['username'] for admin in response['data']['admins']]
+        assert 'user1' not in admin_usernames
+        
+        await communicator.disconnect()
+
+    async def test_remove_mod_from_channel(self, communicator, users, channel):
+        """Test removing mod from channel"""
+        # Add user1 as participant
+        await database_sync_to_async(channel.subscribers.add)(users[1])
+        await database_sync_to_async(channel.moderators.add)(users[1])
+        
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(channel.id),
+                'action': 'remove_moderator',
+                'data': {
+                    'users': [users[1].id]
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomupdate.dispatch'
+        admin_usernames = [admin['username'] for admin in response['data']['moderators']]
+        assert 'user1' not in admin_usernames
+        
+        await communicator.disconnect()
+
+    async def test_remove_creator_from_admin(self, communicator, register_room_with_user, users, group_chat):
+        """Test removing creator from group admin"""
+        # Add user1 as participant and admin
+        await database_sync_to_async(group_chat.participants.add)(users[1])
+        await database_sync_to_async(group_chat.admins.add)(users[1])
+        await register_room_with_user(users[1].id, group_chat.id)
+
+        communicator.scope['user'] = users[1]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(group_chat.id),
+                'action': 'remove_admin',
+                'data': {
+                    'users': [users[0].id]
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomupdate.dispatch'
+        admin_usernames = [admin['username'] for admin in response['data']['admins']]
+        assert 'user0' in admin_usernames
+        
+        await communicator.disconnect()
+
+    async def test_delete_groupchat(self, communicator, users, group_chat):
+        """Test delete chat (only room creators can delete rooms except one to one chat)"""
+
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(group_chat.id),
+                'action': 'delete',
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomdelete.dispatch'
+        assert response['data']['room_id'] == str(group_chat.id)
+        await communicator.disconnect()
+
+    async def test_delete_groupchat_by_non_creator(self, communicator, users, group_chat):
+        """Test delete chat by non group chat creator"""
+        await database_sync_to_async(group_chat.participants.add)(users[1])
+        await database_sync_to_async(group_chat.admins.add)(users[1])
+        communicator.scope['user'] = users[1]
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(group_chat.id),
+                'action': 'delete',
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert "error" in response
+
+
+        assert response['error']['code'] == 4002
+        assert response['error']['detail'] == 'User is not the creator of this room'
+        
+        await communicator.disconnect()
+
+    async def test_delete_onetoonechat(self, communicator, users, one_to_one_chat):
+        """Test delete one to one chat"""
+
+        communicator.scope['user'] = users[1] 
+        await communicator.connect()
+        await communicator.receive_json_from()
+        await communicator.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(one_to_one_chat.id),
+                'action': 'delete',
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'roomdelete.dispatch'
+        assert response['data']['room_id'] == str(one_to_one_chat.id)
+        await communicator.disconnect()
+        
 
 @pytest.mark.asyncio
 @pytest.mark.django_db(transaction=True)
@@ -1783,7 +2498,7 @@ class TestErrorHandling:
         )
         communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
         await communicator.send_json_to({
             'event_type': 'invalid_event_type',
             'data': {}
@@ -1804,7 +2519,7 @@ class TestErrorHandling:
         )
         communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
         await communicator.send_json_to({
             'event_type': 'room.create',
             'data': {
@@ -1828,9 +2543,9 @@ class TestErrorHandling:
         )
         communicator.scope['user'] = users[0]
         await communicator.connect()
-        
+        await communicator.receive_json_from()
         await communicator.send_json_to({
-            'event_type': 'receive_get_room_info',
+            'event_type': 'room.info',
             'data': {
                 'room_id': '00000000-0000-0000-0000-000000000000'
             }

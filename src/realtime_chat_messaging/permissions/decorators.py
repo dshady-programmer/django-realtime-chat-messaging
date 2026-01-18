@@ -96,11 +96,19 @@ def is_room_admin(method):
 
 
         room_id = data.get('room_id')
-        is_permitted, room = await PERMISSION_HANDLER.have_admin_privileges(self.user, room_id)
+        action = data.get('action')
+
+        is_permitted, room = await PERMISSION_HANDLER.have_admin_privileges(self.user, room_id, action)
         if is_permitted:
             return await method(self, data, room=room, *args, **kwargs)
         else:
-            raise PermissionDenied("User is not an admin of this room")
+            if action == "delete":
+                m = "User is not the creator of this room"
+
+            else:
+                m = "User is not an admin of this room"
+
+            raise PermissionDenied(m)
     return wrapper
 
 

@@ -1,5 +1,5 @@
 from realtime_chat_messaging.utils.decorators import sqlite_safe_db_sync_to_async
-from .helper_mixins import MessageHelperMixins, RoomHelperMixins, ChatNotificationHelperMixins
+from .helper_mixins import MessageHelperMixins, RoomHelperMixins, ChatNotificationHelperMixins, SessionHelperMixins
 from realtime_chat_messaging.utils.loader import get_model
 from realtime_chat_messaging.conf import realtime_chat_settings 
 enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
@@ -116,6 +116,7 @@ class RoomHandlerMixin(RoomHelperMixins):
     
     @sqlite_safe_db_sync_to_async
     def leave_room(self, user, room):
+
         return self._leave_room(user, room)
     
     @sqlite_safe_db_sync_to_async
@@ -126,3 +127,18 @@ class RoomHandlerMixin(RoomHelperMixins):
     def modify_room(self, data, room):
         return self._modify_room(data, room)
 
+
+class SessionHandlerMixin(SessionHelperMixins):
+
+    @sqlite_safe_db_sync_to_async
+    def get_expired_sessions(self, user_id):
+        return self._get_expired_sessions(user_id)
+    
+
+    @sqlite_safe_db_sync_to_async   
+    def register_session(self, user, channel_name):
+        return self._register_session(user, channel_name)
+    
+    @sqlite_safe_db_sync_to_async
+    def get_active_sessions(self, user_id):
+        return self._get_active_sessions(user_id)

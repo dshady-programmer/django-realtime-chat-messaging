@@ -623,7 +623,13 @@ class TestAdminPrivileges:
 
     async def test_group_creator_has_admin_privileges(self, users, group_chat):
         """Test that group creator has admin privileges"""
-        has_priv, _ = await permission_handler.have_admin_privileges(users[0], str(group_chat.id))
+        has_priv, _ = await permission_handler.have_admin_privileges(users[0], str(group_chat.id), action="" )
+        
+        assert has_priv is True
+
+    async def test_group_creator_can_delete(self, users, group_chat):
+        """Test that group creator has privileges to delete group chat"""
+        has_priv, _ = await permission_handler.have_admin_privileges(users[0], str(group_chat.id), action="delete" )
         
         assert has_priv is True
 
@@ -632,21 +638,44 @@ class TestAdminPrivileges:
         await database_sync_to_async(group_chat.participants.add)(users[1])
         await database_sync_to_async(group_chat.admins.add)(users[1])
         
-        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(group_chat.id))
+        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(group_chat.id), action="")
         
         assert has_priv is True
+
+    async def test_group_admin_cannot_delete(self, users, group_chat):
+        """Test that group admin cannot carry out delete action"""
+        await database_sync_to_async(group_chat.participants.add)(users[1])
+        await database_sync_to_async(group_chat.admins.add)(users[1])
+        
+        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(group_chat.id), action="delete")
+        
+        assert has_priv is False
 
     async def test_group_regular_member_no_admin_privileges(self, users, group_chat):
         """Test that regular member has no admin privileges"""
         await database_sync_to_async(group_chat.participants.add)(users[1])
         
-        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(group_chat.id))
+        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(group_chat.id), action="")
+        
+        assert has_priv is False
+
+    async def test_group_regular_member_cannot_delete_groupchat(self, users, group_chat):
+        """Test that regular member has no privileges to delete groupchat"""
+        await database_sync_to_async(group_chat.participants.add)(users[1])
+        
+        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(group_chat.id), action="delete")
         
         assert has_priv is False
 
     async def test_channel_creator_has_admin_privileges(self, users, channel):
         """Test that channel creator has admin privileges"""
-        has_priv, _ = await permission_handler.have_admin_privileges(users[0], str(channel.id))
+        has_priv, _ = await permission_handler.have_admin_privileges(users[0], str(channel.id), action="")
+        
+        assert has_priv is True
+
+    async def test_channel_creator_can_delete(self, users, channel):
+        """Test that channel creator has privileges to delete the channel"""
+        has_priv, _ = await permission_handler.have_admin_privileges(users[0], str(channel.id), action="delete")
         
         assert has_priv is True
 
@@ -655,23 +684,64 @@ class TestAdminPrivileges:
         await database_sync_to_async(channel.subscribers.add)(users[1])
         await database_sync_to_async(channel.moderators.add)(users[1])
         
-        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(channel.id))
+        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(channel.id), action="")
         
         assert has_priv is True
+
+    async def test_channel_moderator_cannot_delete_channel(self, users, channel):
+        """Test that channel moderator cannot delete channel"""
+        await database_sync_to_async(channel.subscribers.add)(users[1])
+        await database_sync_to_async(channel.moderators.add)(users[1])
+        
+        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(channel.id), action="delete")
+        
+        assert has_priv is False
 
     async def test_channel_regular_subscriber_no_admin_privileges(self, users, channel):
         """Test that regular subscriber has no admin privileges"""
         await database_sync_to_async(channel.subscribers.add)(users[1])
         
-        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(channel.id))
+        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(channel.id), action="")
+        
+        assert has_priv is False
+
+    async def test_channel_regular_subscriber_cannot_delete_channel(self, users, channel):
+        """Test that regular subscriber cannot delete channel"""
+        await database_sync_to_async(channel.subscribers.add)(users[1])
+        
+        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(channel.id), action="delete")
         
         assert has_priv is False
 
     async def test_non_member_no_admin_privileges(self, users, group_chat):
         """Test that non-member has no admin privileges"""
-        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(group_chat.id))
+        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(group_chat.id), action="")
         
         assert has_priv is False
+
+    async def test_non_member_cannot_delete_room(self, users, group_chat):
+        """Test that non-member cannot delete room"""
+        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(group_chat.id), action="delete")
+        
+        assert has_priv is False
+    
+    async def test_any_onetonechat_member_can_delete_chat(self, users, one_to_one_chat):
+        """Test that any participants of one_to_one_chat can delete chat"""
+        
+        has_priv0, _ = await permission_handler.have_admin_privileges(users[0], str(one_to_one_chat.id), action="delete")
+        has_priv1, _ = await permission_handler.have_admin_privileges(users[1], str(one_to_one_chat.id), action="delete")
+        
+        assert has_priv0 is True
+        assert has_priv1 is True
+
+    async def test_non_onetonechat_member_cannot_delete_chat(self, users, one_to_one_chat):
+        """Test that non participants of one_to_one_chat cannot delete chat"""
+        
+        has_priv, _ = await permission_handler.have_admin_privileges(users[3], str(one_to_one_chat.id), action="delete")
+     
+        assert has_priv is False
+
+
 
     async def test_member_with_permissions_do_not_have_admin_privileges(self, users, channel, group_chat):
         """Test that non moderator/admin member with permission has no admin privileges"""
@@ -682,8 +752,8 @@ class TestAdminPrivileges:
         await database_sync_to_async(assign_perm)('can_remove_participants', users[1], group_chat)
         await database_sync_to_async(assign_perm)('can_add_new_subscribers', users[1], channel)
         await database_sync_to_async(assign_perm)('can_remove_subscribers', users[1], channel)
-        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(group_chat.id))
+        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(group_chat.id), action="")
         assert has_priv is False
 
-        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(channel.id))
+        has_priv, _ = await permission_handler.have_admin_privileges(users[1], str(channel.id), action="")
         assert has_priv is False

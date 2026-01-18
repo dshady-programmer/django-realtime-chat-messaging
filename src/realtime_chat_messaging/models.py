@@ -7,12 +7,17 @@ from .model_mixins import (
     AbstractRoom, AbstractChannel, AbstractGroupChat, 
     AbstractMessage, AbstractOneToOneChat, 
     AbstractReadReceipt, AbstractReaction, 
-    AbstractChatNotification, AbstractMessageMediaAsset
+    AbstractChatNotification, AbstractMessageMediaAsset,
+    AbstractSession
 )
 
 User = settings.AUTH_USER_MODEL
 
 
+
+class Session(AbstractSession):
+    class Meta:
+        swappable = 'REALTIME_CHAT_MESSAGING_SESSION_MODEL'
 
 class Room(AbstractRoom):
     """Generic models for all chat types"""

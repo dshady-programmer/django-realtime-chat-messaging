@@ -28,6 +28,6 @@ class PermissionHandler(PermissionHelperMixin):
         return self._have_send_message_permission(user, data)
 
     @sqlite_safe_db_sync_to_async
-    def have_admin_privileges(self, user, room_id):
-        return self._have_admin_privileges(user, room_id)
+    def have_admin_privileges(self, user, room_id, action):
+        return self._have_admin_privileges(user, room_id, action)
 
