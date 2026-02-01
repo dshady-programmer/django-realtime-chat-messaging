@@ -37,76 +37,59 @@ def import_model(model_str):
 from realtime_chat_messaging.conf import realtime_chat_settings
 from operator import itemgetter
 
-(
-    _Session,
-    _Message, 
-    _Room, 
-    _GroupChat, 
-    _Channel,
-    _OneToOneChat,
-    _MessageMediaAsset,
-    _ReadReceipt,
-    _ChatNotification,
-    _Reaction,
 
-) = itemgetter(
-    "Session",
-    "Message", 
-    "Room", 
-    "GroupChat", 
-    "Channel",
-    "OneToOneChat",
-    "MessageMediaAsset",
-    "ReadReceipt",
-    "ChatNotification",
-    "Reaction"
-)(realtime_chat_settings.MODELS)
+# Models
 
-(
-    _UserSerializer,
-    _OneToOneChatListSerializer,
-    _GroupChatListSerializer,
-    _ChannelListSerializer,
-    _OneToOneChatSerializer,
-    _GroupChatSerializer,
-    _ChannelSerializer,
-    _ReadReceiptSerializer,
-    _ReactionSerializer,
-    _MessageMediaAssetSerializer,
-    _MessageSerializer,
-    _ChatNotificationSerializer,
-    _RoomListPolymorphicSerializer,
-    _RoomPolymorphicSerializer
- )  = itemgetter(
-        "UserSerializer",
-        "OneToOneChatListSerializer",
-        "GroupChatListSerializer",
-        "ChannelListSerializer",
-        "OneToOneChatSerializer",
-        "GroupChatSerializer",
-        "ChannelSerializer",
-        "ReadReceiptSerializer",
-        "ReactionSerializer",
-        "MessageMediaAssetSerializer",
-        "MessageSerializer",
-        "ChatNotificationSerializer",
-        "RoomListPolymorphicSerializer",
-        "RoomPolymorphicSerializer",
-    )(realtime_chat_settings.SERIALIZERS)
+# "Session",
+# "Message", 
+# "Room", 
+# "GroupChat", 
+# "Channel",
+# "OneToOneChat",
+# "MessageMediaAsset",
+# "ReadReceipt",
+# "ChatNotification",
+# "Reaction"
+
+# Serializers
+
+# "UserSerializer",
+# "OneToOneChatListSerializer",
+# "GroupChatListSerializer",
+# "ChannelListSerializer",
+# "OneToOneChatSerializer",
+# "GroupChatSerializer",
+# "ChannelSerializer",
+# "ReadReceiptSerializer",
+# "ReactionSerializer",
+# "MessageMediaAssetSerializer",
+# "MessageSerializer",
+# "ChatNotificationSerializer",
+# "RoomListPolymorphicSerializer",
+# "RoomPolymorphicSerializer",
+
+
+_MODEL_CACHE = {}
+_SERIALIZER_CACHE = {}
+
+def clear_caches():
+    _MODEL_CACHE.clear()
+    _SERIALIZER_CACHE.clear()
+
+
+
+def _load_models():
+    if not _MODEL_CACHE:
+        _MODEL_CACHE.update(realtime_chat_settings.MODELS)
+    return _MODEL_CACHE
+def _load_serializers():
+    if not _SERIALIZER_CACHE:
+        _SERIALIZER_CACHE.update(realtime_chat_settings.SERIALIZERS)
+    return _SERIALIZER_CACHE
+
 
 def get_model(name: str) -> models.Model:
-    map_model_name = {
-        "Session": _Session,
-        "Message": _Message, 
-        "Room": _Room, 
-        "GroupChat": _GroupChat, 
-        "Channel": _Channel,
-        "OneToOneChat": _OneToOneChat,
-        "MessageMediaAsset": _MessageMediaAsset,
-        "ReadReceipt": _ReadReceipt,
-        "ChatNotification": _ChatNotification,
-        "Reaction": _Reaction
-    }
+    map_model_name = _load_models()
     model = map_model_name[name] # raises error if not present
     return import_model(model)
 
@@ -114,22 +97,7 @@ def get_model(name: str) -> models.Model:
 
 
 def get_serializer(name: str) -> serializers.Serializer:
-    map_serializer_name = {
-        "UserSerializer": _UserSerializer,
-        "OneToOneChatListSerializer": _OneToOneChatListSerializer,
-        "GroupChatListSerializer": _GroupChatListSerializer,
-        "ChannelListSerializer": _ChannelListSerializer,
-        "OneToOneChatSerializer": _OneToOneChatSerializer,
-        "GroupChatSerializer": _GroupChatSerializer,
-        "ChannelSerializer": _ChannelSerializer,
-        "ReadReceiptSerializer": _ReadReceiptSerializer,
-        "ReactionSerializer": _ReactionSerializer,
-        "MessageMediaAssetSerializer": _MessageMediaAssetSerializer,
-        "MessageSerializer": _MessageSerializer,
-        "ChatNotificationSerializer": _ChatNotificationSerializer,
-        "RoomListPolymorphicSerializer": _RoomListPolymorphicSerializer,
-        "RoomPolymorphicSerializer": _RoomPolymorphicSerializer,
-    }
+    map_serializer_name = _load_serializers()
     serializer = map_serializer_name[name]
     return import_and_verify_type_class(serializer, name, serializers.Serializer.__class__)
 

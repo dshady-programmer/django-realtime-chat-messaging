@@ -8,8 +8,20 @@ enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
 class ChatNotificationHandlerMixin(ChatNotificationHelperMixins):
 
 
-    ChatNotification = get_model("ChatNotification")
-    Message = get_model("Message")
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        ChatNotificationHandlerMixin._load_variables()
+
+    @classmethod
+    def _load_variables(cls):
+        # models
+        cls.ChatNotification = get_model("ChatNotification")
+        cls.Message = get_model("Message")
+
+    @classmethod
+    def _reload_variables(cls):
+        ChatNotificationHelperMixins._reload_variables()
+        cls._load_variables()
     
 
 
@@ -66,6 +78,11 @@ class ChatNotificationHandlerMixin(ChatNotificationHelperMixins):
 
 class MessageHandlerMixin(MessageHelperMixins):
 
+    @classmethod
+    def _reload_variables(cls):
+        MessageHelperMixins._reload_variables()
+
+        
     @sqlite_safe_db_sync_to_async
     def create_message(self, data, user):
         return self._create_message(data, user)
@@ -93,6 +110,10 @@ class MessageHandlerMixin(MessageHelperMixins):
 
 
 class RoomHandlerMixin(RoomHelperMixins):
+
+    @classmethod
+    def _reload_variables(cls):
+        RoomHelperMixins._reload_variables()
     
     @sqlite_safe_db_sync_to_async
     def create_room(self, user, data):
@@ -129,6 +150,11 @@ class RoomHandlerMixin(RoomHelperMixins):
 
 
 class SessionHandlerMixin(SessionHelperMixins):
+
+
+    @classmethod
+    def _reload_variables(cls):
+        SessionHelperMixins._reload_variables()
 
     @sqlite_safe_db_sync_to_async
     def get_expired_sessions(self, user_id):

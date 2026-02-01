@@ -962,7 +962,7 @@ class TestMessageOperations:
         response = await communicator.receive_json_from()
         assert "error" in response
         assert response["error"]["code"] == 4002
-        assert await database_sync_to_async(lambda: len(message.read_receipts.all()))() == 0
+        assert await database_sync_to_async(lambda: len(message.realtime_chat_messaging_readreceipt_read_receipts.all()))() == 0
 
         
         await communicator.disconnect()

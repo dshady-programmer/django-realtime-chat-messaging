@@ -279,8 +279,8 @@ class TestMessage:
         )
         
         assert reply.parent_message == original
-        assert original.replies.count() == 1
-        assert reply in original.replies.all()
+        assert original.realtime_chat_messaging_message_replies.count() == 1
+        assert reply in original.realtime_chat_messaging_message_replies.all()
 
     def test_message_forward(self, one_to_one_chat, group_chat,create_message, users):
         """Test message forwarding"""
@@ -386,8 +386,8 @@ class TestReadReceipt:
             reader=users[1]
         )
         
-        assert message.read_receipts.count() == 1
-        assert receipt in message.read_receipts.all()
+        assert message.realtime_chat_messaging_readreceipt_read_receipts.count() == 1
+        assert receipt in message.realtime_chat_messaging_readreceipt_read_receipts.all()
         assert receipt.message == message
         assert receipt.reader == users[1]
         import datetime
@@ -418,7 +418,7 @@ class TestReadReceipt:
         ReadReceipt.objects.create(message=message, reader=users[1])
         ReadReceipt.objects.create(message=message, reader=users[2])
         
-        assert message.read_receipts.count() == 2
+        assert message.realtime_chat_messaging_readreceipt_read_receipts.count() == 2
 
 
 class TestReaction:
@@ -651,4 +651,4 @@ class TestMessageMediaAsset:
             file_size=2048
         )
         
-        assert message.attachments.count() == 2
+        assert message.realtime_chat_messaging_messagemediaasset_attachments.count() == 2

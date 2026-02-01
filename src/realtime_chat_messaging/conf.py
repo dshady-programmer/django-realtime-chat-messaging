@@ -13,6 +13,16 @@ class Settings:
 
     def reload(self):
         self._user_settings = None
+        for key in DEFAULTS:
+            self.__dict__.pop(key, None)
+        # clear loader caches... it's the entrypoint to loading model and serializer settings.
+        from realtime_chat_messaging.utils import loader
+        from realtime_chat_messaging.utils.handlers import EventHandler
+        loader.clear_caches()
+        EventHandler.reload_variables()
+
+        
+
 
     @property
     def user_settings(self):
@@ -24,10 +34,9 @@ class Settings:
     def __getattr__(self, name):
         if name not in DEFAULTS:
             raise AttributeError(f"Invalid setting: {name}")
-
         val = self.user_settings.get(name, DEFAULTS[name])
-
         # update the class instance.
+        # Cache resolved value to avoid repeated lookup
         setattr(self, name, val)
 
         return val
@@ -37,6 +46,7 @@ class Settings:
 realtime_chat_settings = Settings()
 
 def _reload_settings(**kwargs):
+
     if kwargs.get("setting") == SETTINGS_NAMESPACE:
         realtime_chat_settings.reload()
 

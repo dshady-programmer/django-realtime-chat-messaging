@@ -24,10 +24,8 @@ from .permissions.decorators import (
 )
 User = get_user_model()
 
-event_mapper = realtime_chat_settings.EVENT_MAPPER
-event_handler_class = realtime_chat_settings.EVENT_HANDLER_CLASS
-exception_handler_class = realtime_chat_settings.EXCEPTION_HANDLER_CLASS
-enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
+
+
 
 
 # 4001: Authentication failed.
@@ -88,6 +86,9 @@ roomupdate.dispatch
 
 """
 
+event_handler_class = realtime_chat_settings.EVENT_HANDLER_CLASS
+exception_handler_class = realtime_chat_settings.EXCEPTION_HANDLER_CLASS
+enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
 e_handler = import_and_verify_type_class(event_handler_class, "EVENT_HANDLER_CLASS")
 
 EventHandler = e_handler()
@@ -122,6 +123,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
 
     async def receive(self, text_data = None, bytes_data = None):
+        event_mapper = realtime_chat_settings.EVENT_MAPPER
         EventMapper = import_and_verify_type_function(event_mapper, "EVENT_MAPPER")
         data = json.loads(text_data)
         """
@@ -142,13 +144,12 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
     @ExceptionHandler.exception_handler_decorator
     async def dispatch_chat_notifications(self):
-
+        
         chat_notifications = await EventHandler.get_and_group_chat_notifications(self.user)
-        await self.send_group(
-            USER_OWN_GROUP.format(user_id=self.user.id),
-            "chat.notifications",
-            chat_notifications,
-        )
+        # print(self.user, 'notification dispatched')
+
+        data = {"eventType": "chat.notifications", "data": chat_notifications}
+        await self.send(text_data=json.dumps(data))
 
     @ExceptionHandler.exception_handler_decorator
     @can_send_message_to_room
@@ -624,12 +625,14 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         user_id = self.user.id
         groups = await fetch_user_groups(user_id)
         expired_sessions = await EventHandler.get_expired_sessions(user_id)
+        # print('expired sessions', expired_sessions)
         for group in groups:
             for channel_name in expired_sessions:
                 await self.channel_layer.group_discard(group, channel_name)
 
     async def channel_setup(self):
         user_id = self.user.id
+        # print('user', self.user)
         groups = await fetch_user_groups(user_id)
         user_own_group = USER_OWN_GROUP.format(user_id=user_id)
         if user_own_group not in groups:

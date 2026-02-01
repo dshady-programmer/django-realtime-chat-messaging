@@ -23,8 +23,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class OneToOneChatListSerializer(serializers.ModelSerializer):
-    peer = serializers.SerializerMethodField(read_only=True)
-    last_message = serializers.SerializerMethodField(read_only=True)
+    peer = serializers.SerializerMethodField()
+    last_message = serializers.SerializerMethodField()
     class Meta:
         model = OneToOneChat
         exclude = ["participants", "preferences"]
@@ -43,7 +43,7 @@ class OneToOneChatListSerializer(serializers.ModelSerializer):
 
 class GroupChatListSerializer(serializers.ModelSerializer):
     creator = get_serializer("UserSerializer")(read_only=True)
-    last_message = serializers.SerializerMethodField(read_only=True)
+    last_message = serializers.SerializerMethodField()
     class Meta:
         model = GroupChat
         exclude = ['participants', 'admins', 'preferences']
@@ -53,7 +53,7 @@ class GroupChatListSerializer(serializers.ModelSerializer):
 
 class ChannelListSerializer(serializers.ModelSerializer):
     creator = get_serializer("UserSerializer")(read_only=True)
-    last_message = serializers.SerializerMethodField(read_only=True)
+    last_message = serializers.SerializerMethodField()
     class Meta:
         model = Channel
         exclude = ['subscribers', 'moderators', 'preferences']
@@ -241,23 +241,23 @@ class MessageSerializer(serializers.ModelSerializer):
         required=True,
     )
     parent_message_id = serializers.PrimaryKeyRelatedField(
-        queryset=Message.objects.all(),
+        queryset=get_model("Message").objects.all(),
         source="parent_message",
         write_only=True,
         required=False
     )
     forwarded_from_id = serializers.PrimaryKeyRelatedField(
-        queryset=Message.objects.all(),
+        queryset=get_model("Message").objects.all(),
         source="forwarded_from",
         write_only=True,
         required=False
     )
     parent_message = RecursiveField(allow_null=True, read_only=True)
     forwarded_from = RecursiveField(allow_null=True, read_only=True)
-    read_receipts = get_serializer("ReadReceiptSerializer")(read_only=True, many=True)
-    reactions = get_serializer("ReactionSerializer")(read_only=True, many=True)
-    attachments = get_serializer("MessageMediaAssetSerializer")(read_only=True, many=True)
-    delivered_to = serializers.SerializerMethodField(read_only=True)
+    read_receipts = serializers.SerializerMethodField()
+    reactions = serializers.SerializerMethodField()
+    attachments = serializers.SerializerMethodField()
+    delivered_to = serializers.SerializerMethodField()
     class Meta:
         model = Message
         fields = "__all__"
@@ -279,6 +279,23 @@ class MessageSerializer(serializers.ModelSerializer):
             instance.delivered_to.values_list("username", flat=True)
         ) # returns [username1, username2]
 
+    def get_read_receipts(self, instance):
+        accessor = get_model("ReadReceipt")._meta.get_field("message").remote_field.get_accessor_name()
+        qs = getattr(instance, accessor).all()
+
+        return get_serializer("ReadReceiptSerializer")(qs, many=True).data
+
+    def get_reactions(self, instance):
+        accessor = get_model("Reaction")._meta.get_field("message").remote_field.get_accessor_name()
+        qs = getattr(instance, accessor).all()
+
+        return get_serializer("ReactionSerializer")(qs, many=True).data
+
+    def get_attachments(self, instance):
+        accessor = get_model("MessageMediaAsset")._meta.get_field("message").remote_field.get_accessor_name()
+        qs = getattr(instance, accessor).all()
+
+        return get_serializer("MessageMediaAssetSerializer")(qs, many=True).data
     
 class ChatNotificationSerializer(serializers.ModelSerializer):
     message = get_serializer("MessageSerializer")(read_only=True)

@@ -33,7 +33,7 @@ class OneToOneChat(Room, AbstractOneToOneChat):
         swappable = 'REALTIME_CHAT_MESSAGING_ONETOONECHAT_MODEL'
 
 class GroupChat(Room, AbstractGroupChat):
-    admins = models.ManyToManyField(User, related_name="groups_moderated")
+    admins = models.ManyToManyField(User, related_name="+")
     max_participants = models.PositiveBigIntegerField(default=100)
     avatar = models.URLField(null=True, blank=True)
     join_approval_required = models.BooleanField(default=False)
@@ -46,7 +46,7 @@ class GroupChat(Room, AbstractGroupChat):
 class Channel(Room, AbstractChannel):
     is_public = models.BooleanField(default=False)
     avatar = models.URLField(null=True, blank=True)
-    moderators = models.ManyToManyField(User, related_name="channels_moderated")
+    moderators = models.ManyToManyField(User, related_name="+")
     max_subscribers = models.PositiveBigIntegerField(default=300)
     
     class Meta(AbstractChannel.Meta):
@@ -57,11 +57,11 @@ class Channel(Room, AbstractChannel):
 
 
 class Message(AbstractMessage):
-    parent_message = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, related_name="replies")
+    parent_message = models.ForeignKey(settings.REALTIME_CHAT_MESSAGING_MESSAGE_MODEL, on_delete=models.SET_NULL, blank=True, null=True, related_name="%(app_label)s_%(class)s_replies")
     is_forwarded = models.BooleanField(default=False)
-    forwarded_from = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, related_name="forwarded")
+    forwarded_from = models.ForeignKey(settings.REALTIME_CHAT_MESSAGING_MESSAGE_MODEL, on_delete=models.SET_NULL, blank=True, null=True, related_name="+")
     is_edited = models.BooleanField(default=False)
-    delivered_to  = models.ManyToManyField(User, related_name="messages_received")
+    delivered_to  = models.ManyToManyField(User, related_name="+")
 
     class Meta(AbstractMessage.Meta):
         abstract = False

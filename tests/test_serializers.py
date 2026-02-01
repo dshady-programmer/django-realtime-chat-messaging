@@ -545,7 +545,7 @@ class TestMessageSerializer:
         assert serializer.is_valid(raise_exception=True)
         instance = serializer.save()
 
-        assert instance in parent.replies.all()
+        assert instance in parent.realtime_chat_messaging_message_replies.all()
         assert instance.parent_message == parent
 
 

@@ -24,17 +24,26 @@ class MessageHelperMixins:
     Message handler helper mixins
     Functionality can be extended
     """
-    
-    # models
-    Message = get_model("Message")
-    ReadReceipt = get_model("ReadReceipt")
-    Reaction = get_model("Reaction")
 
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        MessageHelperMixins._load_variables()
 
-    # serializers
-    MessageSerializer = get_serializer("MessageSerializer")
-    ReactionSerializer = get_serializer("ReactionSerializer")
-    MessageMediaAssetSerializer = get_serializer("MessageMediaAssetSerializer")
+    @classmethod
+    def _load_variables(cls):
+        # models
+        cls.Message = get_model("Message")
+        cls.ReadReceipt = get_model("ReadReceipt")
+        cls.Reaction = get_model("Reaction")
+        cls.MessageMediaAsset = get_model("MessageMediaAsset")
+        # serializers
+        cls.MessageSerializer = get_serializer("MessageSerializer")
+        cls.ReactionSerializer = get_serializer("ReactionSerializer")
+        cls.MessageMediaAssetSerializer = get_serializer("MessageMediaAssetSerializer")
+
+    @classmethod
+    def _reload_variables(cls):
+        cls._load_variables()
 
     
     def _create_message(self, data, user):
@@ -62,6 +71,8 @@ class MessageHelperMixins:
         if "forwarded_from_id" in new_data:
             new_data['is_forwarded'] = True        
         serializer = MessageHelperMixins.MessageSerializer(data=new_data)
+        print(MessageHelperMixins.MessageSerializer)
+        print(MessageHelperMixins.Message)
         serializer.is_valid(raise_exception=True)
         message = serializer.save()
         if hasattr(message.room, 'last_message'):
@@ -224,9 +235,12 @@ class MessageHelperMixins:
     def _retreive_messages(room, data):
 
         try:
-            messages = MessageHelperMixins.Message.objects.filter(room=room).prefetch_related('read_receipts', 'reactions', 'attachments', 'delivered_to').order_by('-created_at')
+            read_r = MessageHelperMixins.ReadReceipt._meta.get_field("message").remote_field.get_accessor_name()
+            reactions_r = MessageHelperMixins.Reaction._meta.get_field("message").remote_field.get_accessor_name()
+            attachm = MessageHelperMixins.MessageMediaAsset._meta.get_field("message").remote_field.get_accessor_name()
+            messages = MessageHelperMixins.Message.objects.filter(room=room).prefetch_related(read_r, reactions_r, attachm, 'delivered_to').order_by('-created_at')
         except AttributeError:
-            messages = MessageHelperMixins.Message.objects.filter(room=room).prefetch_related('read_receipts', 'reactions', 'attachments').order_by('-created_at')
+            messages = MessageHelperMixins.Message.objects.filter(room=room).prefetch_related(read_r, reactions_r, attachm).order_by('-created_at')
         paginate = data.get('paginate')
         response = {}
         if paginate and isinstance(paginate, dict):
@@ -276,16 +290,27 @@ class RoomHelperMixins:
     Functionality can be extended
     """
 
-    # models
-    Room = get_model("Room")
-    GroupChat = get_model("GroupChat")
-    OneToOneChat = get_model("OneToOneChat")
-    Channel = get_model("Channel")
 
-    # serializers
-    RoomPolymorphicSerializer = get_serializer("RoomPolymorphicSerializer")
-    RoomListPolymorphicSerializer = get_serializer("RoomListPolymorphicSerializer")
 
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        RoomHelperMixins._load_variables()
+
+    @classmethod
+    def _load_variables(cls):
+        # models
+        cls.Room = get_model("Room")
+        cls.GroupChat = get_model("GroupChat")
+        cls.OneToOneChat = get_model("OneToOneChat")
+        cls.Channel = get_model("Channel")
+
+        # serializers
+        cls.RoomPolymorphicSerializer = get_serializer("RoomPolymorphicSerializer")
+        cls.RoomListPolymorphicSerializer = get_serializer("RoomListPolymorphicSerializer")
+
+    @classmethod
+    def _reload_variables(cls):
+        cls._load_variables()
 
     @staticmethod
     def _create_room(user, data):
@@ -515,7 +540,18 @@ class ChatNotificationHelperMixins:
     Functionality can be extended
     """
 
-    ChatNotificationSerializer = get_serializer("ChatNotificationSerializer")
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        ChatNotificationHelperMixins._load_variables()
+
+    @classmethod
+    def _load_variables(cls):
+        # models
+        cls.ChatNotificationSerializer = get_serializer("ChatNotificationSerializer")
+
+    @classmethod
+    def _reload_variables(cls):
+        cls._load_variables()
     
     def _get_and_group_chat_notifications(self, user):
 
@@ -547,7 +583,20 @@ class SessionHelperMixins:
     Handle channel sessions setup and cleanups
     """
 
-    Session = get_model("Session")
+    
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        SessionHelperMixins._load_variables()
+
+    @classmethod
+    def _load_variables(cls):
+        # models
+        cls.Session = get_model("Session")
+
+    @classmethod
+    def _reload_variables(cls):
+        cls._load_variables()
+
 
     @staticmethod
     def _get_expired_sessions(user_id):
