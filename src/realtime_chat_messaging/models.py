@@ -1,10 +1,11 @@
+import uuid
 from django.db import models
 from django.conf import settings 
-# Create your models here.
+from polymorphic.models import PolymorphicModel
 from django.db.models import Q
 from .types import ALLOWED_MIME_TYPES, MEDIATYPE_CHOICES
 from .model_mixins import (
-    AbstractRoom, AbstractChannel, AbstractGroupChat, 
+    AbstractRoomProperty, AbstractChannel, AbstractGroupChat, 
     AbstractMessage, AbstractOneToOneChat, 
     AbstractReadReceipt, AbstractReaction, 
     AbstractChatNotification, AbstractMessageMediaAsset,
@@ -19,14 +20,24 @@ class Session(AbstractSession):
     class Meta:
         swappable = 'REALTIME_CHAT_MESSAGING_SESSION_MODEL'
 
-class Room(AbstractRoom):
-    """Generic models for all chat types"""
-    preferences = models.JSONField(default=dict)
 
+class RoomProperty(AbstractRoomProperty):
     class Meta:
-        swappable = 'REALTIME_CHAT_MESSAGING_ROOM_MODEL'
-  
+        swappable = 'REALTIME_CHAT_MESSAGING_ROOMPROPERTY_MODEL'
 
+class Room(PolymorphicModel):
+    """
+    Generic model for all chat types
+    Serves as a base model for OneToOneChat, GroupChat, Channel
+
+
+    Note: All other chat types including custom chat types must inherit from this Room model
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    last_message = models.ForeignKey(settings.REALTIME_CHAT_MESSAGING_MESSAGE_MODEL, on_delete=models.SET_NULL, related_name="+", null=True, blank=True, default=None)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    property = models.OneToOneField(settings.REALTIME_CHAT_MESSAGING_ROOMPROPERTY_MODEL, on_delete=models.CASCADE, related_name="+")
 
 class OneToOneChat(Room, AbstractOneToOneChat):
     class Meta:

@@ -340,7 +340,12 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             description: string(optional, for groupchat and channel only)
             extra_fields: {
                 ... 
-                preferences: {} (if passing preferences, it must be a dict)
+                property: {
+                    preferences: {} (if passing preferences, it must be a dict)
+
+                    -- if you have a custom RoomProperty model, include all necessary fields here
+                    -- if you don't pass property, default property will be created based on the model defaults
+                }
             } ( extra fields must match with the model fields)
 
 
@@ -511,6 +516,16 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
                 ...
                 users: []
                 permissions: [] <Must be valid permission based on the type of room you're modifying>
+
+                ... other fields depending on the action
+                name: string (for update)
+                description: string (for update)
+                property: {
+                    preferences: {} (if passing preferences, it must be a dict)
+
+                    -- if you have a custom RoomProperty model, include all necessary fields here
+                    -- if you don't pass property, default property will be created based on the model defaults
+                }
             }
         }
          

@@ -1,6 +1,6 @@
 from django.db import models
 from realtime_chat_messaging.model_mixins import (
-    AbstractChannel, AbstractMessage, AbstractOneToOneChat, AbstractRoom, AbstractGroupChat, AbstractSession
+    AbstractChannel, AbstractMessage, AbstractOneToOneChat, AbstractRoom, AbstractGroupChat, AbstractRoomProperty, AbstractSession
 )
 from realtime_chat_messaging.models import Room
 from django.contrib.auth import get_user_model
@@ -18,11 +18,14 @@ class CustomMessage(AbstractMessage):
         abstract = False
 
 
-# class CustomRoom(AbstractRoom):
-#     """Custom room model with additional fields"""
-#     preferences = models.JSONField(default=dict)
-#     archived = models.BooleanField(default=False)
+class CustomRoomProperty(AbstractRoomProperty):
+    """Custom room property model with additional fields"""
+    preferences = models.JSONField(default=dict)
+    archived = models.BooleanField(default=False)
     
+    class Meta:
+        abstract = False
+
 
 
 
@@ -38,21 +41,21 @@ class CustomGroupChat(Room, AbstractGroupChat):
     class Meta(AbstractGroupChat.Meta):
         abstract = False
 
-class CustomOneToOneChat(Room, AbstractOneToOneChat):
-    pass
-    class Meta(AbstractOneToOneChat.Meta):
-        abstract = False
+# class CustomOneToOneChat(Room, AbstractOneToOneChat):
+#     pass
+#     class Meta(AbstractOneToOneChat.Meta):
+#         abstract = False
 
         
-class CustomChannel(Room, AbstractChannel):
-    """Custom channel with additional features"""
-    avatar = models.URLField(null=True, blank=True)
-    moderators = models.ManyToManyField(User, related_name="+")
-    max_subscribers = models.PositiveBigIntegerField(default=300)
+# class CustomChannel(Room, AbstractChannel):
+#     """Custom channel with additional features"""
+#     avatar = models.URLField(null=True, blank=True)
+#     moderators = models.ManyToManyField(User, related_name="+")
+#     max_subscribers = models.PositiveBigIntegerField(default=300)
  
     
-    class Meta(AbstractChannel.Meta):
-        abstract = False
+#     class Meta(AbstractChannel.Meta):
+#         abstract = False
 
 
 class CustomSession(AbstractSession):

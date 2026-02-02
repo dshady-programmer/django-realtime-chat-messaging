@@ -1,7 +1,7 @@
 from django.conf import settings 
 from django.db import models
 import uuid
-from polymorphic.models import PolymorphicModel
+
 from .types import NOTIFICATION_TYPE
 
 User = settings.AUTH_USER_MODEL
@@ -20,16 +20,23 @@ class AbstractSession(models.Model):
     class Meta:
         abstract = True
 
-class AbstractRoom(PolymorphicModel):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    last_message = models.ForeignKey(Message, on_delete=models.SET_NULL, related_name="+", null=True, blank=True, default=None)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+class AbstractRoomProperty(models.Model):
+    """
+    Additional properties for a Room
+
+    Use case: mute status, notification preferences, etc.
+
+    Use this model to extend Room model without modifying it directly
+    """
+    preferences = models.JSONField(default=dict)
     
     class Meta:
         abstract = True
 
 class AbstractGroupChat(models.Model):
+    """
+    Group Chat model base fields
+    """
     name = models.CharField(max_length=64)
     description = models.TextField(null=True, blank=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
@@ -45,6 +52,10 @@ class AbstractGroupChat(models.Model):
 
 
 class AbstractChannel(models.Model):
+
+    """  
+    Channel model base fields
+    """
     name = models.CharField(max_length=64)
     description = models.TextField(null=True, blank=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
@@ -63,6 +74,10 @@ class AbstractChannel(models.Model):
 
 
 class AbstractOneToOneChat(models.Model):
+    """
+    One to One Chat model base fields
+    """
+
     participants = models.ManyToManyField(User, related_name="+")
     
     class Meta:

@@ -1,13 +1,12 @@
 from .models import (
         Channel, ChatNotification, GroupChat, 
         OneToOneChat, Message, MessageMediaAsset,
-        ReadReceipt, Reaction, Room
+        ReadReceipt, Reaction, RoomProperty
     )
 from rest_framework import serializers
 from rest_polymorphic.serializers import PolymorphicSerializer
 from django_rest_framework_recursive.fields import RecursiveField
 import bleach
-from django.db import transaction, IntegrityError
 from realtime_chat_messaging.utils.loader import get_model, get_serializer
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -22,12 +21,17 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id","username", "email", "first_name", "last_name"]
 
 
+class RoomPropertySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RoomProperty
+        fields = ['preferences']
+
 class OneToOneChatListSerializer(serializers.ModelSerializer):
     peer = serializers.SerializerMethodField()
     last_message = serializers.SerializerMethodField()
     class Meta:
         model = OneToOneChat
-        exclude = ["participants", "preferences"]
+        exclude = ["participants", "property"]
     
     def get_peer(self, instance):
         user = self.context.get('user')
@@ -40,13 +44,12 @@ class OneToOneChatListSerializer(serializers.ModelSerializer):
         return get_serializer("MessageSerializer")(instance.last_message).data
 
 
-
 class GroupChatListSerializer(serializers.ModelSerializer):
     creator = get_serializer("UserSerializer")(read_only=True)
     last_message = serializers.SerializerMethodField()
     class Meta:
         model = GroupChat
-        exclude = ['participants', 'admins', 'preferences']
+        exclude = ['participants', 'admins', 'property']
 
     def get_last_message(self, instance):
         return get_serializer("MessageSerializer")(instance.last_message).data
@@ -56,7 +59,7 @@ class ChannelListSerializer(serializers.ModelSerializer):
     last_message = serializers.SerializerMethodField()
     class Meta:
         model = Channel
-        exclude = ['subscribers', 'moderators', 'preferences']
+        exclude = ['subscribers', 'moderators', 'property']
     
     def get_last_message(self, instance):
         return get_serializer("MessageSerializer")(instance.last_message).data
@@ -74,6 +77,8 @@ class RoomListPolymorphicSerializer(PolymorphicSerializer):
 
 class OneToOneChatSerializer(serializers.ModelSerializer):
     participants = get_serializer("UserSerializer")(many=True, read_only=True)
+    property = get_serializer("RoomPropertySerializer")()
+
     class Meta:
         model = OneToOneChat
         exclude = ['last_message']
@@ -82,6 +87,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
     creator = get_serializer("UserSerializer")(read_only=True)
     participants = get_serializer("UserSerializer")(read_only=True, many=True)
     admins = get_serializer("UserSerializer")(read_only=True, many=True)
+    property = get_serializer("RoomPropertySerializer")()
     class Meta:
         model = GroupChat
         exclude = ['last_message']
@@ -90,6 +96,7 @@ class ChannelSerializer(serializers.ModelSerializer):
     creator = get_serializer("UserSerializer")(read_only=True)
     subscribers = get_serializer("UserSerializer")(read_only=True, many=True)
     moderators = get_serializer("UserSerializer")(read_only=True, many=True)
+    property = get_serializer("RoomPropertySerializer")()
     class Meta:
         model = Channel
         exclude = ['last_message']
@@ -123,9 +130,17 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
             raise serializers.ValidationError("Invalid type")
 
         extra_fields = self.initial_data.pop('extra_fields', {})
-        preferences = extra_fields.get('preferences')
-        if preferences and not isinstance(preferences, dict):
-            raise serializers.ValidationError("preferences must be a python dictionary/javascript object")
+
+        room_property = extra_fields.get('property')
+
+        if room_property:
+            if not isinstance(room_property, dict):
+                raise serializers.ValidationError("Room property must be a python dictionary/javascript object")
+            preferences = room_property.get('preferences')
+            if preferences and not isinstance(preferences, dict):
+                raise serializers.ValidationError("preferences must be a python dictionary/javascript object")
+        else:
+            extra_fields['property'] = {}
             
         data = {
             **self.initial_data,

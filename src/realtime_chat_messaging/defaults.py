@@ -7,6 +7,7 @@ DEFAULTS = {
         "SERIALIZERS": {
                 "RoomListPolymorphicSerializer": "realtime_chat_messaging.serializers.RoomListPolymorphicSerializer",
                 "RoomPolymorphicSerializer": "realtime_chat_messaging.serializers.RoomPolymorphicSerializer",
+                "RoomPropertySerializer": "realtime_chat_messaging.serializers.RoomPropertySerializer",
                 "ReactionSerializer": "realtime_chat_messaging.serializers.ReactionSerializer",
                 "MessageMediaAssetSerializer": "realtime_chat_messaging.serializers.MessageMediaAssetSerializer",
                 "MessageSerializer": "realtime_chat_messaging.serializers.MessageSerializer",
@@ -22,7 +23,8 @@ DEFAULTS = {
         },
         "MODELS": {
                 "Session": "realtime_chat_messaging.Session",
-                "Room": "realtime_chat_messaging.Room", 
+                "Room": "realtime_chat_messaging.Room",
+                "RoomProperty": "realtime_chat_messaging.RoomProperty",
                 "OneToOneChat": "realtime_chat_messaging.OneToOneChat",
                 "GroupChat": "realtime_chat_messaging.GroupChat",
                 "Channel": "realtime_chat_messaging.Channel",

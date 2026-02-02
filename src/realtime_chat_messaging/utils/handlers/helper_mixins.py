@@ -307,6 +307,7 @@ class RoomHelperMixins:
         # serializers
         cls.RoomPolymorphicSerializer = get_serializer("RoomPolymorphicSerializer")
         cls.RoomListPolymorphicSerializer = get_serializer("RoomListPolymorphicSerializer")
+        cls.RoomPropertySerializer = get_serializer("RoomPropertySerializer")
 
     @classmethod
     def _reload_variables(cls):
@@ -465,8 +466,11 @@ class RoomHelperMixins:
                     room.name = field_data.get("name")
                 if "description" in field_data:
                     room.description = field_data.get("description")
-            if "preferences" in field_data and hasattr(room, "preferences"):
-                room.preferences = field_data.get("preferences")
+            
+            if "property" in field_data:
+                room_props = cls.RoomPropertySerializer(instance=room.property, data=field_data.get("property"), partial=True)
+                room_props.is_valid(raise_exception=True)
+                room_props.save()
             room.save()
         elif not isinstance(room, RoomHelperMixins.OneToOneChat) and action in [
             "add_permission", "remove_permission",

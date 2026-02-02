@@ -35,7 +35,6 @@ def import_model(model_str):
 
 
 from realtime_chat_messaging.conf import realtime_chat_settings
-from operator import itemgetter
 
 
 # Models

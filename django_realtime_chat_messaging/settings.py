@@ -73,8 +73,9 @@ REALTIME_CHAT_MESSAGING={
         'GroupChat': 'custom_implementation_test_app.CustomGroupChat',
         'Session': 'custom_implementation_test_app.CustomSession',
         # 'Room': 'custom_implementation_test_app.CustomRoom',
-        'OneToOneChat': 'custom_implementation_test_app.CustomOneToOneChat',
-        'Channel': 'custom_implementation_test_app.CustomChannel',
+        'RoomProperty': 'custom_implementation_test_app.CustomRoomProperty',
+        # 'OneToOneChat': 'custom_implementation_test_app.CustomOneToOneChat',
+        # 'Channel': 'custom_implementation_test_app.CustomChannel',
     },
     'SERIALIZERS': {
         'MessageSerializer': 'custom_implementation_test_app.serializers.CustomMessageSerializer',
