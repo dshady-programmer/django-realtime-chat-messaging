@@ -1,6 +1,6 @@
 from django.db import models
 from realtime_chat_messaging.model_mixins import (
-    AbstractChannel, AbstractMessage, AbstractOneToOneChat, AbstractRoom, AbstractGroupChat, AbstractRoomProperty, AbstractSession
+  AbstractMessage,  AbstractGroupChat, AbstractRoomProperty, AbstractSession
 )
 from realtime_chat_messaging.models import Room
 from django.contrib.auth import get_user_model
