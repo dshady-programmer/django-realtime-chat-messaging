@@ -72,7 +72,7 @@ REALTIME_CHAT_MESSAGING={
         'Message': 'custom_implementation_test_app.CustomMessage',
         'GroupChat': 'custom_implementation_test_app.CustomGroupChat',
         'Session': 'custom_implementation_test_app.CustomSession',
-        'Room': 'custom_implementation_test_app.CustomRoom',
+        # 'Room': 'custom_implementation_test_app.CustomRoom',
         'OneToOneChat': 'custom_implementation_test_app.CustomOneToOneChat',
         'Channel': 'custom_implementation_test_app.CustomChannel',
     },

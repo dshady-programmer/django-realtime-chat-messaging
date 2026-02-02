@@ -2,6 +2,7 @@ from django.db import models
 from realtime_chat_messaging.model_mixins import (
     AbstractChannel, AbstractMessage, AbstractOneToOneChat, AbstractRoom, AbstractGroupChat, AbstractSession
 )
+from realtime_chat_messaging.models import Room
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -17,15 +18,15 @@ class CustomMessage(AbstractMessage):
         abstract = False
 
 
-class CustomRoom(AbstractRoom):
-    """Custom room model with additional fields"""
-    preferences = models.JSONField(default=dict)
-    archived = models.BooleanField(default=False)
+# class CustomRoom(AbstractRoom):
+#     """Custom room model with additional fields"""
+#     preferences = models.JSONField(default=dict)
+#     archived = models.BooleanField(default=False)
     
 
 
 
-class CustomGroupChat(CustomRoom, AbstractGroupChat):
+class CustomGroupChat(Room, AbstractGroupChat):
     """Custom group chat with additional features"""
     admins = models.ManyToManyField(User, related_name="custom_groups_moderated")
     max_participants = models.PositiveBigIntegerField(default=100)
@@ -37,13 +38,13 @@ class CustomGroupChat(CustomRoom, AbstractGroupChat):
     class Meta(AbstractGroupChat.Meta):
         abstract = False
 
-class CustomOneToOneChat(CustomRoom, AbstractOneToOneChat):
+class CustomOneToOneChat(Room, AbstractOneToOneChat):
     pass
     class Meta(AbstractOneToOneChat.Meta):
         abstract = False
 
         
-class CustomChannel(CustomRoom, AbstractChannel):
+class CustomChannel(Room, AbstractChannel):
     """Custom channel with additional features"""
     avatar = models.URLField(null=True, blank=True)
     moderators = models.ManyToManyField(User, related_name="+")
