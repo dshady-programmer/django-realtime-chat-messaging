@@ -2,9 +2,27 @@ from django.dispatch import receiver
 from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.core.exceptions import ValidationError
 from guardian.shortcuts import assign_perm,remove_perm
-from .models import OneToOneChat, GroupChat, Channel, ChatNotification,Reaction
+from .models import Room, RoomProperty, OneToOneChat, GroupChat, Channel, ChatNotification,Reaction
 from django.contrib.auth import get_user_model
 User = get_user_model()
+
+
+@receiver(pre_save, sender=Room)
+@receiver(pre_save, sender=OneToOneChat)
+@receiver(pre_save, sender=GroupChat)
+@receiver(pre_save, sender=Channel)
+def create_room_property(sender, instance, *args, **kwargs):
+
+    from realtime_chat_messaging.utils.loader import get_model
+    SettingsRoomProperty = get_model("RoomProperty")
+    if SettingsRoomProperty == RoomProperty:
+        if not hasattr(instance, 'property') or not instance.property:
+            room_property = RoomProperty.objects.create()
+            instance.property = room_property
+
+
+
+
 
 
 @receiver(m2m_changed, sender=OneToOneChat.participants.through)

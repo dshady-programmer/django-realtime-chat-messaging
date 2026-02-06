@@ -362,14 +362,16 @@ class TestRoomCreation:
                 'type': 'GroupChat',
                 'name': 'Pref Group',
                 'extra_fields': {
-                    'preferences': {'theme': 'dark'}
+                    'property': {
+                        'preferences': {'theme': 'dark'}
+                    }
                 }
             }
         })
         
         response = await communicator.receive_json_from()
 
-        assert response['data']['preferences'] == {'theme': 'dark'}
+        assert response['data']['property']['preferences'] == {'theme': 'dark'}
         assert len(response['data']['participants']) == 1
 
         
@@ -2209,7 +2211,9 @@ class TestRoomOperations:
                 'room_id': str(one_to_one_chat.id),
                 'action': 'update',
                 'data': {
-                    'preferences': {'theme': 'dark'},
+                    'property': {
+                        'preferences': {'theme': 'dark'},
+                    },
                     'name': 'new name' # ignored
                 }
             }
@@ -2218,7 +2222,7 @@ class TestRoomOperations:
         response = await communicator.receive_json_from()
         
         assert response['eventType'] == 'roomupdate.dispatch'
-        assert response['data']['preferences'] == {'theme': 'dark'}
+        assert response['data']['property']['preferences'] == {'theme': 'dark'}
         assert 'name' not in response['data']
         
         await communicator.disconnect()

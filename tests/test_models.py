@@ -72,11 +72,11 @@ class TestOneToOneChat:
     def test_one_to_one_chat_preferences(self, one_to_one_chat):
         """Test preferences field works correctly"""
         preferences = {"theme": "dark", "notifications": True}
-        one_to_one_chat.preferences = preferences
-        one_to_one_chat.save()
+        one_to_one_chat.property.preferences = preferences
+        one_to_one_chat.property.save()
         one_to_one_chat.refresh_from_db()
         
-        assert one_to_one_chat.preferences == preferences
+        assert OneToOneChat.objects.get(id=one_to_one_chat.id).property.preferences == preferences
 
 
 

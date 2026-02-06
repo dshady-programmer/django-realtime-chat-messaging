@@ -249,7 +249,7 @@ class TestRoomPolymorphicSerializer:
             data=data,
             context={'user': users[1]}
         )
-        
+
         assert serializer.is_valid(raise_exception=True)
         instance = serializer.save()
         
@@ -313,7 +313,11 @@ class TestRoomPolymorphicSerializer:
             'type': 'GroupChat',
             'name': 'New Group',
             'extra_fields': {
-                'preferences': {'theme': 'dark', 'notifications': True}
+                
+                
+                'property': {
+                    'preferences': {'theme': 'dark', 'notifications': True}
+                }
             }
         }
         
@@ -325,7 +329,7 @@ class TestRoomPolymorphicSerializer:
         assert serializer.is_valid(raise_exception=True)
         instance = serializer.save()
         
-        assert instance.preferences == {'theme': 'dark', 'notifications': True}
+        assert instance.property.preferences == {'theme': 'dark', 'notifications': True}
 
     def test_create_with_invalid_preferences(self, users):
         """Test that invalid preferences type raises error"""
@@ -333,7 +337,9 @@ class TestRoomPolymorphicSerializer:
             'type': 'GroupChat',
             'name': 'New Group',
             'extra_fields': {
-                'preferences': "invalid_string"
+                'property': {
+                    'preferences': "invalid_string"
+                }
             }
         }
         

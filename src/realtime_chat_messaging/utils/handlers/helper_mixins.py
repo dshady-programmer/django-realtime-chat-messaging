@@ -468,7 +468,7 @@ class RoomHelperMixins:
                     room.description = field_data.get("description")
             
             if "property" in field_data:
-                room_props = cls.RoomPropertySerializer(instance=room.property, data=field_data.get("property"), partial=True)
+                room_props = RoomHelperMixins.RoomPropertySerializer(instance=room.property, data=field_data.get("property"), partial=True)
                 room_props.is_valid(raise_exception=True)
                 room_props.save()
             room.save()

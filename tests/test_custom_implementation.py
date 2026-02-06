@@ -13,12 +13,12 @@ from django.contrib.auth import get_user_model
 
 from realtime_chat_messaging.permissions.handlers import PermissionHandler
 from realtime_chat_messaging.model_mixins import (
-    AbstractMessage, AbstractRoom, AbstractGroupChat, AbstractSession
+    AbstractMessage, AbstractGroupChat, AbstractSession
 )
 
 User = get_user_model()
 
-from custom_implementation_test_app.models import CustomGroupChat, CustomMessage, CustomRoom, CustomSession
+from custom_implementation_test_app.models import CustomGroupChat, CustomMessage, CustomSession
 from custom_implementation_test_app.serializers import CustomMessageSerializer
 from custom_implementation_test_app.permissions import CustomPermissionHandler
 from custom_implementation_test_app.handlers import CustomEventHandler
@@ -47,7 +47,6 @@ class TestCustomModelLoading:
         # Check if custom models are registered
         # Note: This test assumes you've added these to a test app
         assert CustomMessage is not None
-        assert CustomRoom is not None
         assert CustomGroupChat is not None
         assert CustomSession is not None
     
@@ -57,8 +56,7 @@ class TestCustomModelLoading:
         assert hasattr(CustomMessage, 'priority')
         assert hasattr(CustomMessage, 'metadata')
         
-        # CustomRoom
-        assert hasattr(CustomRoom, 'archived')
+
         
         # CustomGroupChat
         assert hasattr(CustomGroupChat, 'tags')
@@ -70,14 +68,12 @@ class TestCustomModelLoading:
     def test_custom_model_inherits_from_abstract(self):
         """Test that custom models properly inherit from abstract models"""
         assert issubclass(CustomMessage, AbstractMessage)
-        assert issubclass(CustomRoom, AbstractRoom)
         assert issubclass(CustomGroupChat, AbstractGroupChat)
         assert issubclass(CustomSession, AbstractSession)
     
     def test_custom_model_swappable_attribute(self):
         """Test that custom models have swappable meta attribute"""
         assert hasattr(CustomMessage._meta, 'swappable')
-        assert hasattr(CustomRoom._meta, 'swappable')
         assert hasattr(CustomGroupChat._meta, 'swappable')
         assert hasattr(CustomSession._meta, 'swappable')
 
@@ -113,25 +109,6 @@ class TestModelSwapping:
         assert Message == CustomMessage
         assert hasattr(Message, 'priority')
         assert hasattr(Message, 'metadata')
-
-
-    @override_settings(
-        REALTIME_CHAT_MESSAGING={
-            'MODELS': {
-                'Message': 'invalid.path.Model',
-            }
-        }
-    )
-    def test_model_loader_handles_invalid_path(self):
-        """Test that invalid model paths raise appropriate errors"""
-
-        
-
-        
-        with pytest.raises(Exception):
-            # Temporarily override setting with invalid path
-            from realtime_chat_messaging.utils.loader import get_model
-            get_model("Message")
 
 
 

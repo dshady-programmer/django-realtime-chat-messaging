@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from guardian.shortcuts import assign_perm
 from realtime_chat_messaging.models import (
-    OneToOneChat, GroupChat, Channel, Message,
+    RoomProperty, OneToOneChat, GroupChat, Channel, Message,
     ChatNotification, Reaction
 )
 
@@ -72,6 +72,14 @@ class TestOneToOneChatSignals:
         
         assert OneToOneChat.objects.count() == 2
 
+    def test_create_room_property_for_onetoone(self):
+        """
+        Test that one to one chat automatically creates a room property
+        """
+        chat = OneToOneChat.objects.create()
+        assert chat.property is not None
+        assert isinstance(chat.property, RoomProperty)
+        assert chat.property.preferences == {}
 
 @pytest.mark.django_db
 class TestGroupChatSignals:
@@ -192,6 +200,18 @@ class TestGroupChatSignals:
         assert users[2].has_perm('can_add_new_participants', group)
 
 
+    def test_create_room_property_for_groupchat(self, users):
+        """
+        Test that group chat automatically creates a room property
+        """
+        chat = GroupChat.objects.create(
+                name="Test Group",
+                creator=users[0]
+        )
+        assert chat.property is not None
+        assert isinstance(chat.property, RoomProperty)
+        assert chat.property.preferences == {}
+
 @pytest.mark.django_db
 class TestChannelSignals:
     """Test signals for Channel model"""
@@ -280,6 +300,20 @@ class TestChannelSignals:
         assert not users[1].has_perm('can_add_new_subscribers', channel)
         assert not users[1].has_perm('can_remove_subscribers', channel)
         assert not users[1].has_perm('can_send_messages', channel)
+
+
+
+    def test_create_room_property_for_channel(self, users):
+        """
+        Test that channel automatically creates a room property
+        """
+        chat = Channel.objects.create(
+            name="Test Channel",
+            creator=users[0])
+        
+        assert chat.property is not None
+        assert isinstance(chat.property, RoomProperty)
+        assert chat.property.preferences == {}
 
 
 @pytest.mark.django_db

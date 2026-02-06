@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'guardian',
     'realtime_chat_messaging',
-    'custom_implementation_test_app',
+    # 'custom_implementation_test_app',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -67,23 +67,23 @@ SIMPLE_JWT = {
 
 
 
-REALTIME_CHAT_MESSAGING={
-    'MODELS': {
-        'Message': 'custom_implementation_test_app.CustomMessage',
-        'GroupChat': 'custom_implementation_test_app.CustomGroupChat',
-        'Session': 'custom_implementation_test_app.CustomSession',
-        # 'Room': 'custom_implementation_test_app.CustomRoom',
-        'RoomProperty': 'custom_implementation_test_app.CustomRoomProperty',
-        # 'OneToOneChat': 'custom_implementation_test_app.CustomOneToOneChat',
-        # 'Channel': 'custom_implementation_test_app.CustomChannel',
-    },
-    'SERIALIZERS': {
-        'MessageSerializer': 'custom_implementation_test_app.serializers.CustomMessageSerializer',
-        'GroupChatSerializer': 'custom_implementation_test_app.serializers.CustomGroupChatSerializer',
-    },
-    'EVENT_HANDLER_CLASS': 'custom_implementation_test_app.handlers.CustomEventHandler',
-    'PERMISSION_HANDLER_CLASS': 'custom_implementation_test_app.permissions.CustomPermissionHandler',
-}
+# REALTIME_CHAT_MESSAGING={
+#     'MODELS': {
+#         'Message': 'custom_implementation_test_app.CustomMessage',
+#         'GroupChat': 'custom_implementation_test_app.CustomGroupChat',
+#         'Session': 'custom_implementation_test_app.CustomSession',
+#         # 'Room': 'custom_implementation_test_app.CustomRoom',
+#         'RoomProperty': 'custom_implementation_test_app.CustomRoomProperty',
+#         # 'OneToOneChat': 'custom_implementation_test_app.CustomOneToOneChat',
+#         # 'Channel': 'custom_implementation_test_app.CustomChannel',
+#     },
+#     'SERIALIZERS': {
+#         'MessageSerializer': 'custom_implementation_test_app.serializers.CustomMessageSerializer',
+#         'GroupChatSerializer': 'custom_implementation_test_app.serializers.CustomGroupChatSerializer',
+#     },
+#     'EVENT_HANDLER_CLASS': 'custom_implementation_test_app.handlers.CustomEventHandler',
+#     'PERMISSION_HANDLER_CLASS': 'custom_implementation_test_app.permissions.CustomPermissionHandler',
+# }
 
 
 MIDDLEWARE = [

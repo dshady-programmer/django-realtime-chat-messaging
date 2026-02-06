@@ -77,7 +77,7 @@ class RoomListPolymorphicSerializer(PolymorphicSerializer):
 
 class OneToOneChatSerializer(serializers.ModelSerializer):
     participants = get_serializer("UserSerializer")(many=True, read_only=True)
-    property = get_serializer("RoomPropertySerializer")()
+    property = get_serializer("RoomPropertySerializer")(required=False)
 
     class Meta:
         model = OneToOneChat
@@ -87,7 +87,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
     creator = get_serializer("UserSerializer")(read_only=True)
     participants = get_serializer("UserSerializer")(read_only=True, many=True)
     admins = get_serializer("UserSerializer")(read_only=True, many=True)
-    property = get_serializer("RoomPropertySerializer")()
+    property = get_serializer("RoomPropertySerializer")(required=False)
     class Meta:
         model = GroupChat
         exclude = ['last_message']
@@ -96,7 +96,7 @@ class ChannelSerializer(serializers.ModelSerializer):
     creator = get_serializer("UserSerializer")(read_only=True)
     subscribers = get_serializer("UserSerializer")(read_only=True, many=True)
     moderators = get_serializer("UserSerializer")(read_only=True, many=True)
-    property = get_serializer("RoomPropertySerializer")()
+    property = get_serializer("RoomPropertySerializer")(required=False)
     class Meta:
         model = Channel
         exclude = ['last_message']
@@ -110,7 +110,6 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
         get_model("Channel"): get_serializer("ChannelSerializer"),
     }
 
- 
 
     def create(self, _):
         user = self.context.get("user")
@@ -131,7 +130,7 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
 
         extra_fields = self.initial_data.pop('extra_fields', {})
 
-        room_property = extra_fields.get('property')
+        room_property = extra_fields.pop('property', {})
 
         if room_property:
             if not isinstance(room_property, dict):
@@ -139,15 +138,12 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
             preferences = room_property.get('preferences')
             if preferences and not isinstance(preferences, dict):
                 raise serializers.ValidationError("preferences must be a python dictionary/javascript object")
-        else:
-            extra_fields['property'] = {}
-            
+        
         data = {
             **self.initial_data,
             **extra_fields
         }
-        # print('data', data)
-
+        
         serializer_class = self.model_serializer_mapping.get(resource_type).__class__
         if not serializer_class:
             raise serializers.ValidationError("Invalid type")
@@ -161,9 +157,12 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
             instance = serializer.save(creator=user)
         else:
             instance = serializer.save()
-        
+        if instance.property is None:
+            raise serializers.ValidationError("Room Property can't be null")
+        room_property_serializer = get_serializer("RoomPropertySerializer")(instance=instance.property, data=room_property, partial=True)
+        room_property_serializer.is_valid(raise_exception=True)
+        room_property_serializer.save()
         try:
-          
             if resource_type == onetoonechat:
                 participants = data.get("participants")
                 if not isinstance(participants, list):

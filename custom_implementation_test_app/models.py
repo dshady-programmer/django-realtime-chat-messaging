@@ -1,7 +1,9 @@
 from django.db import models
 from realtime_chat_messaging.model_mixins import (
-  AbstractMessage,  AbstractGroupChat, AbstractRoomProperty, AbstractSession
+  AbstractMessage,  AbstractGroupChat, AbstractRoomProperty, AbstractSession,
+  AbstractChannel
 )
+
 from realtime_chat_messaging.models import Room
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -20,10 +22,9 @@ class CustomMessage(AbstractMessage):
 
 class CustomRoomProperty(AbstractRoomProperty):
     """Custom room property model with additional fields"""
-    preferences = models.JSONField(default=dict)
     archived = models.BooleanField(default=False)
     
-    class Meta:
+    class Meta(AbstractRoomProperty.Meta):
         abstract = False
 
 
@@ -47,15 +48,19 @@ class CustomGroupChat(Room, AbstractGroupChat):
 #         abstract = False
 
         
-# class CustomChannel(Room, AbstractChannel):
-#     """Custom channel with additional features"""
-#     avatar = models.URLField(null=True, blank=True)
-#     moderators = models.ManyToManyField(User, related_name="+")
-#     max_subscribers = models.PositiveBigIntegerField(default=300)
+class CustomChannel(Room, AbstractChannel):
+    """Custom channel with additional features"""
+    avatar = models.URLField(null=True, blank=True)
+    moderators = models.ManyToManyField(User, related_name="+")
+    max_subscribers = models.PositiveBigIntegerField(default=300)
+    preferences = models.JSONField(default=dict)  # Additional field
  
     
-#     class Meta(AbstractChannel.Meta):
-#         abstract = False
+    class Meta(AbstractChannel.Meta):
+        permissions = AbstractChannel.Meta.permissions + [
+            ("can_manage_preferences", "Can manage channel preferences")
+        ]
+        abstract = False
 
 
 class CustomSession(AbstractSession):

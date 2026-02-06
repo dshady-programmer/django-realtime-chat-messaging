@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomMessage, CustomGroupChat
+from .models import CustomChannel, CustomMessage, CustomGroupChat, CustomRoomProperty
 from realtime_chat_messaging.utils.loader import get_model
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -32,12 +32,47 @@ class CustomMessageSerializer(serializers.ModelSerializer):
 class CustomGroupChatSerializer(serializers.ModelSerializer):
     """Custom group chat serializer"""
     creator_name = serializers.CharField(source='creator.username', read_only=True)
-    participant_count = serializers.SerializerMethodField()
     tags = serializers.JSONField(default=list)
-    
+    admins = serializers.SerializerMethodField()
+    participants = serializers.SerializerMethodField()
     class Meta:
         model = CustomGroupChat
-        fields = ['id', 'name', 'creator_name', 'participant_count', 'tags']
+        fields = ['id', 'name', 'description', 'participants', 'creator_name', 'max_participants', 'tags', "join_approval_required", "group_locked"]
+
+    def get_admins(self, obj):  
+        return [admin.username for admin in obj.admins.all()]
     
-    def get_participant_count(self, obj):
-        return obj.participants.count()
+    def get_participants(self, obj):
+        return [participant.username for participant in obj.partcipants.all()]
+
+
+class CustomChannelSerializer(serializers.ModelSerializer):
+    """Custom channel serializer"""
+    creator_name = serializers.CharField(source='creator.username', read_only=True)
+    preferences = serializers.JSONField(default=dict)
+    moderators = serializers.SerializerMethodField()
+    subscribers = serializers.SerializerMethodField()
+
+
+    
+    class Meta:
+        model = CustomChannel
+        fields = ['id', 'name', 'description', 'creator_name', 'subscribers', 'max_subscribers', 'preferences']
+    
+    def get_moderators(self, obj):
+        return [moderator.username for moderator in obj.moderators.all()]
+    
+    def get_subscribers(self, obj):
+        return [participant.username for participant in obj.partcipants.all()]
+
+class CustomRoomPropertySerializer(serializers.ModelSerializer):
+    """Custom room property serializer"""
+    class Meta:
+        model = CustomRoomProperty
+        fields = ['id', 'preferences', 'archived']
+    
+
+
+    
+
+
