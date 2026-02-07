@@ -2,7 +2,7 @@ from django.dispatch import receiver
 from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.core.exceptions import ValidationError
 from guardian.shortcuts import assign_perm,remove_perm
-from .models import Room, RoomProperty, OneToOneChat, GroupChat, Channel, ChatNotification,Reaction
+from .models import Room, OneToOneChat, GroupChat, Channel, ChatNotification,Reaction
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -12,13 +12,11 @@ User = get_user_model()
 @receiver(pre_save, sender=GroupChat)
 @receiver(pre_save, sender=Channel)
 def create_room_property(sender, instance, *args, **kwargs):
-
     from realtime_chat_messaging.utils.loader import get_model
-    SettingsRoomProperty = get_model("RoomProperty")
-    if SettingsRoomProperty == RoomProperty:
-        if not hasattr(instance, 'property') or not instance.property:
-            room_property = RoomProperty.objects.create()
-            instance.property = room_property
+    RoomProperty = get_model("RoomProperty")
+    if not hasattr(instance, 'property') or not instance.property:
+        room_property = RoomProperty.objects.create()
+        instance.property = room_property
 
 
 
@@ -27,6 +25,8 @@ def create_room_property(sender, instance, *args, **kwargs):
 
 @receiver(m2m_changed, sender=OneToOneChat.participants.through)
 def enforce_two_participants_on_one_to_one_chat(sender, instance, action, pk_set, *args, **kwargs):
+    if sender != OneToOneChat.participants.through:
+        return
     if action == "post_add" or action == "post_remove" or action == "post_clear":
         if instance.participants.count() != 2:
             raise ValidationError("A one to one chat can only have 2 participants")
@@ -40,6 +40,8 @@ def enforce_two_participants_on_one_to_one_chat(sender, instance, action, pk_set
 @receiver(post_save, sender=GroupChat)
 @receiver(post_save, sender=Channel)
 def add_creator_as_participant_and_admin(sender, instance, created, *args, **kwargs):
+    if sender not in [GroupChat, Channel]:
+        return
     if created:
         if sender == GroupChat:
             instance.participants.add(instance.creator)
@@ -58,6 +60,8 @@ def add_creator_as_participant_and_admin(sender, instance, created, *args, **kwa
 @receiver(m2m_changed, sender=Channel.subscribers.through)
 def delete_channels_and_groups_with_no_participants_and_max_participants_enforcement(sender, instance, action, pk_set, **kwargs):
 
+    if sender not in [GroupChat.participants.through, Channel.subscribers.through]:
+        return
     if action == "post_remove" or action == "post_clear":
         if (hasattr(instance, "participants") and instance.participants.count() < 1) or (hasattr(instance, "subscribers") and instance.subscribers.count() < 1):
             instance.delete()
@@ -75,6 +79,8 @@ def delete_channels_and_groups_with_no_participants_and_max_participants_enforce
 @receiver(m2m_changed, sender=GroupChat.admins.through)
 @receiver(m2m_changed, sender=Channel.moderators.through)
 def add_permissions_to_admin_and_moderators(sender, instance, action, pk_set, **kwargs):
+    if sender not in [GroupChat.admins.through, Channel.moderators.through]:
+        return
     if action == "pre_remove" or action == "pre_clear":
         users = User.objects.filter(pk__in=list(pk_set))
         for user in users:
@@ -103,7 +109,6 @@ def add_permissions_to_admin_and_moderators(sender, instance, action, pk_set, **
 """
 delete chatnotification when recipients length is 0
 """
-@receiver(m2m_changed, sender=ChatNotification.recipients.through)
 @receiver(m2m_changed, sender=ChatNotification.recipients.through)
 def delete_channels_and_groups_with_no_participants(sender, instance, action, pk_set, **kwargs):
     if action == "post_remove" or action == "post_clear":

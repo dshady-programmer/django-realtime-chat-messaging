@@ -12,7 +12,6 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-RESOURCE_TYPES = ["OneToOne", "Group", "Channel"]
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -110,23 +109,33 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
         get_model("Channel"): get_serializer("ChannelSerializer"),
     }
 
+    
+    def is_valid(self, *args, **kwargs):
+        self.loadedonetoonechat = get_model("OneToOneChat")
+        self.loadedgroupchat = get_model("GroupChat")
+        self.loadedchannel = get_model("Channel")
 
+        mapping = {
+            "OneToOneChat": self.loadedonetoonechat,
+            "GroupChat": self.loadedgroupchat,
+            "Channel": self.loadedchannel,
+            self.loadedonetoonechat.__name__: self.loadedonetoonechat,
+            self.loadedgroupchat.__name__: self.loadedgroupchat,
+            self.loadedchannel.__name__: self.loadedchannel,
+        }
+        
+        resource_type_str = self.initial_data.get("type")
+        self.resource_type = mapping.get(resource_type_str)
+        if not self.resource_type:
+            raise serializers.ValidationError("Invalid resource type")
+        self.initial_data["type"] = self.resource_type.__name__
+        return super().is_valid(*args, **kwargs)
+    
     def create(self, _):
         user = self.context.get("user")
         # print('self.initial', self.initial_data)
         # resource_type = eval(self.initial_data.get("type")) # unsafe  
-        onetoonechat = get_model("OneToOneChat")
-        groupchat = get_model("GroupChat")
-        channel = get_model("Channel")
-        mapping = {
-            "OneToOneChat": onetoonechat,
-            "GroupChat": groupchat,
-            "Channel": channel,
-        }
-        resource_type_str = self.initial_data.get("type")
-        resource_type = mapping.get(resource_type_str)
-        if not resource_type:
-            raise serializers.ValidationError("Invalid type")
+
 
         extra_fields = self.initial_data.pop('extra_fields', {})
 
@@ -144,7 +153,7 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
             **extra_fields
         }
         
-        serializer_class = self.model_serializer_mapping.get(resource_type).__class__
+        serializer_class = self.model_serializer_mapping.get(self.resource_type).__class__
         if not serializer_class:
             raise serializers.ValidationError("Invalid type")
        
@@ -153,7 +162,7 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
             context=self.context,
         )
         serializer.is_valid(raise_exception=True)
-        if resource_type in [groupchat, channel]:
+        if self.resource_type in [self.loadedgroupchat, self.loadedchannel]:
             instance = serializer.save(creator=user)
         else:
             instance = serializer.save()
@@ -163,25 +172,25 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
         room_property_serializer.is_valid(raise_exception=True)
         room_property_serializer.save()
         try:
-            if resource_type == onetoonechat:
+            if self.resource_type == self.loadedonetoonechat:
                 participants = data.get("participants")
                 if not isinstance(participants, list):
                     participants = []
                 participants = User.objects.filter(id__in=participants)
                 instance.participants.set([*participants, user])
-            elif resource_type == groupchat:
+            elif self.resource_type == self.loadedgroupchat:
                 participants = data.get("participants")
                 if not isinstance(participants, list):
                     participants = []
                 participants = User.objects.filter(id__in=participants)
-                instance.participants.add(*participants)
+                instance.participants.add(*participants, user)
     
             else:
                 subscribers = data.get("subscribers")
                 if not isinstance(subscribers, list):
                     subscribers = []
                 subscribers = User.objects.filter(id__in=subscribers)
-                instance.subscribers.add(*subscribers)
+                instance.subscribers.add(*subscribers, user)
         except Exception as e:
             instance.delete()
             raise serializers.ValidationError(e)

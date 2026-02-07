@@ -23,12 +23,15 @@ class CustomMessageSerializer(serializers.ModelSerializer):
         write_only=True,
         required=True,
     )
-    
+    room = serializers.SerializerMethodField()
     class Meta:
         model = CustomMessage
-        fields = ['id', 'content', 'room_id', 'sender_id', 'sender_username', 'priority', 'metadata', 'created_at']
+        fields = ['id', 'content','room', 'room_id', 'sender_id', 'sender_username', 'priority', 'metadata', 'created_at']
 
-
+    def get_room(self, obj):
+        return {
+            "id": str(obj.room.id)
+        }
 class CustomGroupChatSerializer(serializers.ModelSerializer):
     """Custom group chat serializer"""
     creator_name = serializers.CharField(source='creator.username', read_only=True)
@@ -37,13 +40,25 @@ class CustomGroupChatSerializer(serializers.ModelSerializer):
     participants = serializers.SerializerMethodField()
     class Meta:
         model = CustomGroupChat
-        fields = ['id', 'name', 'description', 'participants', 'creator_name', 'max_participants', 'tags', "join_approval_required", "group_locked"]
+        fields = ['id', 'name', 'description', 'admins', 'participants', 'creator_name', 'max_participants', 'tags', "join_approval_required", "group_locked"]
 
     def get_admins(self, obj):  
-        return [admin.username for admin in obj.admins.all()]
+        return [{"id": admin.id, "username": admin.username} for admin in obj.admins.all()]
     
     def get_participants(self, obj):
-        return [participant.username for participant in obj.partcipants.all()]
+        return [{"id": participant.id, "username": participant.username} for participant in obj.participants.all()]
+
+
+class CustomGroupChatListSerializer(serializers.ModelSerializer):
+    creator = serializers.CharField(source='creator.username', read_only=True)
+    last_message = serializers.SerializerMethodField()
+    class Meta:
+        model = CustomGroupChat
+        exclude = ['participants', 'admins', 'property']
+
+    def get_last_message(self, instance):
+        return CustomMessageSerializer(instance.last_message).data
+
 
 
 class CustomChannelSerializer(serializers.ModelSerializer):
@@ -57,13 +72,13 @@ class CustomChannelSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CustomChannel
-        fields = ['id', 'name', 'description', 'creator_name', 'subscribers', 'max_subscribers', 'preferences']
+        fields = ['id', 'name', 'description', 'creator_name', 'moderators', 'subscribers', 'max_subscribers', 'preferences']
     
     def get_moderators(self, obj):
-        return [moderator.username for moderator in obj.moderators.all()]
+        return [{"id": moderator.id, "username": moderator.username} for moderator in obj.moderators.all()]
     
     def get_subscribers(self, obj):
-        return [participant.username for participant in obj.partcipants.all()]
+        return [{"id": subscriber.id, "username": subscriber.username} for subscriber in obj.subscribers.all()]
 
 class CustomRoomPropertySerializer(serializers.ModelSerializer):
     """Custom room property serializer"""

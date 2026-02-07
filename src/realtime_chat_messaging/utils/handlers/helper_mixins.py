@@ -71,8 +71,6 @@ class MessageHelperMixins:
         if "forwarded_from_id" in new_data:
             new_data['is_forwarded'] = True        
         serializer = MessageHelperMixins.MessageSerializer(data=new_data)
-        print(MessageHelperMixins.MessageSerializer)
-        print(MessageHelperMixins.Message)
         serializer.is_valid(raise_exception=True)
         message = serializer.save()
         if hasattr(message.room, 'last_message'):
@@ -108,9 +106,9 @@ class MessageHelperMixins:
                 status = "successful"
             else:
                 status = "failed"
-            try:
+            if hasattr(MessageHelperMixins.Message, 'delivered_to'):
                 message = get_object_or_404(MessageHelperMixins.Message.objects.prefetch_related('delivered_to'), pk=message_id)
-            except AttributeError:
+            else:
                 message = get_object_or_404(MessageHelperMixins.Message, pk=message_id)
             serialized_message = MessageHelperMixins.MessageSerializer(message).data
             response = {
@@ -177,9 +175,9 @@ class MessageHelperMixins:
                 message_id = message_ids[0]
             else:
                 message_id = message_ids
-            try:
+            if hasattr(MessageHelperMixins.Message, 'delivered_to'):
                 message = get_object_or_404(MessageHelperMixins.Message.objects.prefetch_related('delivered_to'), pk=message_id)
-            except AttributeError:
+            else:
                 message = get_object_or_404(MessageHelperMixins.Message, pk=message_id)
             content = extra_fields.get('content') if (extra_fields := data.get('extra_fields')) and type(extra_fields) == dict else None
             if content:
@@ -199,9 +197,9 @@ class MessageHelperMixins:
     def _create_read_receipt(user, message_id):
 
         if isinstance(message_id, list):
-            try:
+            if hasattr(MessageHelperMixins.Message, 'delivered_to'):
                 messages = MessageHelperMixins.Message.objects.filter(id__in=message_id).exclude(sender=user).prefetch_related('delivered_to').distinct()
-            except AttributeError:
+            else:
                  messages = MessageHelperMixins.Message.objects.filter(id__in=message_id).exclude(sender=user).distinct()
             room_ids = set()
             receipts = []
@@ -218,9 +216,9 @@ class MessageHelperMixins:
             return room_ids, rooms
 
         else:
-            try:
+            if hasattr(MessageHelperMixins.Message, 'delivered_to'):
                 message = get_object_or_404(MessageHelperMixins.Message.objects.prefetch_related('delivered_to'), pk=message_id)
-            except AttributeError:
+            else:
                 message = get_object_or_404(MessageHelperMixins.Message, pk=message_id)
             if message.sender != user:
                 room_id = message.room.id
@@ -234,13 +232,16 @@ class MessageHelperMixins:
     @staticmethod 
     def _retreive_messages(room, data):
 
-        try:
-            read_r = MessageHelperMixins.ReadReceipt._meta.get_field("message").remote_field.get_accessor_name()
-            reactions_r = MessageHelperMixins.Reaction._meta.get_field("message").remote_field.get_accessor_name()
-            attachm = MessageHelperMixins.MessageMediaAsset._meta.get_field("message").remote_field.get_accessor_name()
+        
+        read_r = MessageHelperMixins.ReadReceipt._meta.get_field("message").remote_field.get_accessor_name()
+        reactions_r = MessageHelperMixins.Reaction._meta.get_field("message").remote_field.get_accessor_name()
+        attachm = MessageHelperMixins.MessageMediaAsset._meta.get_field("message").remote_field.get_accessor_name()
+        if hasattr(MessageHelperMixins.Message, 'delivered_to'):
             messages = MessageHelperMixins.Message.objects.filter(room=room).prefetch_related(read_r, reactions_r, attachm, 'delivered_to').order_by('-created_at')
-        except AttributeError:
+        else:
+
             messages = MessageHelperMixins.Message.objects.filter(room=room).prefetch_related(read_r, reactions_r, attachm).order_by('-created_at')
+
         paginate = data.get('paginate')
         response = {}
         if paginate and isinstance(paginate, dict):
@@ -271,7 +272,6 @@ class MessageHelperMixins:
                 "size": size    
             })
             messages = get_page.object_list
-
         serialized_messages = MessageHelperMixins.MessageSerializer(messages, many=True)
 
         response["data"] = {
@@ -317,7 +317,7 @@ class RoomHelperMixins:
     def _create_room(user, data):
 
         serializer = RoomHelperMixins.RoomPolymorphicSerializer(data=data, context={"user": user})
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(raise_exception=True) 
         instance = serializer.save()
         room_serializer = RoomHelperMixins.RoomPolymorphicSerializer(instance)
         return room_serializer.data
@@ -325,11 +325,14 @@ class RoomHelperMixins:
 
     @staticmethod
     def _list_rooms(user):
+        onetoonechat__participants = f"{RoomHelperMixins.OneToOneChat._meta.model_name}__participants"
+        groupchat__participants = f"{RoomHelperMixins.GroupChat._meta.model_name}__participants"
+        channel__subscribers = f"{RoomHelperMixins.Channel._meta.model_name}__subscribers"
 
         rooms = RoomHelperMixins.Room.objects.filter(
-            Q(onetoonechat__participants=user) | Q(channel__subscribers=user) | Q(groupchat__participants=user)
+            Q(**{onetoonechat__participants: user}) | Q(**{channel__subscribers: user}) | Q(**{groupchat__participants: user})
         ).select_related('last_message').order_by('-last_message__created_at')
-
+        print("rooms", rooms)
         if rooms.exists():
             serializer = RoomHelperMixins.RoomListPolymorphicSerializer(rooms, many=True, context={"user": user})
             return serializer.data

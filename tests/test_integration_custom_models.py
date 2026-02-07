@@ -69,7 +69,9 @@ class TestConsumerWithCustomMessage:
             'data': {
                 'room_id': str(one_to_one_chat.id),
                 'content': 'Test with custom message model',
-                'priority': 'urgent'  # Custom field
+                'extra_fields': {
+                    'priority': 'urgent'  # Custom field
+                }
             }
         })
         
@@ -92,18 +94,15 @@ class TestConsumerWithCustomMessage:
         await receiver.disconnect()
 
     
-    async def test_message_edit_with_custom_model(self, users, create_one_to_one_chat, register_room_with_user):
+    async def test_message_edit_with_custom_model(self, users, one_to_one_chat):
         """Test message.modify (edit) with CustomMessage model"""
         from custom_implementation_test_app.models import CustomMessage
         
         
-        chat = create_one_to_one_chat(users[0], users[1])
-        await register_room_with_user(users[0].id, chat.id)
-        await register_room_with_user(users[1].id, chat.id)
         
         # Create message with custom model
         message = await database_sync_to_async(CustomMessage.objects.create)(
-            room=chat,
+            room=one_to_one_chat,
             sender=users[0],
             content="Original",
             priority="normal"
@@ -120,7 +119,8 @@ class TestConsumerWithCustomMessage:
                 'action': 'update',
                 'message_id': str(message.id),
                 'extra_fields': {
-                    'content': 'Edited content'
+                    'content': 'Edited content',
+                    'priority': 'high'  # Edit custom field as well
                 }
             }
         })
@@ -180,7 +180,7 @@ class TestCompleteCustomStack:
         await user1.send_json_to({
             'event_type': 'room.create',
             'data': {
-                'type': 'GroupChat',
+                'type': 'CustomGroupChat',
                 'name': 'Full Custom Stack Test',
                 'participants': [users[1].id, users[2].id],
                 'extra_fields': {
@@ -190,9 +190,9 @@ class TestCompleteCustomStack:
         })
         
         room_response1 = await user1.receive_json_from()
+
         room_response2 = await user2.receive_json_from()
         room_response3 = await user3.receive_json_from()
-        
         assert room_response1['eventType'] == 'roomcreate.dispatch'
         assert room_response2['eventType'] == 'roomcreate.dispatch'
         assert room_response3['eventType'] == 'roomcreate.dispatch'
@@ -212,8 +212,8 @@ class TestCompleteCustomStack:
             'data': {
                 'room_id': room_id,
                 'content': 'Testing complete custom stack',
-                'priority': 'critical',
                 'extra_fields': {
+                    'priority': 'critical',
                     'metadata': {
                         'test_type': 'integration',
                         'custom_field': True
@@ -268,9 +268,10 @@ class TestCompleteCustomStack:
         
         edit1 = await user1.receive_json_from()
         edit2 = await user2.receive_json_from()
+        edit3 = await user3.receive_json_from()
         
-        assert edit1['eventType'] == edit2['eventType'] == 'messagemodification.dispatch'
-        assert edit1['data']['message']['content'] == edit2['data']['message']['content']  == 'Edited with custom stack'
+        assert edit1['eventType'] == edit2['eventType'] == edit3['eventType'] == 'messagemodification.dispatch'
+        assert edit1['data']['message']['content'] == edit2['data']['message']['content']  == edit3['data']['message']['content'] == 'Edited with custom stack'
         
         # Step 6: Add members (CustomPermissionHandler)
         await user1.send_json_to({
@@ -285,8 +286,8 @@ class TestCompleteCustomStack:
         add2 = await user2.receive_json_from()
         add3 = await user3.receive_json_from()
         
-        assert add1['eventType'] == add2['eventType'] == 'roomaddmembers.dispatch'
-        assert 'user3' in add1['data']['new_members'] and 'user3' in add2['data']['new_members'] 
+        assert add1['eventType'] == add2['eventType'] == add3['eventType'] == 'roomaddmembers.dispatch'
+        assert 'user3' in add1['data']['new_members'] and 'user3' in add2['data']['new_members'] and 'user3' in add3['data']['new_members']
 
         # Step 7: Fetch room messages
         await user2.send_json_to({
@@ -317,7 +318,7 @@ class TestCompleteCustomStack:
         
         assert info_response['eventType'] == 'roominfo.dispatch'
         assert info_response['data']['id'] == room_id
-        assert info_response['data']['type'] == "GroupChat"
+        assert info_response['data']['type'] == "CustomGroupChat"
         
         # Step 9: List rooms
         await user1.send_json_to({

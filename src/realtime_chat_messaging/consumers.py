@@ -354,7 +354,6 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
 
         room = await EventHandler.create_room(self.user, data)
-
         members = None
         if "participants" in room:
             participants = room["participants"]
@@ -366,9 +365,8 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         group = GROUP_STRING.format(group_id=room["id"])
         if members:
             for member in members:
-                member_id = member["id"]
+                member_id = member["id"] # always ensure this is a dict and id field is included in the dict for both participants and subscribers
                 await self.add_channel_to_group(group, member_id)
-        
         await self.send_group(group, "roomcreate.dispatch", room)
 
         
@@ -397,7 +395,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         receive_get_room_info
         (room.info)
         data : {
-        room_id
+            room_id
         }
         """
 

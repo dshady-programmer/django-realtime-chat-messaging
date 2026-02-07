@@ -42,6 +42,7 @@ class CustomGroupChat(Room, AbstractGroupChat):
     class Meta(AbstractGroupChat.Meta):
         abstract = False
 
+    
 # class CustomOneToOneChat(Room, AbstractOneToOneChat):
 #     pass
 #     class Meta(AbstractOneToOneChat.Meta):
@@ -68,3 +69,14 @@ class CustomSession(AbstractSession):
     device_type = models.CharField(max_length=50, default='unknown')
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     
+
+from django.dispatch import receiver 
+from django.db.models.signals import pre_save
+@receiver(pre_save, sender=CustomGroupChat)
+@receiver(pre_save, sender=CustomChannel)
+def create___room_property(sender, instance, *args, **kwargs):
+    from realtime_chat_messaging.utils.loader import get_model
+    RoomProperty = get_model("RoomProperty")
+    if not hasattr(instance, 'property') or not instance.property:
+        room_property = RoomProperty.objects.create()
+        instance.property = room_property
