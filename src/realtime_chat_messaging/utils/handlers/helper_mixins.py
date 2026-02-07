@@ -332,7 +332,6 @@ class RoomHelperMixins:
         rooms = RoomHelperMixins.Room.objects.filter(
             Q(**{onetoonechat__participants: user}) | Q(**{channel__subscribers: user}) | Q(**{groupchat__participants: user})
         ).select_related('last_message').order_by('-last_message__created_at')
-        print("rooms", rooms)
         if rooms.exists():
             serializer = RoomHelperMixins.RoomListPolymorphicSerializer(rooms, many=True, context={"user": user})
             return serializer.data
