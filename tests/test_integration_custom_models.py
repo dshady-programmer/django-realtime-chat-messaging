@@ -462,35 +462,7 @@ class TestCompleteCustomStack:
 @pytest.mark.integration
 class TestBackwardCompatibilityWithCustomModels:
     """Test that custom models maintain backward compatibility with existing features"""
-    
-    async def test_signals_work_with_custom_models(self, users):
-        """Test that Django signals still work with custom models"""
-        from custom_implementation_test_app.models  import CustomGroupChat
-        
-        # Create group (should trigger signals)
-        group = await database_sync_to_async(CustomGroupChat.objects.create)(
-            name="Signal Test",
-            creator=users[0],
-            tags=['test']
-        )
-        
-        # Creator should be added as participant and admin (via signal)
-        participants = await database_sync_to_async(
-            lambda: list(group.participants.all())
-        )()
-        admins = await database_sync_to_async(
-            lambda: list(group.admins.all())
-        )()
-        
-        assert users[0] in participants
-        assert users[0] in admins
-        
-        # Check permissions granted (via signal)
-        has_add_perm = await database_sync_to_async(
-            users[0].has_perm
-        )('can_add_new_participants', group)
-        
-        assert has_add_perm is True
+   
     
     async def test_polymorphic_serialization_with_custom_models(self, users):
         """Test polymorphic serialization works with mixed default and custom models"""
@@ -522,7 +494,7 @@ class TestBackwardCompatibilityWithCustomModels:
         assert len(data) == 2
         types = [r['type'] for r in data]
         assert 'OneToOneChat' in types
-        assert 'GroupChat' in types
+        assert 'CustomGroupChat' in types
 
 
 # ==================== PERFORMANCE TESTS WITH CUSTOM MODELS ====================

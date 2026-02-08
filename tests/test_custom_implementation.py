@@ -12,7 +12,7 @@ from django.contrib.auth import get_user_model
 
 
 from realtime_chat_messaging.permissions.handlers import PermissionHandler
-from realtime_chat_messaging.model_mixins import (
+from realtime_chat_messaging.mixins.models import (
     AbstractMessage, AbstractGroupChat, AbstractSession
 )
 

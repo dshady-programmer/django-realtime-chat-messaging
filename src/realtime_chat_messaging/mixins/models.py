@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 import uuid
 
-from .types import NOTIFICATION_TYPE
+from ..types import NOTIFICATION_TYPE
 
 User = settings.AUTH_USER_MODEL
 Message = settings.REALTIME_CHAT_MESSAGING_MESSAGE_MODEL

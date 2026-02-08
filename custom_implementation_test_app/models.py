@@ -1,5 +1,5 @@
 from django.db import models
-from realtime_chat_messaging.model_mixins import (
+from realtime_chat_messaging.mixins.models import (
   AbstractMessage,  AbstractGroupChat, AbstractRoomProperty, AbstractSession,
   AbstractChannel
 )

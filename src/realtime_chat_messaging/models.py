@@ -4,7 +4,7 @@ from django.conf import settings
 from polymorphic.models import PolymorphicModel
 from django.db.models import Q
 from .types import ALLOWED_MIME_TYPES, MEDIATYPE_CHOICES
-from .model_mixins import (
+from .mixins.models import (
     AbstractRoomProperty, AbstractChannel, AbstractGroupChat, 
     AbstractMessage, AbstractOneToOneChat, 
     AbstractReadReceipt, AbstractReaction, 
