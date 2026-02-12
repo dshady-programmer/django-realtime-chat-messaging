@@ -506,14 +506,11 @@ class TestBackwardCompatibilityWithCustomModels:
 class TestPerformanceWithCustomModels:
     """Test performance isn't degraded with custom models"""
     
-    async def test_bulk_message_creation_with_custom_model(self, users, create_one_to_one_chat, register_room_with_user):
+    async def test_bulk_message_creation_with_custom_model(self, users, one_to_one_chat):
         """Test creating many messages with custom model"""
 
         from custom_implementation_test_app.models import CustomMessage
   
-        chat = create_one_to_one_chat(users[0], users[1])
-        await register_room_with_user(users[0].id, chat.id)
-        await register_room_with_user(users[1].id, chat.id)
         
         comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
         comm.scope['user'] = users[0]
@@ -526,7 +523,7 @@ class TestPerformanceWithCustomModels:
             await comm.send_json_to({
                 'event_type': 'message.send',
                 'data': {
-                    'room_id': str(chat.id),
+                    'room_id': str(one_to_one_chat.id),
                     'content': f'Message {i}',
                     'priority': 'normal'
                 }
@@ -536,7 +533,7 @@ class TestPerformanceWithCustomModels:
         
         # Verify all created
         count = await database_sync_to_async(
-            CustomMessage.objects.filter(room=chat).count
+            lambda: CustomMessage.objects.filter(room=one_to_one_chat).count()
         )()
         assert count == 50
         
@@ -570,18 +567,15 @@ class TestPerformanceWithCustomModels:
 
 
     
-    async def test_message_delete_with_custom_model(self, users, create_one_to_one_chat, register_room_with_user):
+    async def test_message_delete_with_custom_model(self, users, one_to_one_chat):
         """Test message.modify (delete) with CustomMessage model"""
  
         from custom_implementation_test_app.models  import CustomMessage
         
 
         
-        chat = create_one_to_one_chat(users[0], users[1])
-        await register_room_with_user(users[0].id, chat.id)
-        
         message = await database_sync_to_async(CustomMessage.objects.create)(
-            room=chat,
+            room=one_to_one_chat,
             sender=users[0],
             content="To delete",
             priority="low"
@@ -610,18 +604,14 @@ class TestPerformanceWithCustomModels:
         
         await comm.disconnect()
 
-    async def test_message_react_with_custom_model(self, users, create_one_to_one_chat, register_room_with_user):
+    async def test_message_react_with_custom_model(self, users, one_to_one_chat):
         """Test message.react with CustomMessage model"""
 
         from custom_implementation_test_app.models import CustomMessage
 
-        
-        chat = create_one_to_one_chat(users[0], users[1])
-        await register_room_with_user(users[0].id, chat.id)
-        await register_room_with_user(users[1].id, chat.id)
-        
+   
         message = await database_sync_to_async(CustomMessage.objects.create)(
-            room=chat,
+            room=one_to_one_chat,
             sender=users[0],
             content="React to this",
             priority="high"
@@ -650,19 +640,17 @@ class TestPerformanceWithCustomModels:
         await comm.disconnect()
         
     
-    async def test_message_read_with_custom_model(self, users, create_one_to_one_chat, register_room_with_user):
+    async def test_message_read_with_custom_model(self, users, one_to_one_chat):
         """Test message.read with CustomMessage model"""
 
         from custom_implementation_test_app.models  import CustomMessage
         
 
         
-        chat = create_one_to_one_chat(users[0], users[1])
-        await register_room_with_user(users[0].id, chat.id)
-        await register_room_with_user(users[1].id, chat.id)
+
         
         message = await database_sync_to_async(CustomMessage.objects.create)(
-            room=chat,
+            room=one_to_one_chat,
             sender=users[0],
             content="Mark as read",
             metadata={"important": True}
@@ -688,19 +676,16 @@ class TestPerformanceWithCustomModels:
         await comm.disconnect()
         
     
-    async def test_room_messages_with_custom_model(self, users, create_one_to_one_chat, register_room_with_user):
+    async def test_room_messages_with_custom_model(self, users, one_to_one_chat):
         """Test room.messages retrieval with CustomMessage model"""
 
         from custom_implementation_test_app.models import CustomMessage
         
 
-        chat = create_one_to_one_chat(users[0], users[1])
-        await register_room_with_user(users[0].id, chat.id)
-        
         # Create messages with custom model
         for i in range(5):
             await database_sync_to_async(CustomMessage.objects.create)(
-                room=chat,
+                room=one_to_one_chat,
                 sender=users[0],
                 content=f"Message {i}",
                 priority="normal" if i % 2 == 0 else "urgent"
@@ -715,7 +700,7 @@ class TestPerformanceWithCustomModels:
         await comm.send_json_to({
             'event_type': 'room.messages',
             'data': {
-                'room_id': str(chat.id)
+                'room_id': str(one_to_one_chat.id)
             }
         })
         
@@ -842,6 +827,9 @@ class TestConsumerWithCustomGroupChat:
             creator=users[0],
             tags=['test']
         )
+
+        # add creator to group
+        await database_sync_to_async(group.participants.add)(users[0])
         await register_room_with_user(users[0].id, group.id)
         
         comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
@@ -879,7 +867,11 @@ class TestConsumerWithCustomGroupChat:
             creator=users[0],
             tags=['old']
         )
+
+        # add creator to group
+        await database_sync_to_async(group.participants.add)(users[0])
         await register_room_with_user(users[0].id, group.id)
+
         
         comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
         comm.scope['user'] = users[0]
@@ -974,7 +966,9 @@ class TestConsumerWithMultipleCustomModels:
             'data': {
                 'room_id': room_id,
                 'content': 'Test message with all custom models',
-                'priority': 'urgent'
+                'extra_fields': {
+                    'priority': 'urgent'
+                },
             }
         })
         
@@ -1091,13 +1085,10 @@ class TestConsumerWithMultipleCustomModels:
 class TestConsumerWithCustomHandler:
     """Test consumer events with custom event handler"""
     
-    async def test_all_events_with_custom_handler(self, users, create_one_to_one_chat, register_room_with_user):
+    async def test_all_events_with_custom_handler(self, users, one_to_one_chat):
         """Test that all consumer events work with CustomEventHandler"""
 
         
-        chat = create_one_to_one_chat(users[0], users[1])
-        await register_room_with_user(users[0].id, chat.id)
-        await register_room_with_user(users[1].id, chat.id)
         
         comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
         comm.scope['user'] = users[0]
@@ -1109,7 +1100,7 @@ class TestConsumerWithCustomHandler:
         await comm.send_json_to({
             'event_type': 'message.send',
             'data': {
-                'room_id': str(chat.id),
+                'room_id': str(one_to_one_chat.id),
                 'content': 'Test with custom handler'
             }
         })
