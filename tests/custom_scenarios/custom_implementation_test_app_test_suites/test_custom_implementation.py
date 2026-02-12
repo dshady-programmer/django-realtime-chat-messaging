@@ -166,7 +166,7 @@ class TestHandlerSwapping:
     
     @override_settings(
         REALTIME_CHAT_MESSAGING={
-            'EVENT_HANDLER_CLASS': 'tests.test_custom_implementation.CustomEventHandler'
+            'EVENT_HANDLER_CLASS': 'custom_implementation_test_app.handlers.CustomEventHandler'
         }
     )
     def test_custom_handler_loading(self):
@@ -214,7 +214,7 @@ class TestPermissionHandlerSwapping:
     
     @override_settings(
         REALTIME_CHAT_MESSAGING={
-            'PERMISSION_HANDLER_CLASS': 'tests.test_custom_implementation.CustomPermissionHandler'
+            'PERMISSION_HANDLER_CLASS': 'custom_implementation_test_app.permissions.CustomPermissionHandler'
         }
     )
     def test_custom_permission_handler_loading(self):
