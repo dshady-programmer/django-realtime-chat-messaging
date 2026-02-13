@@ -249,6 +249,25 @@ class MessageSerializer(
         return list(
             instance.delivered_to.values_list("username", flat=True)
         ) # returns [username1, username2] 
+    
+    def update(self, instance, validated_data):
+        validated_data.pop("sender", None) # sender can't be updated
+        validated_data.pop("room", None) # room can't be updated
+        validated_data.pop("created_at", None) # created_at can't be updated
+        validated_data.pop("updated_at", None) # updated_at is auto updated
+        validated_data.pop("is_deleted", None) # is_deleted should be updated through another method
+        validated_data.pop("forwarded_from", None) # forwarded_from can't be updated
+        validated_data.pop("is_forwarded", None) # is_forwarded can't be updated aloong with forwarded_from
+        validated_data.pop("parent_message", None) # parent_message can't be updated
+        
+        content = validated_data.get("content")
+        # print("validated data in update method", validated_data)
+
+        if not content:
+            raise serializers.ValidationError("Content should be provided for update action")
+        if instance.is_deleted:
+            raise serializers.ValidationError("Deleted messages can't be updated")
+        return super().update(instance, validated_data)
 
 
 class ChatNotificationSerializer(

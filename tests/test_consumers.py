@@ -1192,6 +1192,82 @@ class TestMessageOperations:
         await communicator.disconnect()
 
 
+    async def test_edit_message_with_editable_fields_but_not_allowed_for_update(self, communicator, users, group_chat, one_to_one_chat):
+        """Test editing message with editable fields but not allowed for update action should ignore those fields and update only content"""
+        message = await database_sync_to_async(Message.objects.create)(
+            room=one_to_one_chat,
+            sender=users[0],
+            content="Original content"
+        )
+ 
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from() 
+        import uuid
+        await communicator.send_json_to({
+            'event_type': 'message.modify',
+            'data': {
+                'action': 'update',
+                'message_id': str(message.id),
+                'extra_fields': {
+                    'content': 'Edited content',
+                    'sender_id': users[1].id,
+                    'room_id': str(group_chat.id),
+                    'created_at': '2024-01-01T00:00:00Z',
+                    'updated_at': '2024-01-01T00:00:00Z',
+                    'is_forwarded': True,
+                    'forwarded_from_id': str(message.id),
+                    'parent_message_id': str(message.id)
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        
+        assert response['eventType'] == 'messagemodification.dispatch'
+        assert response['data']['message']['content'] == 'Edited content'
+        assert response['data']['message']['sender']['id'] == users[0].id
+        assert response['data']['message']['room']['id'] == str(one_to_one_chat.id)
+        assert response['data']['message']['is_forwarded'] is False
+        assert response['data']['message']['forwarded_from'] is None
+        assert response['data']['message']['parent_message'] is None
+
+        await communicator.disconnect()
+
+    async def test_edit_message_ineditable_fields(self, communicator, users, one_to_one_chat):
+        """Test editing message with ineditable fields should not update them"""
+        message = await database_sync_to_async(Message.objects.create)(
+            room=one_to_one_chat,
+            sender=users[0],
+            content="Original content"
+        )
+        
+ 
+        communicator.scope['user'] = users[0]
+        await communicator.connect()
+        await communicator.receive_json_from() 
+        await communicator.send_json_to({
+            'event_type': 'message.modify',
+            'data': {
+                'action': 'update',
+                'message_id': str(message.id),
+                'extra_fields': {
+                    'content': 'Edited content', 
+                    'sender': users[1].id, # should ignore
+                    'room': str(one_to_one_chat.id), # should ignore
+                }
+            }
+        })
+        
+        response = await communicator.receive_json_from()
+        assert response['eventType'] == 'messagemodification.dispatch'
+        assert response['data']['message']['content'] == 'Edited content'
+        assert response['data']['message']['sender']['id'] == users[0].id
+        assert response['data']['message']['room']['id'] == str(one_to_one_chat.id)
+        
+        await communicator.disconnect()
+
+
     async def test_edit_multiple_message_by_the_same_user_should_fail(self, communicator, users, one_to_one_chat):
         """Test editing multiple message by the same user at the same time should fail"""
         message = await database_sync_to_async(Message.objects.create)(
@@ -1279,7 +1355,7 @@ class TestMessageOperations:
         response = await communicator.receive_json_from()
         assert "error" in response
         assert response["error"]["code"] == 4003 
-        assert "Content should be provided for update action" in str(response["error"]["detail"])
+        assert "'extra_fields' field should be provided for update action" in str(response["error"]["detail"])
         await communicator.disconnect()
   
   

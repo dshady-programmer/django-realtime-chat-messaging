@@ -284,11 +284,16 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         data: {
             action: "update" / "delete"
             message_id: string/int (update) / [string/int, string/int] (for delete)
-            extra_fields: [
+            extra_fields: {
                 content: text (for update action)
-            ]
+            }
         }
-        Note: No matter what extra fields are passed only content is updated
+        Note: 
+                For update action, when using custom message model + serializer, make sure to validate and clean the data passed for update in the extra_fields,
+                    so as to prevent updating of sensitive data which can lead to security vulnerabilities.
+
+                By default, the provided MessageSerializer will only update content field no matter what other fields are passed in the extra_fields for update action. 
+                    If you have a custom message model and serializer, consider overriding the update method in your serializer to clean and validate the data properly.
         """
 
 

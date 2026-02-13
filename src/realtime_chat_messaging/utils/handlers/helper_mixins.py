@@ -171,6 +171,7 @@ class MessageHelperMixins:
             else:
                 MessageHelperMixins.Message.objects.filter(pk__in=message_ids).delete() 
             return {"status": "successful", "action": "delete", "message_ids": message_ids}
+        
         elif action == "update":
             message_id = None
             if isinstance(message_ids, list):
@@ -183,15 +184,15 @@ class MessageHelperMixins:
                 message = get_object_or_404(MessageHelperMixins.Message.objects.prefetch_related('delivered_to'), pk=message_id)
             else:
                 message = get_object_or_404(MessageHelperMixins.Message, pk=message_id)
-            content = extra_fields.get('content') if (extra_fields := data.get('extra_fields')) and type(extra_fields) == dict else None
-            if content:
-                serializer = MessageHelperMixins.MessageSerializer(instance=message, data={"content": content, "is_edited": True}, partial=True)
+            extra_fields = extra_fields if (extra_fields := data.get('extra_fields')) and type(extra_fields) == dict else None
+            if extra_fields:
+                serializer = MessageHelperMixins.MessageSerializer(instance=message, data={**extra_fields, "is_edited": True}, partial=True)
                 serializer.is_valid(raise_exception=True)
                 instance = serializer.save()
                 serialized_message = MessageHelperMixins.MessageSerializer(instance)
                 return {"status": "successful", "action": "update", "message": serialized_message.data}
             else:
-                raise ValidationError("Content should be provided for update action")
+                raise ValidationError("'extra_fields' field should be provided for update action")
 
         else:
             raise ValidationError("Invalid action type")

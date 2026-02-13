@@ -134,12 +134,16 @@ def create_group_chat(db):
     from realtime_chat_messaging.models import GroupChat
     
     def _create_group(creator, name="Test Group", **kwargs):
-        return GroupChat.objects.create(
+        participants = kwargs.pop('participants', [])
+        group =  GroupChat.objects.create(
             name=name,
             creator=creator,
             **kwargs
         )
-    
+        if participants:
+            group.participants.set(participants)
+            group.save()
+        return group
     return _create_group
 
 
