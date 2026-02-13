@@ -21,7 +21,6 @@ class Settings:
         loader.clear_caches()
         EventHandler.reload_variables()
 
-        
 
 
     @property
@@ -48,6 +47,7 @@ realtime_chat_settings = Settings()
 def _reload_settings(**kwargs):
 
     if kwargs.get("setting") == SETTINGS_NAMESPACE:
+        print("Reloading realtime chat messaging settings...")
         realtime_chat_settings.reload()
 
 
@@ -71,10 +71,7 @@ def validate_and_update(user_settings):
             _validate_dict_keys(k, v)
             user_settings[k] = {**DEFAULTS[k], **v}
 
-        elif k not in [
-                "EVENT_MAPPER", "EXCEPTION_HANDLER_CLASS", "MESSAGE_SOFT_DELETE",
-                "PERMISSION_HANDLER_CLASS", "EVENT_HANDLER_CLASS", "ENABLE_NOTIFICATION"
-            ]:
+        elif k not in DEFAULTS:
             raise ImproperlyConfigured(f"Invalid setting '{k}'")
     update_settings_with_models(user_settings.get('MODELS') or DEFAULTS['MODELS'])
     

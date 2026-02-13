@@ -13,3 +13,4 @@ djangorestframework-simplejwt
 pytest
 pytest-django
 pytest-asyncio
+pytest-xdist

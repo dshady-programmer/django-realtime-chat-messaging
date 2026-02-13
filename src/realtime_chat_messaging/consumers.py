@@ -546,7 +546,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         await self.send_group(group, "roomupdate.dispatch", room_data)
 
     @ExceptionHandler.exception_handler_decorator    
-    async def receive_update_session_heartbeat(self):
+    async def receive_update_session_heartbeat(self, _):
         """
 
         (session.heartbeat)
@@ -555,6 +555,7 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
         """
         await EventHandler.update_session(self.session)
+        await self.send(text_data=json.dumps({"status": "success"}))
 
 
     

@@ -14,7 +14,7 @@ from django.utils import timezone
 User = get_user_model()
 soft_delete = realtime_chat_settings.MESSAGE_SOFT_DELETE
 enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
-inactivity_threshold = realtime_chat_settings.INACTIVITY_THRESHOLD
+
 
 
 
@@ -598,6 +598,7 @@ class SessionHelperMixins:
     def _load_variables(cls):
         # models
         cls.Session = get_model("Session")
+        cls.InactivityThreshold = realtime_chat_settings.INACTIVITY_THRESHOLD
 
     @classmethod
     def _reload_variables(cls):
@@ -606,7 +607,7 @@ class SessionHelperMixins:
 
     @staticmethod
     def _get_expired_sessions(user_id):
-        time_allowance = timezone.now() - datetime.timedelta(seconds=inactivity_threshold)
+        time_allowance = timezone.now() - datetime.timedelta(seconds=SessionHelperMixins.InactivityThreshold)
         expired_sessions = SessionHelperMixins.Session.objects.filter(user__id=user_id, last_seen__lt=time_allowance)
         return [s.channel_name for s in expired_sessions]
     
@@ -623,7 +624,7 @@ class SessionHelperMixins:
 
     @staticmethod 
     def _get_active_sessions(user_id):
-        time_allowance = timezone.now() - datetime.timedelta(seconds=inactivity_threshold)
+        time_allowance = timezone.now() - datetime.timedelta(seconds=SessionHelperMixins.InactivityThreshold)
         active_sessions = SessionHelperMixins.Session.objects.filter(user__id=user_id, last_seen__gte=time_allowance)
         return [s.channel_name for s in active_sessions]
 
