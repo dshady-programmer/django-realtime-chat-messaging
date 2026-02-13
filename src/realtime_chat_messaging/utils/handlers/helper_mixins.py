@@ -12,8 +12,7 @@ import datetime
 from django.utils import timezone
 
 User = get_user_model()
-soft_delete = realtime_chat_settings.MESSAGE_SOFT_DELETE
-enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
+
 
 
 
@@ -40,6 +39,11 @@ class MessageHelperMixins:
         cls.MessageSerializer = get_serializer("MessageSerializer")
         cls.ReactionSerializer = get_serializer("ReactionSerializer")
         cls.MessageMediaAssetSerializer = get_serializer("MessageMediaAssetSerializer")
+        
+        # other variables
+        cls.EnableNotification = realtime_chat_settings.ENABLE_NOTIFICATION
+        cls.SoftDelete = realtime_chat_settings.MESSAGE_SOFT_DELETE
+
 
     @classmethod
     def _reload_variables(cls):
@@ -84,7 +88,7 @@ class MessageHelperMixins:
             media_asset.is_valid(raise_exception=True)
             media = media_asset.save()
         
-        if enable_notification:
+        if MessageHelperMixins.EnableNotification:
             create_chat_notification(message, message_type, user)
         message_serializer = MessageHelperMixins.MessageSerializer(message)
 
@@ -125,7 +129,7 @@ class MessageHelperMixins:
             serializer = MessageHelperMixins.ReactionSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             instance = serializer.save()
-            if enable_notification:
+            if MessageHelperMixins.EnableNotification:
                 create_chat_notification(instance.message, "REACTION", user)
             message_serializer = MessageHelperMixins.MessageSerializer(instance.message)
             response = {"status": "successful", "type": type, "message": message_serializer.data}
@@ -162,7 +166,7 @@ class MessageHelperMixins:
         if action == "delete":
             if not isinstance(message_ids, list):
                 message_ids = [message_ids]
-            if soft_delete:
+            if MessageHelperMixins.SoftDelete:
                 MessageHelperMixins.Message.objects.filter(pk__in=message_ids).update(is_deleted=True)
             else:
                 MessageHelperMixins.Message.objects.filter(pk__in=message_ids).delete() 
@@ -598,6 +602,8 @@ class SessionHelperMixins:
     def _load_variables(cls):
         # models
         cls.Session = get_model("Session")
+
+        # other variables
         cls.InactivityThreshold = realtime_chat_settings.INACTIVITY_THRESHOLD
 
     @classmethod
