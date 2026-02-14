@@ -6,6 +6,11 @@ while keeping all other models as defaults.
 """
 from tests.settings import *
 
+
+INSTALLED_APPS += [
+    'partial_custom_app',
+]
+
 # Override Message and GroupChat models and their serializers
 REALTIME_CHAT_MESSAGING = {
     'MODELS': {
