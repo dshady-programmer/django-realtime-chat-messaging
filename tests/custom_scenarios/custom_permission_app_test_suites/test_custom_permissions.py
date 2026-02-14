@@ -48,7 +48,7 @@ class TestArchivedRoomPermissions:
         await add_users_to_room_channel_group(group.id, users[:2])
 
         # Try to send message as regular user
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -101,7 +101,7 @@ class TestArchivedRoomPermissions:
         await add_users_to_room_channel_group(group.id, [vip_user, regular_user])
         
         # VIP user sends message
-        comm = await websocket_communicator(vip_user)
+        comm = websocket_communicator(vip_user)
         await comm.connect()
         await comm.receive_json_from()
         
@@ -139,7 +139,7 @@ class TestArchivedRoomPermissions:
         await add_users_to_room_channel_group(group.id, users=[users[0], users[1]])
         
         # User can still view room info
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -193,7 +193,7 @@ class TestVIPUserPrivileges:
         
         await add_users_to_room_channel_group(group.id, [vip_user, regular_user])
         # VIP user tries to add members (admin action)
-        comm = await websocket_communicator(vip_user)
+        comm = websocket_communicator(vip_user)
         await comm.connect()
         await comm.receive_json_from()
         
@@ -243,7 +243,7 @@ class TestVIPUserPrivileges:
         await add_users_to_room_channel_group(group.id, [vip_user, creator, to_remove])
 
         # VIP user removes member
-        comm = await websocket_communicator(vip_user)
+        comm = websocket_communicator(vip_user)
         await comm.connect()
         await comm.receive_json_from()
         
@@ -285,7 +285,7 @@ class TestVIPUserPrivileges:
         )
         await add_users_to_room_channel_group(group.id, [vip_user, creator])
         # VIP user sends message in locked group
-        comm = await websocket_communicator(vip_user)
+        comm = websocket_communicator(vip_user)
         await comm.connect()
         await comm.receive_json_from()
         
@@ -384,7 +384,7 @@ class TestBackwardCompatibilityWithPermissions:
         """Test that normal message sending still works"""
 
         
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -413,7 +413,7 @@ class TestBackwardCompatibilityWithPermissions:
         await database_sync_to_async(group.admins.add)(users[0])
         await add_users_to_room_channel_group(group.id, users=users[:2])
         # Creator/admin can add members
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -435,7 +435,7 @@ class TestBackwardCompatibilityWithPermissions:
         """Test that unauthorized users still can't access rooms"""
       
         # User 2 (not a participant) tries to access
-        comm = await websocket_communicator(users[2])
+        comm = websocket_communicator(users[2])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -469,7 +469,7 @@ class TestEdgeCasesWithCustomPermissions:
         
         await add_users_to_room_channel_group(group.id, users=users[:2])
         # No archived property - should work normally
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -491,7 +491,7 @@ class TestEdgeCasesWithCustomPermissions:
         """Test that rooms without RoomProperty work"""
         
         # OneToOneChat typically doesn't have property
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         

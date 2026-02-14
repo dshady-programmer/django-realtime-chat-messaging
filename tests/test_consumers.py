@@ -25,10 +25,10 @@ def users(create_users):
 
 
 
-@pytest_asyncio.fixture
-async def communicator(websocket_communicator, users):
+@pytest.fixture
+def communicator(websocket_communicator, users):
     """Create a WebSocket communicator"""
-    return await websocket_communicator(users[0])
+    return websocket_communicator(users[0])
      
 
 

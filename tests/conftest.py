@@ -103,7 +103,7 @@ def websocket_communicator():
     """Factory fixture for creating WebSocket communicators"""
     from realtime_chat_messaging.consumers import ChatMessagingConsumer
     
-    async def _create_communicator(user):
+    def _create_communicator(user):
         communicator = WebsocketCommunicator(
             ChatMessagingConsumer.as_asgi(),
             "/messaging/"

@@ -42,9 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'guardian',
     'realtime_chat_messaging',
-    'custom_permission_app',
 ]
-
 
 
 AUTHENTICATION_BACKENDS = (

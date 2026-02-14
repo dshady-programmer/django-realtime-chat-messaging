@@ -166,7 +166,7 @@ class TestWebSocketIntegration:
     async def test_send_message_with_priority(self, users, one_to_one_chat, websocket_communicator):
         """Test sending message with priority via WebSocket"""
         
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -199,7 +199,7 @@ class TestWebSocketIntegration:
     
     async def test_send_message_with_metadata(self, users, one_to_one_chat, websocket_communicator):
         """Test sending message with metadata via WebSocket"""
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -239,7 +239,7 @@ class TestWebSocketIntegration:
     async def test_send_pinned_message(self, users, one_to_one_chat, websocket_communicator):
         """Test sending pinned message"""
         
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -275,7 +275,7 @@ class TestWebSocketIntegration:
             one_to_one_chat, users[0], content='Original', priority='normal'
         )
         
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -317,7 +317,7 @@ class TestCustomMessageSerialization:
             one_to_one_chat, users[0], content='High', priority='high'
         )
         
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -344,7 +344,7 @@ class TestCustomMessageSerialization:
     async def test_serialized_message_has_custom_properties(self, users, one_to_one_chat, websocket_communicator):
         """Test that serialized messages include custom properties"""
         
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -381,7 +381,7 @@ class TestBackwardCompatibility:
     async def test_messages_without_priority_use_default(self, users, one_to_one_chat, websocket_communicator):
         """Test that messages without priority get default value"""
                 
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -409,7 +409,7 @@ class TestBackwardCompatibility:
     
     async def test_room_operations_work_normally(self, users, websocket_communicator):
         """Test that room operations work normally with CustomMessage"""
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         
@@ -457,7 +457,7 @@ class TestPerformanceWithCustomMessage:
     async def test_bulk_message_creation(self, users, one_to_one_chat, websocket_communicator):
         """Test creating many messages with custom fields"""
         
-        comm = await websocket_communicator(users[0])
+        comm = websocket_communicator(users[0])
         await comm.connect()
         await comm.receive_json_from()
         

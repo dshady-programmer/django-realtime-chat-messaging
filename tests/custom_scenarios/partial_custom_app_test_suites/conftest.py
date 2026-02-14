@@ -3,7 +3,7 @@ Pytest configuration for Scenario 1: Custom Message Only
 """
 import pytest
 from django.contrib.auth import get_user_model
-from realtime_chat_messaging.models import Message
+from partial_custom_app.models import CustomMessage, CustomGroupChat
 from realtime_chat_messaging.utils.cache_utils import add_group_to_user_groups
 from realtime_chat_messaging.consumers import GROUP_STRING
 from asgiref.sync import async_to_sync
@@ -18,7 +18,7 @@ User = get_user_model()
 def create_custom_message(db):
     """Factory for creating custom messages"""
     def _create_message(room, sender, content='Test message', priority='normal', **kwargs):
-        return Message.objects.create(
+        return CustomMessage.objects.create(
             room=room,
             sender=sender,
             content=content,
@@ -94,3 +94,17 @@ def add_users_to_room_channel_group(register_room_with_user):
         for user in users:
             await register_room_with_user(user.id, str(room_id))
     return _register
+
+
+@pytest.fixture
+def create_custom_group(db):
+    """Factory for creating custom group chats"""
+    def _create_group(creator, name='Test Group', department='general', **kwargs):
+        group = CustomGroupChat.objects.create(
+            name=name,
+            creator=creator,
+            department=department,
+            **kwargs
+        )
+        return group
+    return _create_group
