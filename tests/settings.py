@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'realtime_chat_messaging',
     'custom_implementation_test_app',
     'custom_message_app',
+    'custom_permission_app'
 ]
 
 AUTHENTICATION_BACKENDS = (

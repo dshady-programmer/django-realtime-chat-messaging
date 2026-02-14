@@ -42,19 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'guardian',
     'realtime_chat_messaging',
-    'custom_message_app',
+    'custom_permission_app',
 ]
 
-
-
-REALTIME_CHAT_MESSAGING = {
-    'MODELS': {
-        'Message': 'custom_message_app.CustomMessage',
-    },
-    'SERIALIZERS': {
-        'MessageSerializer': 'custom_message_app.serializers.CustomMessageSerializer',
-    }
-}
 
 
 AUTHENTICATION_BACKENDS = (
