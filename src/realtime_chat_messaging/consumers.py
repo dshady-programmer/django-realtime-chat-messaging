@@ -1,3 +1,13 @@
+"""
+WebSocket consumer for real-time chat messaging using Django Channels.
+
+This module defines the main AsyncWebsocketConsumer responsible for:
+- Authentication and session lifecycle management
+- Event dispatching and routing
+- Room, message, and notification handling
+- Group/channel subscription management
+"""
+
 
 from channels.db import database_sync_to_async
 import json
@@ -26,7 +36,9 @@ User = get_user_model()
 
 
 
-
+# Application-level WebSocket close codes.
+# These are intentionally distinct from standard WebSocket codes
+# to allow frontend clients to handle domain-specific failures.
 
 # 4001: Authentication failed.
 # 4002: Permission failed.
@@ -35,8 +47,9 @@ User = get_user_model()
 # 4005: Integrity error.
 # 4006: Internal server error.
 
-
-# Events
+# Canonical group name formats used across the system.
+# These must remain stable to ensure compatibility with
+# cached group memberships and session restoration.
 USER_OWN_GROUP = "user-{user_id}"
 GROUP_STRING = "group-{group_id}"
 
@@ -86,19 +99,33 @@ roomupdate.dispatch
 
 """
 
+# Runtime-configurable handlers loaded via settings to allow
+# pluggable behavior across different projects.
 event_handler_class = realtime_chat_settings.EVENT_HANDLER_CLASS
 exception_handler_class = realtime_chat_settings.EXCEPTION_HANDLER_CLASS
 enable_notification = realtime_chat_settings.ENABLE_NOTIFICATION
-e_handler = import_and_verify_type_class(event_handler_class, "EVENT_HANDLER_CLASS")
-
-EventHandler = e_handler()
+EventHandler = import_and_verify_type_class(event_handler_class, "EVENT_HANDLER_CLASS")()
 
 class ChatMessagingConsumer(AsyncWebsocketConsumer):
+    """
+        Asynchronous WebSocket consumer handling real-time chat functionality.
 
+        Responsibilities:
+        - Connection authentication and lifecycle management
+        - Event routing and dispatch
+        - Message, room, and notification workflows
+        - Channel group synchronization across sessions
+    """
     
     ExceptionHandler = import_and_verify_type_class(exception_handler_class, "EXCEPTION_HANDLER_CLASS")
     async def connect(self):
-        
+        """
+            Authenticate the WebSocket connection and initialize session state.
+
+            Anonymous or unauthenticated users are rejected with a custom
+            close code. On successful authentication, the user's previous
+            channel state is restored and pending notifications may be sent.
+        """
         user = self.scope["user"]
         
         if user.id is None or user == await database_sync_to_async(get_anonymous_user)():
@@ -117,23 +144,36 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
             await self.dispatch_chat_notifications()
 
     async def disconnect(self, close_code):
+        """
+            Handle WebSocket disconnection.
+
+            Ensures stale channel memberships are removed to prevent
+            message leakage across expired sessions.
+        """
         if hasattr(self, "user"):
             if self.user.id:
                 await self.channel_cleanup()
 
 
     async def receive(self, text_data = None, bytes_data = None):
+        """
+        Route incoming events to their corresponding handlers.
+
+        Incoming payloads must define an ``event_type`` key that maps
+        to a callable defined by the configured EVENT_MAPPER.
+        
+        Args:
+            text_data : {
+                event_type: string,
+                data: {
+                    ...
+                }
+            }
+        """
         event_mapper = realtime_chat_settings.EVENT_MAPPER
         EventMapper = import_and_verify_type_function(event_mapper, "EVENT_MAPPER")
         data = json.loads(text_data)
-        """
-        data : {
-            event_type: string,
-            data: {
-                ...
-            }
-        }
-        """
+
         event_type = data.get("event_type")
         map_event_type_to_handlers = EventMapper(self)
         try:
@@ -144,9 +184,14 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
 
     @ExceptionHandler.exception_handler_decorator
     async def dispatch_chat_notifications(self):
-        
+        """
+            Dispatch all pending chat notifications for the connected user.
+
+            This method is typically invoked on initial connection but may
+            also be reused by consumers implementing notification refresh
+            semantics.
+        """
         chat_notifications = await EventHandler.get_and_group_chat_notifications(self.user)
-        # print(self.user, 'notification dispatched')
 
         data = {"eventType": "chat.notifications", "data": chat_notifications}
         await self.send(text_data=json.dumps(data))
@@ -155,31 +200,55 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @can_send_message_to_room
     async def receive_message_send_event(self, data, room):
         """
-        receive_message_send_event
-        
-        (message.send)
+            Handle the ``message.send`` event.
 
-        data: {
-            room_id: string/int,
-            content: text, 
-            extra_fields: {
-                ... 
-                forwarded_from_id: <only if message is forwarded>
-                parent_message_id: <only for reply messages>
-                media: [
+            This event is emitted by the client when a user sends a new message
+            to a room. The message may be a standard message, a forwarded message,
+            or a reply, depending on the provided payload.
+
+            Message validation, persistence, and serialization are delegated
+            to the configured ``EventHandler`` implementation.
+
+            Args:
+                data (dict): Event payload containing message data.
+                    Expected structure::
+                    
+                        {
+                            "room_id": int | str,
+                            "content": str,
+                            "extra_fields": {
+                                "forwarded_from_id": int,          # optional
+                                "parent_message_id": int,          # optional (reply)
+                                "media": [                          # optional
+                                    {
+                                        "media_url": str,
+                                        "media_type": str,
+                                        "file_size": int,
+                                        "mime_type": str,
+                                        "metadata": dict
+                                    }
+                                ]
+                            }
+                        }
+
+                room (Room): Resolved room instance injected by the
+                    ``can_send_message_to_room`` permission decorator.
+
+            Emits:
+                - ``message.dispatch``: Broadcast to all room participants.
+
+            Example:
+                Client payload::
+
                     {
-                        media_url: string
-                        media_type: 'audio/image/video/file'
-                        file_size: int
-                        mime_type: valid_mime_type (check types.py)
-                        metadata: {}
-                    }, 
-                    ...
-                ]
-                
-            }
-        }
-        note: extra field value must contain model fields validated by the provided serializer
+                        "event_type": "message.send",
+                        "data": {
+                            "room_id": 12,
+                            "content": "Hello everyone 👋",
+                            "extra_fields": {}
+                        }
+                    }
+            note: extra field value must contain model fields validated by the provided serializer
         """
         room_id = room.id
         message = await EventHandler.create_message(data, self.user)
@@ -192,15 +261,32 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @can_access_message
     async def receive_message_acknowledged_event(self, data):
         """
-        receive_message_acknowledged_event
-        
-        this also means message is delivered to the recipient...
-        
-        (message.acknowledged)
+            Handle the ``message.acknowledged`` event.
 
-        data: {
-            message_id: string/int or List<string/int>,
-        }
+            This event indicates that one or more messages have been successfully
+            delivered to the recipient. Delivery acknowledgements are sent only
+            to the original message sender(s).
+
+            Args:
+                data (dict): Event payload.
+                    Expected structure::
+
+                        {
+                            "message_id": int | str | list[int | str]
+                        }
+
+            Emits:
+                - ``messagedelivered.dispatch``: Sent to the original sender(s).
+
+            Example:
+                Client payload::
+
+                    {
+                        "event_type": "message.acknowledged",
+                        "data": {
+                            "message_id": [45, 46]
+                        }
+                    }
         """
 
         message_senders = await EventHandler.message_acknowledged(self.user, data["message_id"])
@@ -213,15 +299,32 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @can_access_message
     async def receive_message_read_event(self, data):
         """
-        receive_message_read_event
-        
-        (message.read)
+            Handle the ``message.read`` event.
 
-        data: {
-            message_id: string/int or List<string/int>        
-        }
+            This event marks one or more messages as read by the current user.
+            Read receipts are broadcast to all participants in the affected room(s)
+            to update their UI accordingly.
 
-        broadcasts the message/messages with the updated read_receipts
+            Args:
+                data (dict): Event payload.
+                    Expected structure::
+
+                        {
+                            "message_id": int | str | list[int | str]
+                        }
+
+            Emits:
+                - ``readreceipt.dispatch``: Broadcast to all room participants.
+
+            Example:
+                Client payload::
+
+                    {
+                        "event_type": "message.read",
+                        "data": {
+                            "message_id": [45, 46, 47]
+                        }
+                    }
         """
 
         room_id, message = await EventHandler.create_read_receipt(self.user, data["message_id"])
@@ -239,13 +342,35 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @can_access_message
     async def receive_message_reaction_event(self, data):
         """
-        receive_message_reaction_event
-        (message.react)
-        data: {
-            type: 'add'/'remove'
-            message_id: string <id>,
-            reaction_content: text
-        }
+            Handle the ``message.react`` event.
+
+            This event allows users to add or remove emoji reactions to messages.
+            Reaction changes are broadcast to all room participants.
+
+            Args:
+                data (dict): Event payload.
+                    Expected structure::
+
+                        {
+                            "type": "add" | "remove",
+                            "message_id": int | str,
+                            "reaction_content": str
+                        }
+
+            Emits:
+                - ``reaction.dispatch``: Broadcast to all room participants.
+
+            Example:
+                Client payload::
+
+                    {
+                        "event_type": "message.react",
+                        "data": {
+                            "type": "add",
+                            "message_id": 123,
+                            "reaction_content": "👍"
+                        }
+                    }
         """
 
         response = await EventHandler.react_to_message(data, self.user)
@@ -262,11 +387,35 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @can_send_message_to_room
     async def receive_message_typing_event(self, data, room):
         """
-        receive_message_typing_event
-        (message.typing)
-        data: {
-            room_id: string
-        }
+            Handle the ``message.typing`` event.
+
+            This event is emitted by the client to indicate that a user is
+            actively typing in a room. Typing events are transient and are
+            not persisted.
+
+            Args:
+                data (dict): Event payload.
+                    Expected structure::
+
+                        {
+                            "room_id": int | str
+                        }
+
+                room (Room): Resolved room instance injected by the
+                    ``can_send_message_to_room`` decorator.
+
+            Emits:
+                - ``messagetyping.dispatch``: Broadcast to room participants.
+
+            Example:
+                Client payload::
+
+                    {
+                        "event_type": "message.typing",
+                        "data": {
+                            "room_id": 12
+                        }
+                    }
         """
         
         group_string = GROUP_STRING.format(group_id=room.id)
@@ -279,21 +428,65 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @can_access_message
     async def receive_message_modify_event(self, data, room):
         """
-        receive_message_modify_event
-        (message.modify)
-        data: {
-            action: "update" / "delete"
-            message_id: string/int (update) / [string/int, string/int] (for delete)
-            extra_fields: {
-                content: text (for update action)
-            }
-        }
-        Note: 
-                For update action, when using custom message model + serializer, make sure to validate and clean the data passed for update in the extra_fields,
-                    so as to prevent updating of sensitive data which can lead to security vulnerabilities.
+            Handle the ``message.modify`` event.
 
-                By default, the provided MessageSerializer will only update content field no matter what other fields are passed in the extra_fields for update action. 
-                    If you have a custom message model and serializer, consider overriding the update method in your serializer to clean and validate the data properly.
+            This event allows message authors or authorized users to update or
+            delete messages. Update operations modify message content, while delete
+            operations mark messages as deleted (if MESSAGE_SOFT_DELETE is enabled).
+
+            Args:
+                data (dict): Event payload.
+                    Expected structure::
+
+                        {
+                            "action": "update" | "delete",
+                            "message_id": int | str | list[int | str],
+                            "extra_fields": {
+                                "content": str  # required for update action
+                            }
+                        }
+
+                room (Room): Resolved room instance injected by the
+                    ``can_access_message`` decorator.
+
+            Emits:
+                - ``messagemodification.dispatch``: Broadcast to all room participants.
+
+            Example:
+                Client payload (update)::
+
+                    {
+                        "event_type": "message.modify",
+                        "data": {
+                            "action": "update",
+                            "message_id": 123,
+                            "extra_fields": {
+                                "content": "Updated message text"
+                            }
+                        }
+                    }
+
+                Client payload (delete)::
+
+                    {
+                        "event_type": "message.modify",
+                        "data": {
+                            "action": "delete",
+                            "message_id": [123, 124]
+                        }
+                    }
+
+            Note:
+                For update action, when using a custom message model and serializer,
+                ensure that the data passed in ``extra_fields`` is validated and
+                cleaned to prevent updating sensitive fields, which could lead to
+                security vulnerabilities.
+
+                By default, the provided MessageSerializer will only update the
+                content field regardless of other fields passed in ``extra_fields``.
+                If you have a custom message model and serializer, consider
+                overriding the update method in your serializer to properly clean
+                and validate the data.
         """
 
 
@@ -308,17 +501,43 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @can_access_room
     async def receive_message_list(self, data, room):
         """
-        receive_message_list
-        (room.messages)
-        data: {
-            room_id: string 
-            paginate: { 
-                <pagination is optional>
-                page: <page_number>,
-                size: <page_size>
-            
-            }
-        }
+        Handle the ``room.messages`` event.
+
+        This event retrieves a paginated list of messages from the specified
+        room. Pagination parameters are optional; if not provided, all messages
+        in the chat would be retrieved
+
+        Args:
+            data (dict): Event payload.
+                Expected structure::
+
+                    {
+                        "room_id": int | str,
+                        "paginate": {               # optional
+                            "page": int,
+                            "size": int
+                        }
+                    }
+
+            room (Room): Resolved room instance injected by the
+                ``can_access_room`` decorator.
+
+        Emits:
+            - ``roommessages.dispatch``: Sent to the requesting user only.
+
+        Example:
+            Client payload::
+
+                {
+                    "event_type": "room.messages",
+                    "data": {
+                        "room_id": 12,
+                        "paginate": {
+                            "page": 1,
+                            "size": 50
+                        }
+                    }
+                }
         """
 
         response = await EventHandler.retreive_messages(room, data)
@@ -335,26 +554,61 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @ExceptionHandler.exception_handler_decorator
     async def receive_room_create_event(self, data):
         """
-        receive_room_create_event
-        (room.create)
-        data: {
-            type: OneToOneChat, GroupChat, Channel,
-            participants: [user1, user2 ...] ( for groupchat and onetoone only )
-            subscribers: [user1, user2 ...] (for channel only)
-            name: string (for groupchat and channel only)
-            description: string(optional, for groupchat and channel only)
-            extra_fields: {
-                ... 
-                property: {
-                    preferences: {} (if passing preferences, it must be a dict)
+            Handle the ``room.create`` event.
 
-                    -- if you have a custom RoomProperty model, include all necessary fields here
-                    -- if you don't pass property, default property will be created based on the model defaults
-                }
-            } ( extra fields must match with the model fields)
+            This event creates a new chat room of the specified type. The room
+            type determines which fields are required and how the room is
+            configured.
 
+            Args:
+                data (dict): Event payload.
+                    Expected structure::
 
-        }
+                        {
+                            "type": "OneToOneChat" | "GroupChat" | "Channel",
+                            "participants": [int | str, ...],  # for OneToOneChat and GroupChat
+                            "subscribers": [int | str, ...],   # for Channel only
+                            "name": str,                       # for GroupChat and Channel only
+                            "description": str,                # optional, for GroupChat and Channel
+                            "extra_fields": {
+                                "property": {                  # optional
+                                    "preferences": dict,       # must be a dict if provided
+                                    ...                        # other custom RoomProperty fields
+                                },
+                                ...                            # other fields matching your model
+                            }
+                        }
+
+            Emits:
+                - ``roomcreate.dispatch``: Broadcast to all room members.
+
+            Example:
+                Client payload (GroupChat)::
+
+                    {
+                        "event_type": "room.create",
+                        "data": {
+                            "type": "GroupChat",
+                            "name": "Project Team",
+                            "description": "Discussion for Project X",
+                            "participants": [1, 2, 3, 4],
+                            "extra_fields": {
+                                "property": {
+                                    "preferences": {
+                                        "notifications": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+            Note:
+                Extra field values must match your custom model fields. If you
+                don't pass a ``property`` field, a default property will be
+                created based on the model defaults.
+
+                if you have custom property model ensure to handle it properly 
+                in the case of empty property field.
         """
 
 
@@ -379,9 +633,24 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @ExceptionHandler.exception_handler_decorator
     async def receive_get_rooms(self, _):
         """
-        receive_get_rooms
-        (room.list)
-        data: empty
+            Handle the ``room.list`` event.
+
+            This event retrieves all rooms that the current user has access to,
+            including one-to-one chats, group chats, and channels.
+
+            Args:
+                _ (dict): Empty payload (no data required).
+
+            Emits:
+                - ``roomlist.dispatch``: Sent to the requesting user only.
+
+            Example:
+                Client payload::
+
+                    {
+                        "event_type": "room.list",
+                        "data": {}
+                    }
         """
 
         rooms = await EventHandler.list_rooms(self.user)
@@ -397,11 +666,34 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @can_access_room
     async def receive_get_room_info(self, data, room):
         """
-        receive_get_room_info
-        (room.info)
-        data : {
-            room_id
-        }
+            Handle the ``room.info`` event.
+
+            This event retrieves detailed information about a specific room,
+            including its members, properties, and metadata.
+
+            Args:
+                data (dict): Event payload.
+                    Expected structure::
+
+                        {
+                            "room_id": int | str
+                        }
+
+                room (Room): Resolved room instance injected by the
+                    ``can_access_room`` decorator.
+
+            Emits:
+                - ``roominfo.dispatch``: Sent to the requesting user only.
+
+            Example:
+                Client payload::
+
+                    {
+                        "event_type": "room.info",
+                        "data": {
+                            "room_id": 12
+                        }
+                    }
         """
 
 
@@ -420,12 +712,36 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @can_add_members_to_room
     async def receive_add_members_to_room(self, data, room):
         """
-        receive_add_members_to_room
-        (room.add_members)
-        data: {
-        room_id: "",
-        members: [userIds]
-        }
+            Handle the ``room.add_members`` event.
+
+            This event adds new members to an existing room. Only users with
+            appropriate permissions can add members.
+
+            Args:
+                data (dict): Event payload.
+                    Expected structure::
+
+                        {
+                            "room_id": int | str,
+                            "members": [int | str, ...]
+                        }
+
+                room (Room): Resolved room instance injected by the
+                    ``can_add_members_to_room`` decorator.
+
+            Emits:
+                - ``roomaddmembers.dispatch``: Broadcast to all room members.
+
+            Example:
+                Client payload::
+
+                    {
+                        "event_type": "room.add_members",
+                        "data": {
+                            "room_id": 12,
+                            "members": [5, 6, 7]
+                        }
+                    }
         """
 
 
@@ -440,12 +756,38 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @can_remove_members_from_room
     async def receive_remove_members_from_room(self, data, room):
         """
-        receive_remove_members_from_room
-        (room.remove_members)
-        data: {
-        room_id: "",
-        members: [userIds]
-        }
+            Handle the ``room.remove_members`` event.
+
+            This event removes members from an existing room. Only users with
+            appropriate permissions can remove members. Removed users will be
+            notified and their channels will be discarded from the room group.
+
+            Args:
+                data (dict): Event payload.
+                    Expected structure::
+
+                        {
+                            "room_id": int | str,
+                            "members": [int | str, ...]
+                        }
+
+                room (Room): Resolved room instance injected by the
+                    ``can_remove_members_from_room`` decorator.
+
+            Emits:
+                - ``roomexit.dispatch``: Sent to each removed member.
+                - ``roomremovemembers.dispatch``: Broadcast to remaining room members.
+
+            Example:
+                Client payload::
+
+                    {
+                        "event_type": "room.remove_members",
+                        "data": {
+                            "room_id": 12,
+                            "members": [5, 6]
+                        }
+                    }
         """
 
 
@@ -464,11 +806,37 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @can_access_room
     async def receive_leave_room_event(self, data, room):
         """
-        receive_leave_room_event
-        (room.leave)
-        data: {
-            room_id: string
-        }
+            Handle the ``room.leave`` event.
+
+            This event allows a user to voluntarily leave a room. The user's
+            channel is removed from the room group, and other members are notified.
+            If the room becomes empty as a result, it may be deleted (if default configs are retained).
+
+            Args:
+                data (dict): Event payload.
+                    Expected structure::
+
+                        {
+                            "room_id": int | str
+                        }
+
+                room (Room): Resolved room instance injected by the
+                    ``can_access_room`` decorator.
+
+            Emits:
+                - ``roomexit.dispatch``: Sent to the leaving user.
+                - ``roomremovemembers.dispatch``: Broadcast to remaining room members.
+                - ``roomdelete.dispatch``: Sent to the user if the room is deleted.
+
+            Example:
+                Client payload::
+
+                    {
+                        "event_type": "room.leave",
+                        "data": {
+                            "room_id": 12
+                        }
+                    }
         """
 
 
@@ -491,11 +859,37 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @ExceptionHandler.exception_handler_decorator
     async def receive_join_room_event(self, data):
         """
-        receive_join_room_event
-        (room.join)
-        data: {
-            room_id: string
-        }
+            Handle the ``room.join`` event.
+
+            This event allows a user to join an existing room (typically a Channel
+            or public GroupChat). The user's channel is added to the room group,
+            and other members are notified.
+
+            Args:
+                data (dict): Event payload.
+                    Expected structure::
+
+                        {
+                            "room_id": int | str
+                        }
+
+            Emits:
+                - ``roomaddmembers.dispatch``: Broadcast to all room members.
+
+            Example:
+                Client payload::
+
+                    {
+                        "event_type": "room.join",
+                        "data": {
+                            "room_id": 12
+                        }
+                    }
+
+            Note:
+                Frontend should handle displaying the appropriate message based on
+                the ``added_by`` value: when ``added_by`` is "self", display
+                "username joined"; otherwise display "username1 added username2".
         """
 
         serialized_room = await EventHandler.join_room(self.user, data.get('room_id'))
@@ -510,33 +904,76 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @is_room_admin
     async def receive_modify_room_event(self, data, room):
         """
-        receive_modify_room_event
-        (room.modify)
-        data: {
-            room_id: ""
-            action: "update" / "delete" / "add_permission" /  "remove_permission" / "add_moderator" / "add_admin" / "remove_moderator" / "remove_admin"
-            data: {
-                ...
-                users: []
-                permissions: [] <Must be valid permission based on the type of room you're modifying>
+            Handle the ``room.modify`` event.
 
-                ... other fields depending on the action
-                name: string (for update)
-                description: string (for update)
-                property: {
-                    preferences: {} (if passing preferences, it must be a dict)
+            This event allows room administrators to perform various modifications
+            including updating room details, deleting rooms, and managing
+            permissions, moderators, and admins.
 
-                    -- if you have a custom RoomProperty model, include all necessary fields here
-                    -- if you don't pass property, default property will be created based on the model defaults
-                }
-            }
-        }
-         
-         
-         
-        Note: if you have a different model for Room/GroupChat/Channel other than the default provided 
-        or you extended the default room models, update and other actions might not work as intended 
-        consider rewriting your _modify_room helper method. See docs to implement this properly
+            Args:
+                data (dict): Event payload.
+                    Expected structure::
+
+                        {
+                            "room_id": int | str,
+                            "action": "update" | "delete" | "add_permission" | 
+                                    "remove_permission" | "add_moderator" | 
+                                    "add_admin" | "remove_moderator" | "remove_admin",
+                            "data": {
+                                "users": [int | str, ...],              # for role/permission actions
+                                "permissions": [str, ...],              # valid room permissions
+                                "name": str,                            # for update action (room name for GroupChat|Channels)
+                                "description": str,                     # for update action (room description for GroupChat|Channels)
+                                "property": {                           # optional, for update action
+                                    "preferences": dict,
+                                    ...                                 # other custom RoomProperty fields
+                                }
+                            }
+                        }
+
+                room (Room): Resolved room instance injected by the
+                    ``is_room_admin`` decorator.
+
+            Emits:
+                - ``roomdelete.dispatch``: Broadcast to all members if room is deleted.
+                - ``roomupdate.dispatch``: Broadcast to all members for other actions.
+
+            Example:
+                Client payload (update)::
+
+                    {
+                        "event_type": "room.modify",
+                        "data": {
+                            "room_id": 12,
+                            "action": "update",
+                            "data": {
+                                "name": "Updated Room Name",
+                                "description": "New description"
+                            }
+                        }
+                    }
+
+                Client payload (add moderator)::
+
+                    {
+                        "event_type": "room.modify",
+                        "data": {
+                            "room_id": 12,
+                            "action": "add_moderator",
+                            "data": {
+                                "users": [5, 6]
+                            }
+                        }
+                    }
+
+            Note:
+                If you have a custom Room/GroupChat/Channel model different from
+                the default provided, or if you extended the default room models,
+                the update and other actions might not work as intended especially
+                if you have custom implementations or extra fields that needs to 
+                be updated asides the default Room fields. Consider rewriting 
+                the ``_modify_room`` helper method. See documentation for
+                proper implementation guidelines.
         """
 
         room_data = await EventHandler.modify_room(data, room)
@@ -553,12 +990,32 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     @ExceptionHandler.exception_handler_decorator    
     async def receive_update_session_heartbeat(self, _):
         """
+            Handle the ``session.heartbeat`` event.
 
-        (session.heartbeat)
+            This event updates the last activity timestamp for the user's current
+            session, preventing premature session expiration. Clients should send
+            heartbeats at regular intervals.
 
-        interval depends on the end user but ideally should be updated 2-3 times within the inactivity threshold time
+            Args:
+                _ (dict): Empty payload (no data required).
 
+            Returns:
+                Sends a success confirmation to the client. (no need to await reply in frontend)
+
+            Example:
+                Client payload::
+
+                    {
+                        "event_type": "session.heartbeat",
+                        "data": {}
+                    }
+
+            Note:
+                The heartbeat interval depends on the client implementation but
+                should ideally be sent 2-3 times within the inactivity threshold
+                period to ensure reliable session maintenance.
         """
+
         await EventHandler.update_session(self.session)
         await self.send(text_data=json.dumps({"status": "success"}))
 
@@ -591,6 +1048,23 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     # --------------------------------------------- #
 
     async def add_channel_to_group(self, group, user_id=None):
+        """
+            Add user channel(s) to a specified group.
+
+            This helper retrieves all active sessions for a user and adds their
+            corresponding channel names to the specified group. It also updates
+            the cached group membership for the user.
+
+            Args:
+                group (str): The group name to add channels to.
+                user_id (int, optional): The user ID whose channels should be added.
+                    Defaults to the current user.
+
+            Note:
+                All active sessions for the user are added to enable multi-device
+                support. Group membership is cached to allow quick restoration on
+                reconnection.
+        """
         if user_id is None or user_id == self.user.id:
             user_id = self.user.id
  
@@ -603,6 +1077,22 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
         await add_group_to_user_groups(user_id, group)
 
     async def discard_channel_from_group(self, group, user_id=None):
+        """
+            Remove user channel(s) from a specified group.
+
+            This helper retrieves all active sessions for a user and removes their
+            corresponding channel names from the specified group. It also updates
+            the cached group membership for the user.
+
+            Args:
+                group (str): The group name to remove channels from.
+                user_id (int, optional): The user ID whose channels should be removed.
+                    Defaults to the current user.
+
+            Note:
+                All active sessions for the user are removed to ensure messages are
+                not leaked to users who have left a room or been removed.
+        """
         if user_id is None or user_id == self.user.id:
             user_id = self.user.id
     
@@ -622,14 +1112,41 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     # --------------------------------------------- #
 
     async def send_group(self, group, event_type, data):
+        """
+            Broadcast a message to all members of a group.
+
+            This helper wraps the channel layer's group_send method with a
+            standardized message format.
+
+            Args:
+                group (str): The group name to broadcast to.
+                event_type (str): The event type identifier for the frontend.
+                data (dict): The event payload to send.
+
+            Note:
+                The message is formatted with a ``type`` field for Channels routing
+                and an ``eventType`` field for frontend event handling.
+        """
         response = {"type": "broadcast_group", "eventType": event_type, "data": data}
-        # print("send_group:", group)
         await self.channel_layer.group_send(group, response)
 
     async def broadcast_group(self, data):
-        # print(self.channel_name)
-        # data.pop('type')
-        # print('broadcast', data)
+        """
+            Handler for broadcasting messages received via group_send.
+
+            This method is called by the Channels layer when a message is sent to
+            a group that this consumer is part of. It forwards the message to the
+            WebSocket client.
+
+            Args:
+                data (dict): The message data received from the channel layer.
+
+            Note:
+                This is an internal handler and should not be called directly.
+                The ``type`` field in the message must match this method name
+                (with dots replaced by underscores) for Channels routing to work.
+        """        
+
         await self.send(text_data=json.dumps(data))
 
 
@@ -641,6 +1158,20 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
     # --------------------------------------------- #
 
     async def channel_cleanup(self):
+        """
+            Clean up expired sessions and stale group memberships.
+
+            This method is called on connection to remove the user's expired
+            sessions from all groups they were previously subscribed to. This
+            prevents message leakage and ensures clean session management.
+
+            Note:
+                This method prevents messages from being sent to disconnected or
+                expired sessions, which is critical for security and data integrity.
+                
+                In the case of multi device connection every connection is treated as
+                a session.
+        """
         user_id = self.user.id
         groups = await fetch_user_groups(user_id)
         expired_sessions = await EventHandler.get_expired_sessions(user_id)
@@ -650,6 +1181,18 @@ class ChatMessagingConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_discard(group, channel_name)
 
     async def channel_setup(self):
+        """
+            Initialize channel groups and register the user session.
+
+            This method is called on connection to restore the user's group
+            memberships and register a new session. The user's personal group
+            is automatically added if not already present.
+
+            Note:
+                The personal user group (USER_OWN_GROUP) is used for sending
+                messages directly to a specific user across all their active
+                sessions.
+        """
         user_id = self.user.id
         # print('user', self.user)
         groups = await fetch_user_groups(user_id)
