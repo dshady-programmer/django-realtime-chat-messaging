@@ -113,7 +113,7 @@ def sqlite_safe_db_sync_to_async(func):
     """
     Wrapper around database_sync_to_async to ensure db connection to fix
 
-    return self.connection.connection.getlimit(sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER)
+    self.connection.connection.getlimit(sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     AttributeError: 'NoneType' object has no attribute 'getlimit'
     """
