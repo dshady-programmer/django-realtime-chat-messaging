@@ -1,3 +1,17 @@
+"""
+Helper mixins containing synchronous business logic for chat operations.
+
+These mixins implement the actual database operations and business rules for
+messages, rooms, notifications, and sessions. They are wrapped by handler
+mixins with sqlite_safe_db_sync_to_async for use in async contexts.
+
+All helpers are designed to be extensible - subclass and override specific
+methods to customize behavior without rewriting the entire implementation.
+
+Architecture:
+    Consumer (async) → Handler Mixin (async wrapper) → Helper Mixin (sync logic) → Database
+"""
+
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from collections import defaultdict
@@ -20,16 +34,27 @@ User = get_user_model()
 
 class MessageHelperMixins:
     """
-    Message handler helper mixins
-    Functionality can be extended
+        Synchronous business logic for message operations.
+
+        Handles:
+        - Message creation (standard, replies, forwards) with media attachments
+        - Reactions (add/remove)
+        - Message acknowledgment and delivery tracking
+        - Message modification (update content, soft/hard delete)
+        - Read receipts (single and bulk)
+        - Paginated message retrieval
+
+        All methods are synchronous and wrapped by MessageHandlerMixin for async use.
     """
 
     def __init_subclass__(cls, **kwargs):
+        """Load models and serializers when helper is subclassed."""
         super().__init_subclass__(**kwargs)
         MessageHelperMixins._load_variables()
 
     @classmethod
     def _load_variables(cls):
+        """Load required models, serializers, and settings."""
         # models
         cls.Message = get_model("Message")
         cls.ReadReceipt = get_model("ReadReceipt")
@@ -47,11 +72,30 @@ class MessageHelperMixins:
 
     @classmethod
     def _reload_variables(cls):
+        """Reload variables when settings change (for tests)."""
         cls._load_variables()
 
     
     def _create_message(self, data, user):
+        """
+            Create a new message with optional media attachments.
 
+            Handles standard messages, replies (parent_message_id), and forwards
+            (forwarded_from_id). Media files are validated and created as separate
+            MessageMediaAsset instances. Updates room's last_message and creates
+            notification if enabled.
+
+            Args:
+                data (dict): Message data including room_id, content, and optional
+                    extra_fields with media, parent_message_id, forwarded_from_id.
+                user: The message sender.
+
+            Returns:
+                dict: Serialized message with all relations.
+
+            Raises:
+                ValidationError: If media is not a list or validation fails.
+        """
         create_chat_notification = self.create_chat_notification
 
 
@@ -96,7 +140,23 @@ class MessageHelperMixins:
     
 
     def _react_to_message(self, data, user):
+        """
+            Add or remove a reaction to a message.
 
+            Args:
+                data (dict): Must include 'type' ('add' or 'remove'), 'message_id',
+                    and 'reaction_content' (for add).
+                user: The user reacting.
+
+            Returns:
+                dict: Status, action type, and updated message with reactions.
+
+            Raises:
+                ValidationError: If type is invalid.
+
+            Note:
+                Signals handle replacing old reactions when user reacts again.
+        """            
         create_chat_notification = self.create_chat_notification
 
         type = data.pop('type') if 'type' in data else None
@@ -140,6 +200,19 @@ class MessageHelperMixins:
 
     
     def _message_acknowledged(self, user, message_id):
+        """
+            Mark messages as delivered and update notifications.
+
+            Calls update_chat_notification to remove user from notification
+            recipients and add to delivered_to field.
+
+            Args:
+                user: User acknowledging delivery.
+                message_id: Single ID or list of IDs.
+
+            Returns:
+                dict: Messages grouped by sender ID for targeted dispatch.
+        """        
         update_chat_notification = self.update_chat_notification
         many = False
         if isinstance(message_id, list):
@@ -160,7 +233,27 @@ class MessageHelperMixins:
 
     @staticmethod
     def _modify_message(data):
+        """
+            Update or delete message(s).
 
+            For delete: Soft deletes (sets is_deleted=True) or hard deletes based
+            on MESSAGE_SOFT_DELETE setting. Accepts single ID or list.
+
+            For update: Only updates content field and sets is_edited=True. Prevents
+            modification of immutable fields via serializer.update() method. Single
+            message only.
+
+            Args:
+                data (dict): Action ('update' or 'delete'), message_id (ID or list),
+                    and extra_fields (for update) with content.
+
+            Returns:
+                dict: Status, action, and updated message or deleted message IDs.
+
+            Raises:
+                ValidationError: If action invalid, multiple updates attempted, or
+                    extra_fields missing for update.
+        """
         action = data.get('action')
         message_ids = data.get('message_id')
         if action == "delete":
@@ -200,7 +293,22 @@ class MessageHelperMixins:
 
     @staticmethod
     def _create_read_receipt(user, message_id):
+        """
+            Create read receipt(s) for message(s).
 
+            Excludes messages where user is the sender. For multiple messages,
+            uses bulk_create for efficiency and groups results by room.
+
+            Args:
+                user: User marking messages as read.
+                message_id: Single ID or list of IDs.
+
+            Returns:
+                tuple: (room_id(s), serialized_message(s))
+                    - Single: (room_id, message_dict)
+                    - Multiple: (set of room_ids, dict of room_id → [messages])
+                    - No valid messages: (None, {})
+        """
         if isinstance(message_id, list):
             if hasattr(MessageHelperMixins.Message, 'delivered_to'):
                 messages = MessageHelperMixins.Message.objects.filter(id__in=message_id).exclude(sender=user).prefetch_related('delivered_to').distinct()
@@ -236,7 +344,24 @@ class MessageHelperMixins:
 
     @staticmethod 
     def _retreive_messages(room, data):
+        """
+            Retrieve messages from a room with optional pagination.
 
+            Prefetches all related data (read receipts, reactions, attachments,
+            delivered_to) for efficient serialization. Orders by newest first.
+
+            Args:
+                room: The Room instance.
+                data (dict): Optional 'paginate' dict with 'page' and 'size'.
+
+            Returns:
+                dict: Contains 'data' with room_id and messages. If paginated,
+                    includes pagination metadata (has_next, has_previous,
+                    next_page_number, prev_page_number, page, size).
+
+            Raises:
+                ValidationError: If pagination params invalid or missing.
+        """
         
         read_r = MessageHelperMixins.ReadReceipt._meta.get_field("message").remote_field.get_accessor_name()
         reactions_r = MessageHelperMixins.Reaction._meta.get_field("message").remote_field.get_accessor_name()
@@ -291,18 +416,27 @@ class MessageHelperMixins:
 
 class RoomHelperMixins:
     """
-    Room handler helper mixins
-    Functionality can be extended
+        Synchronous business logic for room operations.
+
+        Handles:
+        - Room creation (OneToOneChat, GroupChat, Channel) with properties
+        - Listing user's rooms with polymorphic queries
+        - Retrieving room details
+        - Adding/removing members with validation
+        - Joining/leaving rooms
+        - Modifying rooms (update, delete, permissions, admins/moderators)
+
+        All methods are synchronous and wrapped by RoomHandlerMixin for async use.
     """
 
-
-
     def __init_subclass__(cls, **kwargs):
+        """Load models and serializers when helper is subclassed."""
         super().__init_subclass__(**kwargs)
         RoomHelperMixins._load_variables()
 
     @classmethod
     def _load_variables(cls):
+        """Load required models and serializers."""
         # models
         cls.Room = get_model("Room")
         cls.GroupChat = get_model("GroupChat")
@@ -316,11 +450,12 @@ class RoomHelperMixins:
 
     @classmethod
     def _reload_variables(cls):
+        """Reload variables when settings change (for tests)."""
         cls._load_variables()
 
     @staticmethod
     def _create_room(user, data):
-
+        """Create a new room. Delegates to RoomPolymorphicSerializer."""
         serializer = RoomHelperMixins.RoomPolymorphicSerializer(data=data, context={"user": user})
         serializer.is_valid(raise_exception=True) 
         instance = serializer.save()
@@ -330,6 +465,16 @@ class RoomHelperMixins:
 
     @staticmethod
     def _list_rooms(user):
+        """
+            List all rooms the user is a member of.
+
+            Uses polymorphic query to fetch OneToOneChats, GroupChats, and
+            Channels in a single query. Orders by last_message timestamp.
+
+            Returns:
+                list: Serialized rooms, or empty list if user has no rooms.
+        """    
+
         onetoonechat__participants = f"{RoomHelperMixins.OneToOneChat._meta.model_name}__participants"
         groupchat__participants = f"{RoomHelperMixins.GroupChat._meta.model_name}__participants"
         channel__subscribers = f"{RoomHelperMixins.Channel._meta.model_name}__subscribers"
@@ -346,14 +491,22 @@ class RoomHelperMixins:
 
     @staticmethod
     def _retreive_room(room):
-
+        """Retrieve detailed room information."""
         serializer = RoomHelperMixins.RoomPolymorphicSerializer(room)
         return serializer.data
 
     
     @staticmethod
     def _add_members_to_room(user_ids, room):
+        """
+            Add users to a room.
 
+            Filters out users already in the room. Works for both GroupChat
+            (participants) and Channel (subscribers).
+
+            Returns:
+                tuple: (newly_added_user_objects, serialized_room, new_usernames)
+        """
         members = room.participants if isinstance(room, RoomHelperMixins.GroupChat) else room.subscribers
         user_ids = list(set(user_ids))
         existing_room_members = set(members.all())
@@ -371,7 +524,23 @@ class RoomHelperMixins:
     
     @staticmethod
     def _remove_members_from_room(user_ids, room, session_user):
+        """
+            Remove users from a room.
 
+            Protects room creator from removal unless they remove themselves.
+            Also removes users from admins/moderators when removed from room.
+
+            Args:
+                user_ids: List of user IDs to remove.
+                room: The room instance.
+                session_user: User performing the removal.
+
+            Returns:
+                tuple: (removed_user_objects, serialized_room, removed_usernames)
+
+            Note:
+                Room creator can only be removed by themselves, not by other admins.
+        """
         members = room.participants if isinstance(room, RoomHelperMixins.GroupChat) else room.subscribers
         user_ids = list(set(user_ids))
         existing_room_members = set(members.all())
@@ -401,6 +570,18 @@ class RoomHelperMixins:
     
     @staticmethod
     def _leave_room(user, room):
+        """
+            Remove current user from a room.
+
+            Only works for GroupChat and Channel. Automatically removes user from
+            admins/moderators. If room becomes empty, it's deleted by signals.
+
+            Returns:
+                dict | None: Serialized room, or None if room was deleted.
+
+            Raises:
+                ValidationError: If attempting to leave OneToOneChat.
+        """        
         if not isinstance(room, (RoomHelperMixins.GroupChat, RoomHelperMixins.Channel)):
             raise ValidationError("You can only leave a channel/group chat")
         
@@ -421,8 +602,19 @@ class RoomHelperMixins:
 
     @staticmethod
     def _join_room(user, room_id):
+        """
+            Add current user to a room.
 
-        # if you have a different functionality for joining GroupChat or Channels override this method to replace with your custom functionality
+            Default implementation:
+            - GroupChat: Raises error (admin must add)
+            - Channel: Adds user if public, rejects if private
+            - OneToOneChat: Raises error
+
+            Raises:
+                ValidationError: For GroupChat, private Channel, or OneToOneChat.
+        """
+        # if you have a different functionality for joining GroupChat or Channels 
+        # override this method to replace with your custom functionality
 
         room = get_object_or_404(RoomHelperMixins.Room, pk=room_id)
 
@@ -442,6 +634,31 @@ class RoomHelperMixins:
 
     @staticmethod
     def _modify_room(data, room):
+        """
+            Modify room settings, permissions, or delete room.
+
+            Supported actions:
+            - delete: Deletes room and returns member list
+            - update: Updates name, description, or property preferences
+            - add/remove_permission: Manage object-level permissions
+            - add/remove_admin: Manage GroupChat admins
+            - add/remove_moderator: Manage Channel moderators
+
+            Args:
+                data (dict): Action and data fields with action-specific params.
+                room: The room instance.
+
+            Returns:
+                dict: Serialized room or deletion confirmation with member list.
+
+            Raises:
+                ValidationError: For invalid actions, missing data, or permission
+                    violations.
+
+            Note:
+                Room creator cannot have permissions removed. Override this method
+                for custom room types or different permission logic.
+        """
 
         VALID_ACTIONS = [
             "delete", "update", "add_permission", "remove_permission",
@@ -547,25 +764,47 @@ class RoomHelperMixins:
             
 class ChatNotificationHelperMixins:
     """
-    Notification handler helper mixins
-    Functionality can be extended
+        Synchronous business logic for notification operations.
+
+        Handles:
+        - Retrieving and grouping notifications by room
+        - Prefetching related data for efficient serialization
+
+        All methods are synchronous and wrapped by ChatNotificationHandlerMixin
+        for async use.
     """
 
     def __init_subclass__(cls, **kwargs):
+        """Load serializer when helper is subclassed."""
         super().__init_subclass__(**kwargs)
         ChatNotificationHelperMixins._load_variables()
 
     @classmethod
     def _load_variables(cls):
+        """Load required serializer."""
         # models
         cls.ChatNotificationSerializer = get_serializer("ChatNotificationSerializer")
 
     @classmethod
     def _reload_variables(cls):
+        """Reload variables when settings change (for tests)."""
         cls._load_variables()
     
     def _get_and_group_chat_notifications(self, user):
+        """
+            Retrieve all notifications for a user, grouped by room.
 
+            Uses prefetch_related to fetch polymorphic room objects efficiently,
+            ensuring proper subclass resolution for serialization.
+
+            Returns:
+                dict: Room ID → list of notifications for that room.
+
+            Note:
+                prefetch_related is used instead of select_related because
+                polymorphic relationships need separate queries to properly
+                resolve subclass types (OneToOneChat, GroupChat, Channel).
+        """
 
         chat_notifications = self.ChatNotification.objects.filter(recipients=user).prefetch_related(
             Prefetch(
@@ -573,8 +812,11 @@ class ChatNotificationHelperMixins:
                 queryset=self.Room.objects.all() # using Prefetch is redundant here (prefetch_related() alone works)..
             )
 
-            # using prefetch_related() because it fetches room objects separately and maps it to their respectively subclasses (onetoone, group, channel)
-            # using select_related() just returns the direct room object (Room <room_id>) which affects serialization...
+            # using prefetch_related() because it fetches room objects separately and maps it 
+            # to their respectively subclasses (onetoone, group, channel)
+            
+            # using select_related() just returns the direct room object (Room <room_id>) 
+            # which affects serialization...
         ).distinct().order_by("-message__room__created_at")
         
         serialized_chat_notifications = self.ChatNotificationSerializer(chat_notifications, many=True).data
@@ -591,16 +833,25 @@ class ChatNotificationHelperMixins:
 
 class SessionHelperMixins:
     """
-    Handle channel sessions setup and cleanups
-    """
+        Synchronous business logic for session management.
 
+        Handles:
+        - Registering new WebSocket sessions
+        - Identifying active sessions (within INACTIVITY_THRESHOLD)
+        - Identifying expired sessions for cleanup
+        - Updating session heartbeats
+
+        All methods are synchronous and wrapped by SessionHandlerMixin for async use.
+    """
     
     def __init_subclass__(cls, **kwargs):
+        """Load model and settings when helper is subclassed."""
         super().__init_subclass__(**kwargs)
         SessionHelperMixins._load_variables()
 
     @classmethod
     def _load_variables(cls):
+        """Load required model and settings."""
         # models
         cls.Session = get_model("Session")
 
@@ -609,17 +860,24 @@ class SessionHelperMixins:
 
     @classmethod
     def _reload_variables(cls):
+        """Reload variables when settings change (for tests)."""
         cls._load_variables()
 
 
     @staticmethod
     def _get_expired_sessions(user_id):
+        """
+            Get channel names of sessions older than INACTIVITY_THRESHOLD.
+
+            Used during connection cleanup to remove stale channel subscriptions.
+        """        
         time_allowance = timezone.now() - datetime.timedelta(seconds=SessionHelperMixins.InactivityThreshold)
         expired_sessions = SessionHelperMixins.Session.objects.filter(user__id=user_id, last_seen__lt=time_allowance)
         return [s.channel_name for s in expired_sessions]
     
     @staticmethod
     def _register_session(user, channel_name):
+        """Create a new session for the WebSocket connection."""
         session = SessionHelperMixins.Session.objects.create(
             user=user, 
             channel_name=channel_name, 
@@ -631,12 +889,19 @@ class SessionHelperMixins:
 
     @staticmethod 
     def _get_active_sessions(user_id):
+        """
+            Get channel names of active sessions (within INACTIVITY_THRESHOLD).
+
+            Used to broadcast messages to all of a user's active devices.
+        """
+
         time_allowance = timezone.now() - datetime.timedelta(seconds=SessionHelperMixins.InactivityThreshold)
         active_sessions = SessionHelperMixins.Session.objects.filter(user__id=user_id, last_seen__gte=time_allowance)
         return [s.channel_name for s in active_sessions]
 
     @staticmethod
     def _update_session(session):
+        """Update session heartbeat timestamp to keep it active."""
         session.last_seen = timezone.now()
         session.save()
         
