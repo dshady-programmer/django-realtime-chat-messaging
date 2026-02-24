@@ -1,3 +1,15 @@
+"""
+Abstract base models for the real-time chat messaging system.
+
+These abstract models define the core fields and structure for chat entities.
+Extend these models to add custom fields or override behavior without
+modifying the package source code.
+
+All models use %(app_label)s_%(class)s in related names to prevent conflicts
+when extending in custom applications.
+"""
+
+
 from django.conf import settings 
 from django.db import models
 import uuid
@@ -11,7 +23,16 @@ Room = settings.REALTIME_CHAT_MESSAGING_ROOM_MODEL
 
 class AbstractSession(models.Model):
     """
-    User session model to keep track of user sessions
+        Tracks active WebSocket connections for multi-device support.
+
+        Fields:
+            user: The authenticated user for this session
+            channel_name: Django Channels layer channel identifier
+            last_seen: Last activity timestamp (updated via heartbeat events)
+
+        Note:
+            Sessions older than INACTIVITY_THRESHOLD are considered expired
+            and cleaned up on user reconnection.
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
     channel_name = models.CharField()
@@ -22,11 +43,18 @@ class AbstractSession(models.Model):
 
 class AbstractRoomProperty(models.Model):
     """
-    Additional properties for a Room
+        Extensible room configuration and preferences storage.
 
-    Use case: mute status, notification preferences, etc.
+        Use this to store room-specific settings without modifying the Room
+        model directly. Automatically created for every room via signals.
 
-    Use this model to extend Room model without modifying it directly
+        Fields:
+            preferences: JSON field for storing arbitrary room settings
+                (e.g., mute status, notification preferences, themes)
+
+        Note: 
+            You should inherit and extend from this if you plan to add 
+            more fields to the room
     """
     preferences = models.JSONField(default=dict)
     
@@ -35,7 +63,17 @@ class AbstractRoomProperty(models.Model):
 
 class AbstractGroupChat(models.Model):
     """
-    Group Chat model base fields
+        Base fields for multi-user chat rooms with admin controls.
+
+        Fields:
+            name: Display name for the group
+            description: Optional group description
+            creator: User who created the group (auto-assigned as admin)
+            participants: All users in the group
+
+        Permissions:
+            - can_add_new_participants: Add members to group
+            - can_remove_participants: Remove members from group
     """
     name = models.CharField(max_length=64)
     description = models.TextField(null=True, blank=True)
@@ -52,10 +90,23 @@ class AbstractGroupChat(models.Model):
 
 
 class AbstractChannel(models.Model):
-
-    """  
-    Channel model base fields
+   
     """
+        Base fields for broadcast channels with moderator controls.
+
+        Fields:
+            name: Display name for the channel
+            description: Optional channel description
+            creator: User who created the channel (auto-assigned as moderator)
+            subscribers: All users subscribed to the channel
+
+        Permissions:
+            - can_add_new_subscribers: Add subscribers to channel
+            - can_remove_subscribers: Remove subscribers from channel
+            - can_send_messages: Send messages in the channel
+
+    """
+
     name = models.CharField(max_length=64)
     description = models.TextField(null=True, blank=True)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
@@ -75,7 +126,10 @@ class AbstractChannel(models.Model):
 
 class AbstractOneToOneChat(models.Model):
     """
-    One to One Chat model base fields
+    Base fields for private chats between two users.
+
+    Fields:
+        participants: Must contain exactly 2 users (enforced by signals)
     """
 
     participants = models.ManyToManyField(User, related_name="+")
@@ -84,6 +138,23 @@ class AbstractOneToOneChat(models.Model):
         abstract = True
 
 class AbstractMessage(models.Model):
+    """
+        Base fields for chat messages.
+
+        Fields:
+            id: UUID primary key
+            room: The room this message belongs to
+            sender: User who sent the message
+            content: Message text content
+            is_deleted: Soft delete flag (if MESSAGE_SOFT_DELETE enabled)
+            created_at: Message creation timestamp
+            updated_at: Last modification timestamp
+
+        Indexes:
+            - content: For message search
+            - (content, sender): For filtered message search
+    """
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name="+")
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
@@ -103,8 +174,16 @@ class AbstractMessage(models.Model):
 
 class AbstractReadReceipt(models.Model):
     """
-    Optional: 
-        you can enable read receipts in settings
+        Tracks when users read messages.
+
+        Fields:
+            id: UUID primary key
+            message: The message that was read
+            reader: The user who read the message
+            read_at: Timestamp when message was read
+
+        Constraint:
+            Each user can only have one read receipt per message.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_read_receipts")
@@ -118,6 +197,21 @@ class AbstractReadReceipt(models.Model):
         ]
 
 class AbstractReaction(models.Model):
+
+    """
+        Emoji reactions to messages.
+
+        Fields:
+            id: UUID primary key
+            message: The message being reacted to
+            user: The user who reacted
+            reaction_content: The emoji or reaction text (max 128 chars)
+            created_at: When the reaction was added
+
+        Constraint:
+            Each user can only have one reaction per message. Changing reactions
+            automatically deletes the old one (enforced by signals).
+    """    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_reactions")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_reactions")
@@ -132,6 +226,27 @@ class AbstractReaction(models.Model):
 
 
 class AbstractChatNotification(models.Model):
+
+    """
+        Tracks undelivered messages for push notification integration.
+
+        Fields:
+            id: UUID primary key
+            recipients: Users who haven't received the message yet
+            message: The message this notification is for
+            notification_type: Type of notification (from NOTIFICATION_TYPE choices)
+
+        Lifecycle:
+            1. Created when message is sent to a room
+            2. Recipients initialized with all room participants
+            3. Users removed from recipients as they acknowledge delivery
+            4. Auto-deleted when recipients list becomes empty (via signals)
+
+        Note:
+            Enable via ENABLE_NOTIFICATION setting. Design supports integration
+            with Firebase, AWS SNS, or similar push notification services.
+    """
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     recipients = models.ManyToManyField(User, related_name='%(app_label)s_%(class)s_unread_messages')
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='%(app_label)s_%(class)s_notifications')
@@ -142,6 +257,13 @@ class AbstractChatNotification(models.Model):
 
 
 class AbstractMessageMediaAsset(models.Model):
+    """
+        Base fields for external media attachments.
+
+        Fields:
+            id: UUID primary key
+            message: The message this media is attached to
+    """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s_attachments")

@@ -1,3 +1,11 @@
+"""
+Django signal handlers for maintaining data integrity in the chat system.
+
+This module defines signal receivers that enforce business rules, manage
+permissions, and maintain referential integrity across the chat models.
+Signals handle automatic relationship management, validation, and cleanup.
+"""
+
 from django.dispatch import receiver 
 from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.core.exceptions import ValidationError
@@ -12,6 +20,11 @@ User = get_user_model()
 @receiver(pre_save, sender=GroupChat)
 @receiver(pre_save, sender=Channel)
 def create_room_property(sender, instance, *args, **kwargs):
+    """
+        Automatically create a RoomProperty instance if one doesn't exist.
+
+        Ensures every room has an associated property object before saving.
+    """    
     from realtime_chat_messaging.utils.loader import get_model
     RoomProperty = get_model("RoomProperty")
     if not hasattr(instance, 'property') or not instance.property:
@@ -25,6 +38,17 @@ def create_room_property(sender, instance, *args, **kwargs):
 
 @receiver(m2m_changed, sender=OneToOneChat.participants.through)
 def enforce_two_participants_on_one_to_one_chat(sender, instance, action, pk_set, *args, **kwargs):
+    """
+        Enforce exactly 2 participants in OneToOneChat rooms.
+
+        Validates that:
+        - OneToOneChat always has exactly 2 participants (no more, no less)
+        - Duplicate OneToOneChat rooms between the same 2 users cannot be created
+
+        Raises:
+            ValidationError: If participant count != 2 or chat already exists.
+    """    
+    
     if sender != OneToOneChat.participants.through:
         return
     if action == "post_add" or action == "post_remove" or action == "post_clear":
@@ -40,6 +64,17 @@ def enforce_two_participants_on_one_to_one_chat(sender, instance, action, pk_set
 @receiver(post_save, sender=GroupChat)
 @receiver(post_save, sender=Channel)
 def add_creator_as_participant_and_admin(sender, instance, created, *args, **kwargs):
+    """
+        Automatically add room creator as member with admin/moderator permissions.
+
+        On GroupChat creation:
+        - Adds creator as participant and admin
+        - Grants add/remove participant permissions
+
+        On Channel creation:
+        - Adds creator as subscriber and moderator
+        - Grants add/remove subscriber and send message permissions
+    """    
     if sender not in [GroupChat, Channel]:
         return
     if created:
@@ -59,7 +94,15 @@ def add_creator_as_participant_and_admin(sender, instance, created, *args, **kwa
 @receiver(m2m_changed, sender=GroupChat.participants.through)
 @receiver(m2m_changed, sender=Channel.subscribers.through)
 def delete_channels_and_groups_with_no_participants_and_max_participants_enforcement(sender, instance, action, pk_set, **kwargs):
+    """
+        Delete empty rooms and enforce maximum member limits.
 
+        Automatically deletes GroupChat/Channel when last member leaves.
+        Prevents adding members beyond max_participants/max_subscribers limit.
+
+        Raises:
+            ValidationError: If adding members would exceed the maximum.
+    """
     if sender not in [GroupChat.participants.through, Channel.subscribers.through]:
         return
     if action == "post_remove" or action == "post_clear":
@@ -79,6 +122,17 @@ def delete_channels_and_groups_with_no_participants_and_max_participants_enforce
 @receiver(m2m_changed, sender=GroupChat.admins.through)
 @receiver(m2m_changed, sender=Channel.moderators.through)
 def add_permissions_to_admin_and_moderators(sender, instance, action, pk_set, **kwargs):
+    """
+        Automatically manage permissions when admins/moderators are added or removed.
+
+        For GroupChat admins:
+        - Grants: can_add_new_participants, can_remove_participants
+
+        For Channel moderators:
+        - Grants: can_add_new_subscribers, can_remove_subscribers, can_send_messages
+
+        Permissions are automatically revoked when admin/moderator status is removed.
+    """
     if sender not in [GroupChat.admins.through, Channel.moderators.through]:
         return
     if action == "pre_remove" or action == "pre_clear":
@@ -111,6 +165,11 @@ delete chatnotification when recipients length is 0
 """
 @receiver(m2m_changed, sender=ChatNotification.recipients.through)
 def delete_channels_and_groups_with_no_participants(sender, instance, action, pk_set, **kwargs):
+    """
+        Delete ChatNotification when all recipients have been removed.
+
+        Automatically cleans up notifications that no longer have any recipients.
+    """    
     if action == "post_remove" or action == "post_clear":
         if instance.recipients.count() < 1:
             instance.delete()
@@ -120,6 +179,16 @@ def delete_channels_and_groups_with_no_participants(sender, instance, action, pk
 """update message reaction"""
 @receiver(pre_save, sender=Reaction)
 def overwrite_message_reaction(sender, instance, *args, **kwargs):
+
+    """
+        Replace existing reaction when user reacts to the same message again.
+
+        Ensures each user can only have one reaction per message. If a user
+        changes their reaction, the old one is automatically deleted.
+
+        Raises:
+            ValidationError: If reaction_content is empty.
+    """
     if not instance.reaction_content:
         raise ValidationError("reaction_content can't be empty")
     r = Reaction.objects.filter(user=instance.user, message=instance.message)
