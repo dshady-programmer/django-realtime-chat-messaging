@@ -1,3 +1,20 @@
+"""
+Synchronous permission checking logic for chat authorization.
+
+This module implements the core authorization rules for rooms, messages, and
+admin privileges. All methods are synchronous and wrapped by PermissionHandler
+with sqlite_safe_db_sync_to_async for use in async contexts.
+
+The permission logic supports:
+- Room membership checks (participants/subscribers)
+- Message access and ownership verification
+- Admin/moderator privilege validation
+- Customizable admin field names for extended models
+
+Override methods in this mixin to customize authorization behavior without
+modifying the async wrapper layer.
+"""
+
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 from realtime_chat_messaging.utils.loader import get_model
@@ -9,8 +26,33 @@ GroupChat = get_model("GroupChat")
 Channel = get_model("Channel")
 
 class PermissionHelperMixin:
+    """
+        Synchronous helper methods for permission checks.
+
+        All methods return (is_permitted: bool, room: Room | None) tuples except
+        _have_message_permission which returns bool only.
+
+        Design Pattern:
+            Each method validates input, fetches required objects, checks
+            authorization rules, and returns results for decorator consumption.
+    """
+
     @staticmethod
     def _have_room_permission(user, room_id):
+        """
+            Check if user is a member of the room.
+
+            Args:
+                user: The user to check.
+                room_id: Room ID (str or int).
+
+            Returns:
+                tuple: (is_member: bool, room: Room)
+
+            Raises:
+                ValidationError: If room_id type is invalid.
+                Http404: If room does not exist.
+        """        
         if type(room_id) not in [str, int]:
             raise ValidationError("Invalid room_id type")
 
@@ -27,13 +69,34 @@ class PermissionHelperMixin:
 
     @staticmethod
     def _have_message_permission(user, message_id):
-            
+        """
+            Check if user has access to message(s).
+
+            Verifies user is a member of the room(s) containing the message(s).
+            Excludes soft-deleted messages from checks.
+
+            Args:
+                user: The user to check.
+                message_id: Single ID (str/int) or list of IDs.
+
+            Returns:
+                bool: True if user has access to all messages.
+
+            Raises:
+                ValidationError: If message_id type is invalid.
+                Http404: If any message does not exist or is deleted.
+
+            Note:
+                Returns False immediately if user lacks access to any message
+                in the list.
+        """           
         if type(message_id) not in [list, str, int]:
             raise ValidationError("Invalid message_id type")
         
         is_permitted = True
 
         def is_member(message):
+            """Check if user is a member of the message's room."""
             is_mem = False
             if (hasattr(message.room, "participants")):
                 if message.room.participants.filter(pk=user.pk).exists():
@@ -59,7 +122,29 @@ class PermissionHelperMixin:
     
     @staticmethod
     def _is_message_sender(user, message_id):
+        """
+            Check if user is the sender of message(s).
 
+            Validates that:
+            1. User is the sender of all specified messages
+            2. All messages are from the same room (for multi-message operations)
+
+            Args:
+                user: The user to check.
+                message_id: Single ID (str/int) or list of IDs.
+
+            Returns:
+                tuple: (is_sender: bool, room: Room)
+
+            Raises:
+                ValidationError: If message_id type invalid, empty list provided,
+                    or messages are from different rooms.
+                Http404: If any message does not exist or is deleted.
+
+            Note:
+                The same-room requirement ensures consistent message.modify
+                operations (e.g., bulk delete within one conversation).
+        """
         if type(message_id) not in [list, str, int]:
             raise ValidationError("Invalid message_id type")
         is_permitted = True
@@ -87,6 +172,33 @@ class PermissionHelperMixin:
     
     @staticmethod
     def _have_room_permissions_to_add_or_remove_members(user, room_id, perm_phrase, default_admin_names={"group": "admins", "channel": "moderators"}):
+        
+        """
+            Check if user can add or remove members from the room.
+
+            Permission hierarchy (any grants access):
+            1. Room creator (always permitted)
+            2. Admin/moderator status
+            3. Object-level permission (can_add_new_*/can_remove_*)
+
+            Args:
+                user: The user to check.
+                room_id: Room ID (str or int).
+                perm_phrase: 'add_new' or 'remove'.
+                default_admin_names: Dict mapping 'group'/'channel' to admin
+                    field names (default: {'group': 'admins', 'channel': 'moderators'}).
+
+            Returns:
+                tuple: (has_permission: bool, room: Room)
+
+            Raises:
+                ValidationError: If room_id invalid or room is OneToOneChat.
+                Http404: If room does not exist.
+
+            Note:
+                Override default_admin_names when using custom admin field names
+                in extended GroupChat/Channel models.
+        """        
         if type(room_id) not in [str, int]:
             raise ValidationError("Invalid room_id type")
         is_permitted = False
@@ -105,6 +217,38 @@ class PermissionHelperMixin:
 
     @staticmethod
     def _have_send_message_permission(user, data, default_admin_names={"group": "admins", "channel": "moderators"}):
+        """
+            Check if user can send messages to the room.
+
+            Permission rules by room type:
+            - Channel: User must be a subscriber AND (creator OR moderator OR
+            have can_send_messages permission)
+            - GroupChat (locked): User must be participant AND (creator OR admin)
+            - GroupChat (unlocked): User must be participant
+            - OneToOneChat: User must be participant
+
+            Even as a creator of groups/channels you must be a member to be able to send
+            messages.
+            
+            Args:
+                user: The user to check.
+                data: Event data containing 'room_id' OR 'message_id' (for replies).
+                default_admin_names: Dict mapping 'group'/'channel' to admin
+                    field names.
+
+            Returns:
+                tuple: (can_send: bool, room: Room)
+
+            Raises:
+                ValidationError: If room_id/message_id type invalid or missing.
+                Http404: If room or message does not exist.
+
+            Note:
+                Supports both direct room targeting (room_id) and reply-based
+                targeting (message_id). Cross-room replies are allowed to support
+                use cases like private replies to group messages. (This functionality would be improved later)
+        """
+
         is_permitted = False 
         room_id = data.get('room_id')
         message_id = data.get('message_id')
@@ -130,6 +274,7 @@ class PermissionHelperMixin:
         #         raise ValidationError("You can only reply to message in the same room")
 
 
+
         
         # first check if the room is a channel..
             # only creators and moderators and people with permissions can post on channels
@@ -152,6 +297,35 @@ class PermissionHelperMixin:
 
     @staticmethod
     def _have_admin_privileges(user, room_id, action, default_admin_names={"group": "admins", "channel": "moderators"}):
+        """
+            Check if user has admin/moderator privileges for room modification.
+
+            Permission rules:
+            - delete action: User must be creator (GroupChat/Channel) or
+            participant (OneToOneChat)
+            - other actions: User must be creator OR admin/moderator, 
+            
+            AND
+            be a member of the room (if this condition is False it invalidates the above condition)
+
+            Args:
+                user: The user to check.
+                room_id: Room ID.
+                action: The modification action (e.g., 'delete', 'update',
+                    'add_admin').
+                default_admin_names: Dict mapping 'group'/'channel' to admin
+                    field names.
+
+            Returns:
+                tuple: (has_privileges: bool, room: Room)
+
+            Raises:
+                Http404: If room does not exist.
+
+            Note:
+                Delete action has stricter requirements (creator-only for
+                GroupChat/Channel) to prevent accidental room deletion by admins.
+        """        
         is_permitted = True
         room = get_object_or_404(Room, pk = room_id)
         if action == "delete":

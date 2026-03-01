@@ -66,6 +66,8 @@ DEFAULTS = {
         "EVENT_MAPPER": "realtime_chat_messaging.variables.consumers.map_event_type_to_handlers",
         "EVENT_HANDLER_CLASS": "realtime_chat_messaging.utils.handlers.EventHandler",
         "EXCEPTION_HANDLER_CLASS": "realtime_chat_messaging.utils.decorators.ExceptionHandler",
+        "CHAT_CONSUMER_CLASS": "realtime_chat_messaging.consumers.ChatMessagingConsumer",
+        "WEBSOCKET_PATH": "messaging/",
         "MESSAGE_SOFT_DELETE": False,
         "ENABLE_NOTIFICATION": True,
         "INACTIVITY_THRESHOLD": 60 # 1 minute
@@ -124,6 +126,21 @@ DEFAULTS = {
     
     Custom exception handlers can implement different error reporting formats
     or add additional exception types.
+    ```
+
+    "CHAT_CONSUMER_CLASS": "realtime_chat_messaging.consumers.ChatMessagingConsumer",
+    ```
+    The WebSocket consumer class that handles real-time communication.
+    ```
+        
+    "WEBSOCKET_PATH": "messaging/",
+    ```
+    The URL path for WebSocket connections to the chat consumer.
+    Clients should connect to ws://<host>/<WEBSOCKET_PATH> to access the chat
+    functionality. This can be customized to fit the URL structure of your
+    application.
+    Type: str
+    Default: "messaging/"
     ```
     
     "MESSAGE_SOFT_DELETE": False,

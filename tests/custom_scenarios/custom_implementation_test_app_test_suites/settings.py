@@ -1,12 +1,6 @@
 from tests.settings import *
 
 
-INSTALLED_APPS += [
-    'custom_implementation_test_app',
-
-]
-
-
 REALTIME_CHAT_MESSAGING={
     'MODELS': {
         'Message': 'custom_implementation_test_app.CustomMessage',

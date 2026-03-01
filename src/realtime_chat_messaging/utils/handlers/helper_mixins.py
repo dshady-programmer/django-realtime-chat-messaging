@@ -60,6 +60,7 @@ class MessageHelperMixins:
         cls.ReadReceipt = get_model("ReadReceipt")
         cls.Reaction = get_model("Reaction")
         cls.MessageMediaAsset = get_model("MessageMediaAsset")
+        cls.ChatNotification = get_model("ChatNotification")
         # serializers
         cls.MessageSerializer = get_serializer("MessageSerializer")
         cls.ReactionSerializer = get_serializer("ReactionSerializer")
@@ -262,7 +263,9 @@ class MessageHelperMixins:
             if MessageHelperMixins.SoftDelete:
                 MessageHelperMixins.Message.objects.filter(pk__in=message_ids).update(is_deleted=True)
             else:
-                MessageHelperMixins.Message.objects.filter(pk__in=message_ids).delete() 
+                MessageHelperMixins.Message.objects.filter(pk__in=message_ids).delete()
+            # if message is associated with any notification clear it.
+            MessageHelperMixins.ChatNotification.objects.filter(message__pk__in=message_ids).delete()
             return {"status": "successful", "action": "delete", "message_ids": message_ids}
         
         elif action == "update":
@@ -367,10 +370,10 @@ class MessageHelperMixins:
         reactions_r = MessageHelperMixins.Reaction._meta.get_field("message").remote_field.get_accessor_name()
         attachm = MessageHelperMixins.MessageMediaAsset._meta.get_field("message").remote_field.get_accessor_name()
         if hasattr(MessageHelperMixins.Message, 'delivered_to'):
-            messages = MessageHelperMixins.Message.objects.filter(room=room).prefetch_related(read_r, reactions_r, attachm, 'delivered_to').order_by('-created_at')
+            messages = MessageHelperMixins.Message.objects.filter(room=room, is_deleted=False).prefetch_related(read_r, reactions_r, attachm, 'delivered_to').order_by('-created_at')
         else:
 
-            messages = MessageHelperMixins.Message.objects.filter(room=room).prefetch_related(read_r, reactions_r, attachm).order_by('-created_at')
+            messages = MessageHelperMixins.Message.objects.filter(room=room, is_deleted=False).prefetch_related(read_r, reactions_r, attachm).order_by('-created_at')
 
         paginate = data.get('paginate')
         response = {}
@@ -686,11 +689,35 @@ class RoomHelperMixins:
 
         if action == "update":
             if type(room) in [RoomHelperMixins.GroupChat, RoomHelperMixins.Channel]:
-                if "name" in field_data:
-                    room.name = field_data.get("name")
-                if "description" in field_data:
-                    room.description = field_data.get("description")
-            
+                name = field_data.get("name")
+                desc = field_data.get("description")
+                avatar = field_data.get('avatar')
+                if name:
+                    room.name = name
+                if desc:
+                    room.description = desc
+
+                if avatar and hasattr(room, "avatar"):
+                    room.avatar = avatar
+                
+                if type(room) == RoomHelperMixins.GroupChat:
+                    if "join_approval_required" in field_data:
+                        join_approval_required = field_data.get("join_approval_required")
+                        if isinstance(join_approval_required, bool) and\
+                            hasattr(room, 'join_approval_required'):
+                            room.join_approval_required = join_approval_required
+                    if "group_locked" in field_data:
+                        group_locked = field_data.get("group_locked")
+                        if isinstance(group_locked, bool) and\
+                            hasattr(room, 'group_locked'):
+                            room.group_locked = group_locked
+
+                else:
+                    if "is_public" in field_data:
+                        is_public = field_data.get("is_public")
+                        if isinstance(is_public, bool) and\
+                            hasattr(room, 'is_public'):
+                            room.is_public = is_public
             if "property" in field_data:
                 room_props = RoomHelperMixins.RoomPropertySerializer(instance=room.property, data=field_data.get("property"), partial=True)
                 room_props.is_valid(raise_exception=True)

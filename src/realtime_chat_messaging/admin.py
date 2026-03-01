@@ -1,10 +1,11 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import  Message, Room, GroupChat, Channel, OneToOneChat, ReadReceipt, Reaction, ChatNotification, MessageMediaAsset
+from .models import  Message,Session, Room, GroupChat, Channel, OneToOneChat, ReadReceipt, Reaction, ChatNotification, MessageMediaAsset
 
 
 admin.site.register(Message)
+admin.site.register(Session)
 admin.site.register(Room)
 admin.site.register(GroupChat)
 admin.site.register(Channel)

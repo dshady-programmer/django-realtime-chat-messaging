@@ -135,10 +135,12 @@ class TestCustomGroupChatModel:
         """Test last_activity timestamp updates"""
         group = create_custom_group(users[0])
         initial_activity = group.last_activity
-        
         # Increment message count (which updates last_activity)
+        import time
+        time.sleep(1)
         group.increment_message_count()
         
+        group.refresh_from_db()
         assert group.last_activity > initial_activity
     
     def test_custom_group_default_values(self, users):

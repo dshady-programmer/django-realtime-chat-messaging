@@ -259,17 +259,9 @@ class RoomPolymorphicSerializer(PolymorphicSerializer):
 
             Works on the principle of ALL OR NOTHING
         """
-
         user = self.context.get("user")
 
         extra_fields = self.initial_data.pop('extra_fields', {})
-
-        room_property = extra_fields.pop('property', {})
-                
-        user = self.context.get("user")
-
-        extra_fields = self.initial_data.pop('extra_fields', {})
-
         room_property = extra_fields.pop('property', {})
 
         if room_property:

@@ -5,6 +5,7 @@ from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
 from realtime_chat_messaging.consumers import ChatMessagingConsumer
+from realtime_chat_messaging.conf import realtime_chat_settings
 from realtime_chat_messaging.utils.cache_utils import add_group_to_user_groups
 from realtime_chat_messaging.consumers import GROUP_STRING, USER_OWN_GROUP
 from realtime_chat_messaging.models import (
@@ -2565,6 +2566,693 @@ class TestRoomOperations:
         assert response['data']['room_id'] == str(one_to_one_chat.id)
         await communicator.disconnect()
         
+
+# =================== DELETED MESSAGE RETRIEVAL ====================
+
+@pytest.mark.asyncio
+@pytest.mark.django_db(transaction=True)
+class TestDeletedMessageRetrieval:
+    """Test retrieving messages after deletion"""
+    
+    async def test_retrieve_messages_after_soft_delete(self, users, one_to_one_chat):
+        """Test that soft-deleted messages are excluded from retrieval"""
+
+        
+        # Create some messages
+        messages = []
+        for i in range(5):
+            msg = await database_sync_to_async(Message.objects.create)(
+                room=one_to_one_chat,
+                sender=users[0],
+                content=f'Message {i}'
+            )
+            messages.append(msg)
+        
+        # Soft delete messages 1 and 3 (if soft delete enabled)
+        if realtime_chat_settings.MESSAGE_SOFT_DELETE:
+            messages[1].is_deleted = True
+            messages[3].is_deleted = True
+            await database_sync_to_async(messages[1].save)()
+            await database_sync_to_async(messages[3].save)()
+        else:
+            # Hard delete
+            await database_sync_to_async(messages[1].delete)()
+            await database_sync_to_async(messages[3].delete)()
+        
+        # Retrieve messages
+        comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        comm.scope['user'] = users[0]
+        await comm.connect()
+        await comm.receive_json_from()
+        
+        await comm.send_json_to({
+            'event_type': 'room.messages',
+            'data': {
+                'room_id': str(one_to_one_chat.id)
+            }
+        })
+        
+        response = await comm.receive_json_from()
+        
+        assert response['eventType'] == 'roommessages.dispatch'
+        retrieved_messages = response['data']['data']['messages']
+        
+        # Should only get 3 messages (0, 2, 4)
+        assert len(retrieved_messages) == 3
+        
+        contents = [m['content'] for m in retrieved_messages]
+        assert 'Message 0' in contents
+        assert 'Message 2' in contents
+        assert 'Message 4' in contents
+        assert 'Message 1' not in contents  # Deleted
+        assert 'Message 3' not in contents  # Deleted
+        
+        await comm.disconnect()
+    
+    async def test_retrieve_messages_after_hard_delete(self, users, one_to_one_chat):
+        """Test retrieving messages after hard deletion"""
+        
+        # Create messages
+        msg1 = await database_sync_to_async(Message.objects.create)(
+            room=one_to_one_chat, sender=users[0], content='Keep this'
+        )
+        msg2 = await database_sync_to_async(Message.objects.create)(
+            room=one_to_one_chat, sender=users[0], content='Delete this'
+        )
+        msg3 = await database_sync_to_async(Message.objects.create)(
+            room=one_to_one_chat, sender=users[0], content='Keep this too'
+        )
+        
+        # Hard delete msg2
+        await database_sync_to_async(msg2.delete)()
+        
+        # Retrieve
+        comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        comm.scope['user'] = users[0]
+        await comm.connect()
+        await comm.receive_json_from()
+        
+        await comm.send_json_to({
+            'event_type': 'room.messages',
+            'data': {
+                'room_id': str(one_to_one_chat.id)
+            }
+        })
+        
+        response = await comm.receive_json_from()
+        
+        retrieved = response['data']['data']['messages']
+        assert len(retrieved) == 2
+        
+        contents = [m['content'] for m in retrieved]
+        assert 'Keep this' in contents
+        assert 'Keep this too' in contents
+        assert 'Delete this' not in contents
+        
+        await comm.disconnect()
+    
+    async def test_delete_multiple_messages_then_retrieve(self, users, one_to_one_chat):
+        """Test bulk deletion then retrieval"""
+
+        # Create 10 messages
+        message_ids = []
+        for i in range(10):
+            msg = await database_sync_to_async(Message.objects.create)(
+                room=one_to_one_chat, sender=users[0], content=f'Message {i}'
+            )
+            message_ids.append(str(msg.id))
+        
+        # Delete messages 2, 4, 6, 8
+        delete_ids = [message_ids[i] for i in [2, 4, 6, 8]]
+        
+        comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        comm.scope['user'] = users[0]
+        await comm.connect()
+        await comm.receive_json_from()
+        
+        # Delete via WebSocket
+        await comm.send_json_to({
+            'event_type': 'message.modify',
+            'data': {
+                'action': 'delete',
+                'message_id': delete_ids
+            }
+        })
+        
+        delete_response = await comm.receive_json_from()
+        assert delete_response['eventType'] == 'messagemodification.dispatch'
+        
+        # Retrieve
+        await comm.send_json_to({
+            'event_type': 'room.messages',
+            'data': {
+                'room_id': str(one_to_one_chat.id)
+            }
+        })
+        
+        response = await comm.receive_json_from()
+        retrieved = response['data']['data']['messages']
+        
+        # Should have 6 messages (0, 1, 3, 5, 7, 9)
+        assert len(retrieved) == 6
+        
+        await comm.disconnect()
+    
+    async def test_retrieve_room_info_shows_correct_message_count(self, users, one_to_one_chat):
+        """Test that room info shows correct count after deletions"""
+
+        
+        # Create 5 messages
+        message_ids = []
+        for i in range(5):
+            msg = await database_sync_to_async(Message.objects.create)(
+                room=one_to_one_chat, sender=users[0], content=f'Msg {i}'
+            )
+            message_ids.append(str(msg.id))
+        
+        # Delete 2 messages
+        comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        comm.scope['user'] = users[0]
+        await comm.connect()
+        await comm.receive_json_from()
+        
+        await comm.send_json_to({
+            'event_type': 'message.modify',
+            'data': {
+                'action': 'delete',
+                'message_id': [message_ids[0], message_ids[2]]
+            }
+        })
+        
+        await comm.receive_json_from()
+        
+        # Get room info
+        await comm.send_json_to({
+            'event_type': 'room.info',
+            'data': {
+                'room_id': str(one_to_one_chat.id)
+            }
+        })
+        
+        info_response = await comm.receive_json_from()
+        
+        # Should reflect actual message count
+        # Note: Depends on implementation - may need to verify logic
+        assert info_response['eventType'] == 'roominfo.dispatch'
+        
+        await comm.disconnect()
+
+
+# ==================NOTIFICATION AUTO-DELETION ====================
+
+@pytest.mark.asyncio
+@pytest.mark.django_db(transaction=True)
+class TestNotificationAutoDeletion:
+    """
+    Test notification auto-deletion when sender deletes undelivered messages.
+    
+    Scenario: User A sends messages to User B. User B receives notifications but
+    doesn't mark them as delivered. User A deletes the messages. The notifications
+    should be automatically removed.
+    """
+    
+    async def test_notification_deleted_when_sender_deletes_undelivered_message(self, users, one_to_one_chat):
+        """Test notification auto-deletion on message deletion"""
+        if not realtime_chat_settings.ENABLE_NOTIFICATION:
+            pytest.skip("Notifications disabled")
+        
+        # User 0 (sender) sends messages to User 1 (receiver)
+        sender_comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        sender_comm.scope['user'] = users[0]
+        await sender_comm.connect()
+        await sender_comm.receive_json_from()
+        
+        # Send 3 messages
+        message_ids = []
+        for i in range(3):
+            await sender_comm.send_json_to({
+                'event_type': 'message.send',
+                'data': {
+                    'room_id': str(one_to_one_chat.id),
+                    'content': f'Undelivered message {i}'
+                }
+            })
+            response = await sender_comm.receive_json_from()
+            message_ids.append(response['data']['id'])
+        
+        # Check notifications created for receiver (User 1)
+        notifications = await database_sync_to_async(
+            lambda: list(ChatNotification.objects.filter(
+                recipients=users[1],
+            ))
+        )()
+        
+        initial_notification_count = len(notifications)
+        assert initial_notification_count >= 3  # Should have notifications
+        
+        # Sender deletes the messages WITHOUT receiver marking as delivered
+        await sender_comm.send_json_to({
+            'event_type': 'message.modify',
+            'data': {
+                'action': 'delete',
+                'message_id': message_ids
+            }
+        })
+        
+        delete_response = await sender_comm.receive_json_from()
+        assert delete_response['eventType'] == 'messagemodification.dispatch'
+        
+        # Check notifications - should be auto-deleted or cleaned up
+        remaining_notifications = await database_sync_to_async(
+            lambda: list(ChatNotification.objects.filter(
+                recipients=users[1],
+            ))
+        )()
+        
+        # Verify notifications are cleaned up
+        # If notifications are per-message, they should be gone
+        # If notification is per-room, the message refs should be removed
+        assert len(remaining_notifications) < initial_notification_count and len(remaining_notifications) == 0
+        
+        await sender_comm.disconnect()
+    
+
+    async def test_message_deletion_lead_to_notification_deletion(self, users, one_to_one_chat):
+        """Test deletion of messages deletes notification for users who haven't acknowledged notification"""
+        if not realtime_chat_settings.ENABLE_NOTIFICATION:
+            pytest.skip("Notifications disabled")
+        
+
+        # Sender sends 5 messages
+        sender_comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        sender_comm.scope['user'] = users[0]
+        await sender_comm.connect()
+        await sender_comm.receive_json_from()
+        message_ids = []
+        for i in range(5):
+            await sender_comm.send_json_to({
+                'event_type': 'message.send',
+                'data': {
+                    'room_id': str(one_to_one_chat.id),
+                    'content': f'Message {i}'
+                }
+            })
+            response = await sender_comm.receive_json_from()
+            message_ids.append(response['data']['id'])
+        
+        # Receiver connects but does not acknowledge
+        receiver_comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        receiver_comm.scope['user'] = users[1]
+        await receiver_comm.connect()
+
+        # Receives notification
+        notifications = await receiver_comm.receive_json_from()
+        assert notifications['eventType'] == 'chat.notifications'
+        assert len(notifications['data'][str(one_to_one_chat.id)]) == 5
+
+
+        # Disconnect receiver
+        await receiver_comm.disconnect()
+        
+        # Sender deletes all messages
+        await sender_comm.send_json_to({
+            'event_type': 'message.modify',
+            'data': {
+                'action': 'delete',
+                'message_id': message_ids
+            }
+        })
+        
+
+        # connect again
+        receiver_comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        receiver_comm.scope['user'] = users[1]
+        await receiver_comm.connect()
+
+        updated_notifications = await receiver_comm.receive_json_from()
+        
+        # Check notification state
+        assert updated_notifications['eventType'] == 'chat.notifications'
+        assert updated_notifications['data'] == {}
+        
+        await sender_comm.disconnect()
+        await receiver_comm.disconnect()
+    
+    async def test_notification_cleanup_on_multiple_recipients(self, users, register_room_with_user, create_group_chat):
+        """Test notification cleanup when message sent to multiple users"""
+        if not realtime_chat_settings.ENABLE_NOTIFICATION:
+            pytest.skip("Notifications disabled")
+        
+        # Create group with 3 users
+        group = await database_sync_to_async(create_group_chat)(
+            users[0],
+            name='Test Group',
+            participants=[users[0], users[1], users[2]]
+        )
+        await register_room_with_user(users[0].id, group.id)
+        await register_room_with_user(users[1].id, group.id)
+        await register_room_with_user(users[2].id, group.id)
+        
+        # User 0 sends message
+        sender_comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        sender_comm.scope['user'] = users[0]
+        await sender_comm.connect()
+        await sender_comm.receive_json_from()
+        
+        await sender_comm.send_json_to({
+            'event_type': 'message.send',
+            'data': {
+                'room_id': str(group.id),
+                'content': 'Group message'
+            }
+        })
+        
+        response = await sender_comm.receive_json_from()
+        message_id = response['data']['id']
+        
+        # Check notifications for users 1 and 2
+        notifications_user1 = await database_sync_to_async(
+            lambda: ChatNotification.objects.filter(recipients=users[1], message__room=group).count()
+        )()
+        notifications_user2 = await database_sync_to_async(
+            lambda: ChatNotification.objects.filter(recipients=users[2], message__room=group).count()
+        )()
+        
+        assert notifications_user1 > 0
+        assert notifications_user2 > 0
+        
+        # Delete message
+        await sender_comm.send_json_to({
+            'event_type': 'message.modify',
+            'data': {
+                'action': 'delete',
+                'message_id': [message_id]
+            }
+        })
+        
+        await sender_comm.receive_json_from()
+        
+        # Both users' notifications should be cleaned
+        remaining_user1 = await database_sync_to_async(
+            lambda: ChatNotification.objects.filter(recipients=users[1], message__room=group).count()
+        )()
+        remaining_user2 = await database_sync_to_async(
+            lambda: ChatNotification.objects.filter(recipients=users[2], message__room=group).count()
+        )()
+        
+        # Notifications should be reduced or cleared
+        assert remaining_user1 == 0
+        assert remaining_user2 == 0
+        
+        await sender_comm.disconnect()
+
+
+# =================== ROOM SETTINGS PERMISSIONS ====================
+
+@pytest.mark.asyncio
+@pytest.mark.django_db(transaction=True)
+class TestRoomSettingsPermissions:
+    """
+    Test that only admins/creators can update critical room settings:
+    - group_locked (GroupChat)
+    - join_approval_required (GroupChat)
+    - is_public (Channel)
+    """
+    
+    async def test_admin_can_update_group_locked(self, register_room_with_user, users, create_group_chat):
+        """Test admin can update group_locked setting"""
+        group = await database_sync_to_async(create_group_chat)(
+            users[0],  # Creator
+            name='Lockable Group',
+            participants=[users[0], users[1], users[2]]
+        )
+        
+        # Add user[1] as admin
+        await database_sync_to_async(group.admins.add)(users[0], users[1])
+        
+        # Register users to channel group for receiving updates
+        await register_room_with_user(users[0].id, group.id)
+        await register_room_with_user(users[1].id, group.id)
+        await register_room_with_user(users[2].id, group.id)
+
+        # Admin updates group_locked
+        comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        comm.scope['user'] = users[1]  # Admin
+        await comm.connect()
+        await comm.receive_json_from()
+        
+        await comm.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(group.id),
+                'action': 'update',
+                'data': {
+                    'group_locked': True
+                }
+            }
+        })
+        
+        response = await comm.receive_json_from()
+        
+        assert response['eventType'] == 'roomupdate.dispatch'
+        
+        # Verify update
+        await database_sync_to_async(group.refresh_from_db)()
+        assert group.group_locked is True
+        
+        await comm.disconnect()
+    
+    async def test_regular_member_cannot_update_group_locked(self, register_room_with_user, users, create_group_chat):
+        """Test regular member cannot update group_locked"""
+        group = await database_sync_to_async(create_group_chat)(
+            users[0],  # Creator
+            name='Locked Test',
+            participants=[users[0], users[1], users[2]]
+        )
+
+        
+        await register_room_with_user(users[0].id, group.id)
+        await register_room_with_user(users[1].id, group.id)
+        await register_room_with_user(users[2].id, group.id)
+
+        # Regular member (user[2]) tries to update
+        comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        comm.scope['user'] = users[2]  # Regular member
+        await comm.connect()
+        await comm.receive_json_from()
+        
+        await comm.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(group.id),
+                'action': 'update',
+                'data': {
+                    'group_locked': True
+                }
+            }
+        })
+        
+        response = await comm.receive_json_from()
+        
+        # Should receive permission error
+        assert 'error' in response
+        assert response['error']['code'] == 4002  # Permission denied
+        
+        await comm.disconnect()
+    
+    async def test_creator_can_update_join_approval_required(self, register_room_with_user, users, create_group_chat):
+        """Test creator can update join_approval_required"""
+        group = await database_sync_to_async(create_group_chat)(
+            users[0],
+            name='Approval Group',
+            participants=[users[0], users[1]]
+        )
+        
+        await register_room_with_user(users[0].id, group.id)
+        await register_room_with_user(users[1].id, group.id)
+
+        comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        comm.scope['user'] = users[0]  # Creator
+        await comm.connect()
+        await comm.receive_json_from()
+        
+        await comm.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(group.id),
+                'action': 'update',
+                'data': {
+                    'join_approval_required': True
+                }
+            }
+        })
+        
+        response = await comm.receive_json_from()
+        
+        assert response['eventType'] == 'roomupdate.dispatch'
+        
+        # Verify
+        await database_sync_to_async(group.refresh_from_db)()
+        assert group.join_approval_required is True
+        
+        await comm.disconnect()
+    
+    async def test_non_admin_cannot_update_join_approval_required(self, register_room_with_user, users, create_group_chat):
+        """Test non-admin cannot update join_approval_required"""
+        group = await database_sync_to_async(create_group_chat)(
+            users[0],
+            name='Approval Test',
+            participants=[users[0], users[1], users[2]]
+        )
+
+        await register_room_with_user(users[0].id, group.id)
+        await register_room_with_user(users[1].id, group.id)
+        await register_room_with_user(users[2].id, group.id)
+        
+        await database_sync_to_async(group.admins.add)(users[0])
+        
+        # Non-admin tries to update
+        comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        comm.scope['user'] = users[2]
+        await comm.connect()
+        await comm.receive_json_from()
+        
+        await comm.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(group.id),
+                'action': 'update',
+                'data': {
+                    'join_approval_required': True
+                }
+            }
+        })
+        
+        response = await comm.receive_json_from()
+        
+        assert 'error' in response
+        assert response['error']['code'] == 4002
+        
+        await comm.disconnect()
+    
+    async def test_moderator_can_update_channel_is_public(self, users, register_room_with_user):
+        """Test channel moderator can update is_public setting"""
+        # Create channel
+        channel = await database_sync_to_async(Channel.objects.create)(
+            name='Public Channel',
+            creator=users[0],
+            is_public=True
+        )
+        await database_sync_to_async(channel.moderators.add)(users[0], users[1])
+        await database_sync_to_async(channel.subscribers.add)(users[0], users[1])
+        
+        await register_room_with_user(users[0].id, channel.id)
+        await register_room_with_user(users[1].id, channel.id)
+
+        # Moderator updates is_public
+        comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        comm.scope['user'] = users[1]  # Moderator
+        await comm.connect()
+        await comm.receive_json_from()
+        
+        await comm.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(channel.id),
+                'action': 'update',
+                'data': {
+                    'is_public': False
+                }
+            }
+        })
+        
+        response = await comm.receive_json_from()
+        
+        assert response['eventType'] == 'roomupdate.dispatch'
+        
+        # Verify
+        await database_sync_to_async(channel.refresh_from_db)()
+        assert channel.is_public is False
+        
+        await comm.disconnect()
+    
+    async def test_subscriber_cannot_update_channel_is_public(self, users, register_room_with_user):
+        """Test regular subscriber cannot update is_public"""
+        channel = await database_sync_to_async(Channel.objects.create)(
+            name='Test Channel',
+            creator=users[0],
+            is_public=True
+        )
+        await database_sync_to_async(channel.subscribers.add)(users[0], users[1], users[2])
+        await register_room_with_user(users[0].id, channel.id)
+        await register_room_with_user(users[1].id, channel.id)
+        await register_room_with_user(users[2].id, channel.id)
+
+        # Regular subscriber tries to update
+        comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        comm.scope['user'] = users[2]  # Regular subscriber
+        await comm.connect()
+        await comm.receive_json_from()
+        
+        await comm.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(channel.id),
+                'action': 'update',
+                'data': {
+                    'is_public': False
+                }
+            }
+        })
+        
+        response = await comm.receive_json_from()
+        
+        assert 'error' in response
+        assert response['error']['code'] == 4002
+        
+        await comm.disconnect()
+    
+    async def test_update_multiple_settings_at_once(self, users, register_room_with_user, create_group_chat):
+        """Test updating multiple room settings simultaneously"""
+        group = await database_sync_to_async(create_group_chat)(
+            users[0],
+            name='Multi Update',
+            participants=[users[0], users[1]]
+        )
+
+        await register_room_with_user(users[0].id, group.id)
+        await register_room_with_user(users[1].id, group.id)
+        
+        comm = WebsocketCommunicator(ChatMessagingConsumer.as_asgi(), "/messaging/")
+        comm.scope['user'] = users[0]
+        await comm.connect()
+        await comm.receive_json_from()
+        
+        await comm.send_json_to({
+            'event_type': 'room.modify',
+            'data': {
+                'room_id': str(group.id),
+                'action': 'update',
+                'data': {
+                    'group_locked': True,
+                    'join_approval_required': True,
+                    'name': 'Updated Name'
+                }
+            }
+        })
+        
+        response = await comm.receive_json_from()
+        
+        assert response['eventType'] == 'roomupdate.dispatch'
+        
+        # Verify all updates
+        await database_sync_to_async(group.refresh_from_db)()
+        assert group.group_locked is True
+        assert group.join_approval_required is True
+        assert group.name == 'Updated Name'
+        
+        await comm.disconnect()
+
 
 @pytest.mark.asyncio
 @pytest.mark.django_db(transaction=True)

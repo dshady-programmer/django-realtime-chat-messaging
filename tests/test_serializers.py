@@ -313,8 +313,6 @@ class TestRoomPolymorphicSerializer:
             'type': 'GroupChat',
             'name': 'New Group',
             'extra_fields': {
-                
-                
                 'property': {
                     'preferences': {'theme': 'dark', 'notifications': True}
                 }
