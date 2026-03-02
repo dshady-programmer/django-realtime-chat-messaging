@@ -145,15 +145,22 @@ code.docutils {
     background: #172217;
 }
 
-/* Admonition inline code — hardcoded solid colours so Furo's variable
-   system cannot affect readability in any mode. Bypasses CSS variables
-   entirely using fixed hex values with maximum specificity. */
-html body .admonition code.literal,
-html body .admonition code.docutils {
-    background-color: #1a1a1a !important;
-    color: #e8e8e8 !important;
-    border: none !important;
-    font-weight: 500 !important;
+/* Inside admonitions, pin explicit colours so inline code chips remain
+   readable in light, dark, and the system auto/dimmed intermediate mode.
+   Never use color: inherit here — in mid/auto mode the inherited text
+   colour can be near-white, making text invisible against the chip. */
+.admonition code.literal,
+.admonition code.docutils {
+    background: rgba(0, 0, 0, 0.08);
+    color: #1a5c1e !important;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .admonition code.literal,
+[data-theme="dark"] .admonition code.docutils {
+    background: rgba(255, 255, 255, 0.1);
+    color: #a5d6a7 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 
