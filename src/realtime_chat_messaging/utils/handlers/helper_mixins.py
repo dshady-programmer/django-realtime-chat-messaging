@@ -109,10 +109,10 @@ class MessageHelperMixins:
             raise ValidationError("Media must be a list of media files")
         
         new_data = {
+            **extra_fields,
             "room_id": data["room_id"],
             "sender_id": user.id,
             "content": "Media Files" if media else data["content"],
-            **extra_fields
         }
         if "parent_message_id" in new_data:
             message_type = 'REPLY'

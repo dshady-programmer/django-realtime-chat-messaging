@@ -7,7 +7,7 @@ Signals handle automatic relationship management, validation, and cleanup.
 """
 
 from django.dispatch import receiver 
-from django.db.models.signals import m2m_changed, post_save, pre_save
+from django.db.models.signals import m2m_changed, post_save, pre_save, pre_delete
 from django.core.exceptions import ValidationError
 from guardian.shortcuts import assign_perm,remove_perm
 from .models import Room, OneToOneChat, GroupChat, Channel, ChatNotification,Reaction
@@ -34,6 +34,21 @@ def create_room_property(sender, instance, *args, **kwargs):
 
 
 
+@receiver(pre_delete, sender=User)
+def cleanup_one_to_one_chat_when_user_is_deleted(sender, instance, *args, **kwargs):
+    """
+        Track when a user is about to be deleted so it their OneToOneChat can be cleaned up
+
+        Note: Not the ideal solution and would be improved in the next release
+
+    """
+    from realtime_chat_messaging.utils.loader import get_model
+    LoadedOneToOneChat = get_model('OneToOneChat')
+    if LoadedOneToOneChat == OneToOneChat:
+        # Only perform cleanup if the loaded OneToOneChat model is the default one, 
+        # otherwise we delegate that responsibility to theuser of custom models
+        LoadedOneToOneChat.objects.filter(participants=instance).delete()
+
 
 
 @receiver(m2m_changed, sender=OneToOneChat.participants.through)
@@ -44,7 +59,7 @@ def enforce_two_participants_on_one_to_one_chat(sender, instance, action, pk_set
         Validates that:
         - OneToOneChat always has exactly 2 participants (no more, no less)
         - Duplicate OneToOneChat rooms between the same 2 users cannot be created
-
+        - When a participants is less than 2 on removal delete the chat
         Raises:
             ValidationError: If participant count != 2 or chat already exists.
     """    

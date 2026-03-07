@@ -78,10 +78,72 @@ class TestOneToOneChat:
         
         assert OneToOneChat.objects.get(id=one_to_one_chat.id).property.preferences == preferences
 
+    
+    def test_room_deleted_when_participant_user_deleted(self, users, create_one_to_one_chat):
+        """
+        Test that OneToOneChat is deleted when one participant is deleted.
+        
+        Expected behavior: Since User is a participant (ManyToMany),
+        deleting a user should trigger cascade deletion of the room.
+        """
+        # Create OneToOneChat between user[0] and user[1]
+        chat = create_one_to_one_chat(users[0], users[1])
+        chat_id = chat.id
+        
+        # Verify room exists
+        room_exists = OneToOneChat.objects.filter(id=chat_id).exists()
+
+        assert room_exists is True
+        
+        # Delete user[1]
+        users[1].delete()
+        
+        # Check room status
+        # 1. Be deleted (if signal deletes rooms with <2 participants)
+
+        # Refresh room
+        room_after_deletion = OneToOneChat.objects.filter(id=chat_id).exists()
+        
+        assert room_after_deletion is False
+
+    def test_messages_deleted_when_participant_user_deleted(self, users, create_one_to_one_chat):
+        """
+        Test that messages are handled correctly when participant is deleted.
+        
+        """
+        # Create chat and messages
+        chat = create_one_to_one_chat(users[0], users[1])
+        
+        # User[0] sends messages
+        msg1 = Message.objects.create(
+            room=chat,
+            sender=users[0],
+            content='Message from user 0'
+        )
+        
+        # User[1] sends messages
+        msg2 = Message.objects.create(
+            room=chat,
+            sender=users[1],
+            content='Message from user 1'
+        )
+        
+        msg1_id = msg1.id
+        msg2_id = msg2.id
+        
+        # Delete user[1]
+        users[1].delete()
+        
+        # Check what happened to messages
+        msg1_after = Message.objects.filter(id=msg1_id).exists()
+        
+        msg2_after = Message.objects.filter(id=msg2_id).exists()
+        
+        assert msg1_after == msg2_after == False       
 
 
 class TestGroupChat:
-    """Test suite for GroupChat model"""
+    """Test suite for GroupChat model""" 
 
     def test_create_group_chat_success(self, group_chat, users):
         """Test successful creation of group chat"""

@@ -330,7 +330,10 @@ class PermissionHelperMixin:
         room = get_object_or_404(Room, pk = room_id)
         if action == "delete":
             if isinstance(room, (GroupChat, Channel)):
-                is_permitted = room.creator == user
+                is_permitted = (user in room.participants.all() \
+                                if isinstance(room, GroupChat) \
+                                else user in room.subscribers.all()) \
+                                    and room.creator == user
             else:
                 is_permitted = user in room.participants.all()
         else:
