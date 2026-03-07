@@ -299,11 +299,10 @@ them defaults or allow them to be nullable:
        class Meta(AbstractRoomProperty.Meta):
            abstract = False
 
-Because ``theme`` has a default, auto-creation via the signal works with no
-changes. 
+Because ``theme`` has a default, auto-creation via the signal out of the box. 
 
 .. Note::
-    If you have overriden an of the Room (GroupChat, Channel, OneToOneChat), then you should
+    If you have overridden any of the Room models (GroupChat, Channel, OneToOneChat), then you should
     create custom signals for this. The default signals only listens for event on the
     default models.
 

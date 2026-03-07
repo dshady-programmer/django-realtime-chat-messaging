@@ -15,7 +15,6 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-@receiver(pre_save, sender=Room)
 @receiver(pre_save, sender=OneToOneChat)
 @receiver(pre_save, sender=GroupChat)
 @receiver(pre_save, sender=Channel)
