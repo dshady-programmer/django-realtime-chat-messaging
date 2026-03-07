@@ -1,0 +1,616 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Introduction" href="introduction.html">
+        <link rel="prefetch" href="_static/logo.png" as="image">
+
+    <link rel="shortcut icon" href="_static/logo.png"><!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
+        <title>django-realtime-chat-messaging 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=1215bb9a" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #3a9e3f;
+  --color-brand-content: #2979b0;
+  --color-sidebar-background: #f4faf4;
+  --color-sidebar-background-border: #d6ead6;
+  --color-sidebar-brand-text: #2d7d32;
+  --color-sidebar-link-text: #374151;
+  --color-sidebar-link-text--top-level: #111827;
+  --color-sidebar-item-background--hover: #e8f5e8;
+  --color-sidebar-item-background--current: #c8e6c8;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f4faf4;
+  --color-background-hover: #e8f5e8;
+  --color-background-border: #cde5cd;
+  --color-foreground-primary: #111827;
+  --color-foreground-secondary: #374151;
+  --color-foreground-muted: #6b7280;
+  --color-foreground-border: #d1d5db;
+  --color-inline-code-background: #edf7ed;
+  --color-admonition-background: #f0faf0;
+  --font-stack: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-stack--monospace: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #66bb6a;
+  --color-brand-content: #64b5f6;
+  --color-sidebar-background: #0f1a0f;
+  --color-sidebar-background-border: #1b2e1b;
+  --color-sidebar-brand-text: #66bb6a;
+  --color-sidebar-link-text: #9ca3af;
+  --color-sidebar-link-text--top-level: #e5e7eb;
+  --color-sidebar-item-background--hover: #1a2e1a;
+  --color-sidebar-item-background--current: #1f3d1f;
+  --color-background-primary: #111911;
+  --color-background-secondary: #172217;
+  --color-background-hover: #1c2e1c;
+  --color-background-border: #253d25;
+  --color-foreground-primary: #f3f4f6;
+  --color-foreground-secondary: #d1d5db;
+  --color-foreground-muted: #9ca3af;
+  --color-foreground-border: #374151;
+  --color-inline-code-background: #1a2e1a;
+  --color-admonition-background: #172817;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #66bb6a;
+  --color-brand-content: #64b5f6;
+  --color-sidebar-background: #0f1a0f;
+  --color-sidebar-background-border: #1b2e1b;
+  --color-sidebar-brand-text: #66bb6a;
+  --color-sidebar-link-text: #9ca3af;
+  --color-sidebar-link-text--top-level: #e5e7eb;
+  --color-sidebar-item-background--hover: #1a2e1a;
+  --color-sidebar-item-background--current: #1f3d1f;
+  --color-background-primary: #111911;
+  --color-background-secondary: #172217;
+  --color-background-hover: #1c2e1c;
+  --color-background-border: #253d25;
+  --color-foreground-primary: #f3f4f6;
+  --color-foreground-secondary: #d1d5db;
+  --color-foreground-muted: #9ca3af;
+  --color-foreground-border: #374151;
+  --color-inline-code-background: #1a2e1a;
+  --color-admonition-background: #172817;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="#"><div class="brand">django-realtime-chat-messaging 0.1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="_static/logo.png" alt="Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Concepts</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rooms.html">Rooms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="messages.html">Messages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sessions.html">Sessions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notifications.html">Notifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">Permissions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">WebSocket API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="websocket_events.html">WebSocket Events</a></li>
+<li class="toctree-l1"><a class="reference internal" href="error_codes.html">Error Codes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Settings Reference</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="custom_models.html">Custom Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_serializers.html">Custom Serializers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_handlers.html">Custom Handlers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_consumer.html">Custom Consumer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="custom_permissions.html">Custom Permissions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Deployment</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="django-realtime-chat-messaging">
+<h1>django-realtime-chat-messaging<a class="headerlink" href="#django-realtime-chat-messaging" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#what-it-does">What It Does</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#what-it-does-not-do">What It Does NOT Do</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#design-philosophy">Design Philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-the-package">Install the Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#configure-installed-apps">Configure <code class="docutils literal notranslate"><span class="pre">INSTALLED_APPS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#add-guardian-authentication-backend">Add Guardian Authentication Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#configure-the-asgi-application">Configure the ASGI Application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#configure-channel-layers">Configure Channel Layers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#configure-cache">Configure Cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#run-migrations">Run Migrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#verify-the-installation">Verify the Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-1-install">Step 1 — Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-2-update-settings-py">Step 2 — Update <code class="docutils literal notranslate"><span class="pre">settings.py</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-3-create-asgi-py">Step 3 — Create <code class="docutils literal notranslate"><span class="pre">asgi.py</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-4-run-migrations">Step 4 — Run Migrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-5-add-jwt-token-endpoint-optional-but-recommended">Step 5 — Add JWT Token Endpoint (optional but recommended)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#step-6-connect-and-chat">Step 6 — Connect and Chat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#what-happens-automatically">What Happens Automatically</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#the-single-endpoint">The Single Endpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#the-event-protocol">The Event Protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#the-three-room-types">The Three Room Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#what-happens-automatically">What Happens Automatically</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#your-first-conversation">Your First Conversation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#key-behaviours-to-know">Key Behaviours to Know</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Core Concepts</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#high-level-overview">High-Level Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#request-lifecycle">Request Lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#the-polymorphic-room-model">The Polymorphic Room Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#the-settings-system">The Settings System</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#async-sync-boundary">Async/Sync Boundary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rooms.html">Rooms</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rooms.html#room-types">Room Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rooms.html#roomproperty">RoomProperty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rooms.html#permissions-summary">Permissions Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rooms.html#creating-rooms">Creating Rooms</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="messages.html">Messages</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="messages.html#message-fields">Message Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messages.html#sending-messages">Sending Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messages.html#content-sanitisation">Content Sanitisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messages.html#media-attachments">Media Attachments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messages.html#editing-and-deleting-messages">Editing and Deleting Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messages.html#reactions">Reactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messages.html#read-receipts">Read Receipts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messages.html#delivery-acknowledgement">Delivery Acknowledgement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messages.html#retrieving-messages">Retrieving Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messages.html#typing-indicators">Typing Indicators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="messages.html#message-serializer-output">Message Serializer Output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sessions.html">Sessions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="sessions.html#how-sessions-work">How Sessions Work</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sessions.html#session-model-fields">Session Model Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sessions.html#inactivity-threshold">Inactivity Threshold</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sessions.html#heartbeat">Heartbeat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sessions.html#multi-device-support">Multi-Device Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sessions.html#cache-storage">Cache Storage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notifications.html">Notifications</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html#how-notifications-work">How Notifications Work</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html#notification-types">Notification Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html#the-chat-notifications-event">The <code class="docutils literal notranslate"><span class="pre">chat.notifications</span></code> Event</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html#enabling-and-disabling">Enabling and Disabling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html#integrating-with-a-push-service">Integrating with a Push Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html#overriding-the-on-connect-dispatch">Overriding the On-Connect Dispatch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html#deleted-messages">Deleted Messages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="permissions.html">Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#permission-decorators">Permission Decorators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#object-level-permissions">Object-Level Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#managing-permissions-via-websocket">Managing Permissions via WebSocket</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#managing-admins-and-moderators">Managing Admins and Moderators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#customising-permissions">Customising Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html#the-default-admin-names-parameter">The <code class="docutils literal notranslate"><span class="pre">default_admin_names</span></code> Parameter</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">WebSocket API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="websocket_events.html">WebSocket Events</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="websocket_events.html#connection">Connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket_events.html#payload-format">Payload Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket_events.html#on-connect">On Connect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket_events.html#message-events">Message Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket_events.html#room-events">Room Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket_events.html#session-events">Session Events</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket_events.html#display-logic-tips">Display Logic Tips</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="error_codes.html">Error Codes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="error_codes.html#error-payload-format">Error Payload Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="error_codes.html#id1">Error Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="error_codes.html#handling-errors-on-the-client">Handling Errors on the Client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="error_codes.html#the-connection-close-code">The Connection Close Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="error_codes.html#invalid-event-types">Invalid Event Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="error_codes.html#custom-exception-handlers">Custom Exception Handlers</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Configuration</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Settings Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#behavioural-settings">Behavioural Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#pluggable-class-settings">Pluggable Class Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#models-dictionary"><code class="docutils literal notranslate"><span class="pre">MODELS</span></code> Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#serializers-dictionary"><code class="docutils literal notranslate"><span class="pre">SERIALIZERS</span></code> Dictionary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#complete-example">Complete Example</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Customization</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="custom_models.html">Custom Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom_models.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_models.html#step-1-create-a-new-app">Step 1 — Create a New App</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_models.html#step-2-create-your-model">Step 2 — Create Your Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_models.html#step-3-register-in-settings">Step 3 — Register in Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_models.html#step-4-create-a-custom-serializer">Step 4 — Create a Custom Serializer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_models.html#step-5-migrations-and-the-circular-dependency-fix">Step 5 — Migrations and the Circular Dependency Fix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_models.html#step-6-signals">Step 6 — Signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_models.html#available-abstract-models">Available Abstract Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_models.html#extending-room-types">Extending Room Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_models.html#extending-roomproperty">Extending RoomProperty</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_models.html#swapping-multiple-models">Swapping Multiple Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="custom_serializers.html">Custom Serializers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom_serializers.html#the-serializer-mixin-pattern">The Serializer Mixin Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_serializers.html#available-mixins">Available Mixins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_serializers.html#customizing-userserializer">Customizing <code class="docutils literal notranslate"><span class="pre">UserSerializer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_serializers.html#customizing-messageserializer">Customizing <code class="docutils literal notranslate"><span class="pre">MessageSerializer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_serializers.html#customizing-room-serializers">Customizing Room Serializers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_serializers.html#validation-and-extra-fields">Validation and <code class="docutils literal notranslate"><span class="pre">extra_fields</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="custom_handlers.html">Custom Handlers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom_handlers.html#creating-a-custom-eventhandler">Creating a Custom EventHandler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_handlers.html#choosing-which-layer-to-override">Choosing Which Layer to Override</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_handlers.html#async-method-examples">Async Method Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_handlers.html#sync-helper-examples">Sync Helper Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_handlers.html#adding-sync-db-calls-inside-an-async-override">Adding Sync DB Calls Inside an Async Override</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_handlers.html#customising-the-exceptionhandler">Customising the ExceptionHandler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_handlers.html#available-methods-to-override">Available Methods to Override</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="custom_consumer.html">Custom Consumer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#creating-a-custom-consumer">Creating a Custom Consumer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#overriding-connect-and-disconnect">Overriding <code class="docutils literal notranslate"><span class="pre">connect</span></code> and <code class="docutils literal notranslate"><span class="pre">disconnect</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#adding-new-event-handlers">Adding New Event Handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#registering-new-events-with-the-event-mapper">Registering New Events with the Event Mapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#adding-rate-limiting">Adding Rate Limiting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#using-send-group-in-custom-handlers">Using <code class="docutils literal notranslate"><span class="pre">send_group</span></code> in Custom Handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#full-custom-consumer-example">Full Custom Consumer Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="custom_permissions.html">Custom Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom_permissions.html#the-simplest-override">The Simplest Override</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_permissions.html#overriding-the-sync-helper-layer">Overriding the Sync Helper Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_permissions.html#method-return-types">Method Return Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_permissions.html#the-default-admin-names-parameter">The <code class="docutils literal notranslate"><span class="pre">default_admin_names</span></code> Parameter</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Deployment</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html#redis">Redis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html#asgi-server">ASGI Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html#nginx-configuration">Nginx Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html#systemd-service">systemd Service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html#production-settings-checklist">Production Settings Checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html#database">Database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html#security-considerations">Security Considerations</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#eventhandler">EventHandler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#permissionhandler">PermissionHandler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#exceptionhandler">ExceptionHandler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#chatmessagingconsumer">ChatMessagingConsumer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#loader-utilities">Loader Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#settings">Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#cache-utilities">Cache Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#websocket-close-codes">WebSocket Close Codes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#id1">0.1.0 (2026-02-08)</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="introduction.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Introduction</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Peter Erinfolami
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=38b66d78"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=eef4a3d2"></script>
+    <script src="_static/custom.js?v=928970bf"></script>
+    </body>
+</html>

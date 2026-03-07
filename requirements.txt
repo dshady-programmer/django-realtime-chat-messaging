@@ -1,0 +1,16 @@
+django
+djangorestframework
+django-polymorphic
+django-guardian
+django-rest-polymorphic
+drf-recursive
+bleach
+channels
+channels-redis
+daphne
+django-channels-jwt-auth-middleware
+djangorestframework-simplejwt
+pytest
+pytest-django
+pytest-asyncio
+pytest-xdist
