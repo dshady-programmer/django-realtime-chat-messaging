@@ -1114,6 +1114,16 @@ field.
 
    {"status": "success"}
 
+.. warning::
+
+   Failing to send heartbeats regularly has a side effect beyond session
+   expiry: if your session expires and you then trigger any event that adds
+   you to a new group (such as ``room.create``), your channel will not be
+   added to that group because ``add_channel_to_group`` only operates on
+   active sessions. Broadcasts to that group will never reach you — with no
+   error. Send ``session.heartbeat`` every 15–30 seconds to keep your session
+   active. See :doc:`troubleshooting` for a full explanation.
+
 Display Logic Tips
 -------------------
 
@@ -1129,3 +1139,115 @@ display accurate status messages without additional logic:
 
 Use these values to drive system messages in your chat UI rather than
 hard-coding logic on the client side.
+
+.. _why-am-i-not-receiving-broadcasts:
+
+Why Am I Not Receiving Broadcasts?
+------------------------------------
+
+This is one of the most common issues new users encounter. The symptoms are
+confusing: you send an event, the server responds (so the connection is clearly
+working), but the broadcast never arrives on the other client. No error is
+raised. Nothing in the logs explains it.
+
+There are two root causes, both related to how the package manages group
+membership.
+
+How Group Membership Works
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a user connects, the consumer calls ``channel_setup()`` which does two
+things: it registers the session, and it adds the user's current
+``channel_name`` to every channel group corresponding to the rooms they belong
+to. This is what makes real-time delivery possible — the user's connection is
+subscribed to each room's group, so broadcasts reach them instantly.
+
+The key detail is that this group membership is **not stored in the database**.
+It lives in the channel layer (in-memory or Redis). If the channel layer loses
+its state, or if the session that recorded the user's ``channel_name`` is no
+longer considered active, the user's connection is effectively invisible to the
+broadcast system — even though the WebSocket is still open and responding.
+
+Cause 1 — In-Memory Cache Cleared on Restart
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The in-memory channel layer (``channels.layers.InMemoryChannelLayer``) and the
+in-memory Django cache (``django.core.cache.backends.locmem.LocMemCache``) both
+live in the server process's memory. When the server restarts, both are wiped
+completely.
+
+The cache stores which channel groups each user belongs to. When a new event
+arrives that involves adding the user to a group (e.g. ``room.create``,
+``room.add_members``), the package calls ``add_channel_to_group``, which first
+queries the cache for the user's active sessions to find their current
+``channel_name``. If the cache was cleared by a restart, those session records
+are gone — so the method finds nothing to add and the user never gets subscribed
+to the new group.
+
+The user is still connected. They can still send events and receive private
+responses. But they will not receive any broadcasts to that room until they
+disconnect and reconnect (which triggers ``channel_setup()`` again and
+re-registers everything).
+
+.. note::
+
+   This is expected behaviour in development and not a bug. It becomes a real
+   problem the moment you deploy to a multi-process or restarting environment
+   without switching to a persistent cache. Use Redis for both ``CHANNEL_LAYERS``
+   and ``CACHES`` in any environment where this matters — see :doc:`deployment`.
+
+Cause 2 — Session Expired Due to Missed Heartbeats
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The package tracks active sessions using ``INACTIVITY_THRESHOLD`` (default: 60
+seconds). A session is considered active as long as heartbeat events keep
+arriving. When ``add_channel_to_group`` is called, it queries for the user's
+**active** sessions only — sessions whose last heartbeat is within the threshold
+— to find the ``channel_name`` values to add to a group.
+
+If heartbeats stop (network hiccup, tab backgrounded, client bug, heartbeat
+interval too long), the session crosses the inactivity threshold and is no
+longer returned by the active session query. Any subsequent broadcast that
+requires adding the user to a new group silently skips them — because from the
+package's perspective, they have no active session.
+
+Again, the WebSocket may still be open. The user can still send events. But they
+will not receive broadcasts to newly joined or created rooms until they
+reconnect.
+
+The fix is to send ``session.heartbeat`` reliably every 15–30 seconds from the
+client and to set ``INACTIVITY_THRESHOLD`` to a value comfortably above your
+heartbeat interval:
+
+.. code-block:: javascript
+
+   // Send a heartbeat every 20 seconds
+   setInterval(() => {
+     if (ws.readyState === WebSocket.OPEN) {
+       ws.send(JSON.stringify({ event_type: "session.heartbeat", data: {} }));
+     }
+   }, 20000);
+
+.. code-block:: python
+
+   # settings.py — give yourself a comfortable margin above the interval
+   REALTIME_CHAT_MESSAGING = {
+       "INACTIVITY_THRESHOLD": 60,  # seconds — default
+   }
+
+Summary and Checklist
+~~~~~~~~~~~~~~~~~~~~~~
+
+If a client is connected but not receiving broadcasts, work through this list:
+
+- Did the server restart since the client connected? → Disconnect and reconnect
+  the client to re-register the session.
+- Are you using the in-memory channel layer or in-memory cache in a
+  multi-process or restarting environment? → Switch to Redis for both
+  ``CHANNEL_LAYERS`` and ``CACHES``.
+- Is the client sending ``session.heartbeat`` every 15–30 seconds? → Add it if
+  not, and confirm it is being sent reliably (check the network tab).
+- Is ``INACTIVITY_THRESHOLD`` set lower than the heartbeat interval? → Raise it
+  so sessions do not expire between heartbeats.
+- Is the user actually a member of the room being broadcast to? → Confirm with
+  ``room.list`` or ``room.info``.

@@ -33,7 +33,9 @@ django-realtime-chat-messaging
    :caption: Configuration
 
    settings
-   
+   models_swapping
+   serializers_swapping
+
 .. toctree::
    :maxdepth: 2
    :caption: Customization
@@ -55,4 +57,5 @@ django-realtime-chat-messaging
    :caption: Reference
 
    api_reference
+   troubleshooting
    changelog

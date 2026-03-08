@@ -269,3 +269,4 @@ Next Steps
 - Read :doc:`rooms` to understand the three room types and their differences.
 - Read :doc:`custom_models` if you need to extend any of the default models.
 - Read :doc:`deployment` when you are ready for production.
+- Read :doc:`troubleshooting` if events fire but broadcasts are not received.

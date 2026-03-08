@@ -194,6 +194,14 @@ Production Settings Checklist
        "ENABLE_NOTIFICATION": True,
    }
 
+.. note::
+
+   A persistent Redis cache and channel layer are not optional in production.
+   In-memory backends lose all session and group membership state on process
+   restart, which causes broadcasts to silently stop reaching connected clients.
+   See :doc:`troubleshooting` for a full explanation of this and other common
+   issues.
+
 Database
 --------
 
@@ -259,6 +267,32 @@ token expires mid-session, the connection is not automatically closed — the
 existing connection continues until it disconnects naturally. Only new connections
 will be rejected. Implement token refresh in your client WebSocket reconnect
 logic.
+
+Missing Broadcasts in Production
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If users are connected but not receiving broadcast messages, the two most likely
+causes are:
+
+1. **Non-persistent cache** — The package stores active session data (including
+   the ``channel_name`` used to subscribe connections to room groups) in the
+   Django cache. If you are using the in-memory cache (``LocMemCache``), that
+   data is wiped on every server restart. Any subsequent event that adds a user
+   to a channel group (room creation, being added to a room) will silently find
+   no active sessions to subscribe — so the user never receives the broadcast,
+   even though their WebSocket is still open. **Always use Redis for both**
+   ``CACHES`` **and** ``CHANNEL_LAYERS`` **in production.**
+
+2. **Expired sessions from missed heartbeats** — ``add_channel_to_group``
+   queries for active sessions only (within ``INACTIVITY_THRESHOLD``). If the
+   client stops sending heartbeats and the threshold elapses, the session is
+   considered inactive and is excluded from group subscriptions. The connection
+   remains open and can still send/receive private responses, but it will not
+   receive broadcasts to any new groups until the user reconnects. **Always send**
+   ``session.heartbeat`` **every 15–30 seconds in production clients.**
+
+See :ref:`Why Am I Not Receiving Broadcasts? <why-am-i-not-receiving-broadcasts>`
+in the WebSocket Events reference for a full explanation and debugging checklist.
 
 Session Heartbeat Interval
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
