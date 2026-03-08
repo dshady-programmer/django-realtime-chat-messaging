@@ -159,7 +159,7 @@ Production Settings Checklist
    # settings.py (production)
 
    DEBUG = False
-   ALLOWED_HOSTS = ["example.com"]
+   ALLOWED_HOSTS = ["example.com", "www.example.com"]  # required — AllowedHostsOriginValidator reads this
    SECRET_KEY = os.environ["SECRET_KEY"]
 
    # Redis channel layer
@@ -211,9 +211,38 @@ Security Considerations
 WebSocket Origin Validation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``asgi.py`` example uses ``AllowedHostsOriginValidator`` to restrict
-WebSocket connections to origins listed in ``ALLOWED_HOSTS``. This prevents
-cross-site WebSocket hijacking. Keep this in your production stack.
+``AllowedHostsOriginValidator`` wraps the WebSocket stack in ``asgi.py`` and
+validates every incoming connection's ``Origin`` header against Django's
+``ALLOWED_HOSTS`` setting. If the origin is not in the list, the WebSocket
+handshake is rejected before it reaches the consumer. This prevents cross-site
+WebSocket hijacking (CSWSH).
+
+This is already wired in the ``asgi.py`` example — but it only works if
+``ALLOWED_HOSTS`` is populated correctly. The production settings block above
+already sets this:
+
+.. code-block:: python
+
+   ALLOWED_HOSTS = ["example.com"]
+
+For development, use ``["*"]`` or ``["localhost", "127.0.0.1"]``:
+
+.. code-block:: python
+
+   # settings.py (development)
+   ALLOWED_HOSTS = ["*"]
+
+.. warning::
+
+   Never use ``ALLOWED_HOSTS = ["*"]`` in production. List only the exact
+   hostnames your app is served from. An empty ``ALLOWED_HOSTS`` (the Django
+   default when ``DEBUG = False``) will cause every WebSocket connection to be
+   rejected silently — the handshake fails with no error in your application logs,
+   which makes it an easy misconfiguration to miss.
+
+Keep ``AllowedHostsOriginValidator`` in your production ``asgi.py`` at all times.
+Do not remove it to "fix" connection issues — the correct fix is always to update
+``ALLOWED_HOSTS``.
 
 Authentication
 ~~~~~~~~~~~~~~

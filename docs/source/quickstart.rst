@@ -103,6 +103,26 @@ Step 3 — Create ``asgi.py``
        }
    )
 
+
+.. important::
+
+   ``AllowedHostsOriginValidator`` validates WebSocket connection origins against
+   Django's ``ALLOWED_HOSTS`` setting. If ``ALLOWED_HOSTS`` is empty or does not
+   include your host, every WebSocket connection will be rejected silently —
+   no error is raised, the handshake simply fails.
+
+   Add this to your ``settings.py`` alongside the other settings above:
+
+   .. code-block:: python
+
+      # Development — allow any host
+      ALLOWED_HOSTS = ["*"]
+
+      # Production — list your actual hostnames explicitly
+      # ALLOWED_HOSTS = ["example.com", "www.example.com"]
+
+   Never use ``"*"`` in production.
+
 Step 4 — Run Migrations
 ------------------------
 

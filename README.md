@@ -82,6 +82,36 @@ SIMPLE_JWT = {
 > server. If you prefer Uvicorn or Hypercorn, omit it from `INSTALLED_APPS` and
 > start your server manually instead.
 
+> **Important:** `AllowedHostsOriginValidator` in `asgi.py` reads directly from
+> Django's `ALLOWED_HOSTS` setting. If `ALLOWED_HOSTS` is empty or does not
+> include your host, every WebSocket connection will be rejected silently.
+> Always set it before testing:
+>
+> ```python
+> # Development
+> ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+>
+> # Production
+> ALLOWED_HOSTS = ["example.com", "www.example.com"]
+> ```
+>
+> Never use `ALLOWED_HOSTS = ["*"]` in production.
+
+
+> **Important:** `AllowedHostsOriginValidator` (used in `asgi.py` below) validates
+> WebSocket origins against Django's `ALLOWED_HOSTS`. If it is not set, every
+> WebSocket connection will be silently rejected. Add this to `settings.py`:
+>
+> ```python
+> # Development
+> ALLOWED_HOSTS = ["*"]
+>
+> # Production — use your real hostnames
+> # ALLOWED_HOSTS = ["example.com", "www.example.com"]
+> ```
+>
+> Never use `"*"` in production.
+
 ### 2. `asgi.py`
 
 ```python
@@ -239,3 +269,5 @@ Includes:
 ## License
 
 Apache 2.0 — see [LICENSE](LICENSE).
+
+

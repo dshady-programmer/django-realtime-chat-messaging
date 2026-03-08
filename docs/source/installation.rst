@@ -99,7 +99,7 @@ Set your ASGI application in ``settings.py``:
 
 Then create or update ``asgi.py``. The example below uses
 ``django-channels-jwt-auth-middleware`` for JWT-based WebSocket authentication,
-which is the recommended approach:
+which is the recommended approach especially with REST APIs:
 
 .. code-block:: python
 
@@ -128,6 +128,47 @@ which is the recommended approach:
            ),
        }
    )
+
+
+.. important::
+
+   ``AllowedHostsOriginValidator`` validates the WebSocket connection's origin
+   header against Django's ``ALLOWED_HOSTS`` setting. If the host is not listed,
+   the connection is rejected silently before it reaches your consumer.
+
+   Make sure ``ALLOWED_HOSTS`` is set in ``settings.py``:
+
+   .. code-block:: python
+
+      # Development — allow any host
+      ALLOWED_HOSTS = ["*"]
+
+      # Production — list your hostnames explicitly
+      # ALLOWED_HOSTS = ["example.com", "www.example.com"]
+
+   Forgetting this is one of the most common reasons WebSocket connections fail
+   after a fresh setup. Never use ``"*"`` in production.
+
+.. warning::
+
+   ``AllowedHostsOriginValidator`` reads directly from Django's ``ALLOWED_HOSTS``
+   setting to decide whether to accept or reject each incoming WebSocket
+   connection. If ``ALLOWED_HOSTS`` is empty or does not include the host your
+   client is connecting from, **every WebSocket connection will be rejected**
+   with no meaningful error on the client side — the connection simply closes
+   immediately.
+
+   Make sure ``ALLOWED_HOSTS`` is set correctly before testing:
+
+   .. code-block:: python
+
+      # settings.py — development
+      ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+      # settings.py — production
+      ALLOWED_HOSTS = ["example.com", "www.example.com"]
+
+   Never use ``ALLOWED_HOSTS = ["*"]`` in production.
 
 .. note::
 
@@ -190,7 +231,7 @@ re-subscribed to their rooms on reconnect without a database query.
    CACHES = {
        "default": {
            "BACKEND": "django.core.cache.backends.redis.RedisCache",
-           "LOCATION": "redis://localhost:6379", # localhost is used here as demo, replace with your redis server prepared for production
+           "LOCATION": "redis://localhost:6379",
        }
    }
 
