@@ -18,17 +18,19 @@ Step 2 — Update ``settings.py``
 .. code-block:: python
 
    INSTALLED_APPS = [
-       "daphne",
-       "channels",
+       "daphne",                         # serves ASGI — see note below
+       "channels",                       # required
        "django.contrib.admin",
        "django.contrib.auth",
-       "polymorphic",
-       "django.contrib.contenttypes",
+       "polymorphic",                    # required — django-polymorphic
+       "django.contrib.contenttypes",    # required by polymorphic
        "django.contrib.sessions",
        "django.contrib.messages",
        "django.contrib.staticfiles",
-       "guardian",
-       "realtime_chat_messaging",
+       "guardian",                       # required — django-guardian
+       "rest_framework",                 # required — djangorestframework
+       "realtime_chat_messaging",        # required
+       # ... your own apps
    ]
 
    ASGI_APPLICATION = "yourproject.asgi.application"
@@ -58,6 +60,20 @@ Step 2 — Update ``settings.py``
    SIMPLE_JWT = {
        "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
    }
+
+.. note::
+
+   ``"daphne"`` at the top of ``INSTALLED_APPS`` is only required if you are
+   using Daphne as your ASGI server — it overrides Django's ``runserver``
+   command to serve ASGI automatically. If you are using a different ASGI server
+   such as Uvicorn or Hypercorn, omit it from ``INSTALLED_APPS`` and start your
+   server manually. For development the simplest option is to keep Daphne.
+
+.. important::
+
+   ``"polymorphic"`` and ``"guardian"`` must be present in ``INSTALLED_APPS``
+   even if you are not using them directly in your own code. The package depends
+   on both. Missing either will cause migration or runtime errors.
 
 Step 3 — Create ``asgi.py``
 ----------------------------
@@ -113,18 +129,40 @@ Add ``djangorestframework-simplejwt`` URLs so clients can obtain tokens:
 Step 6 — Connect and Chat
 --------------------------
 
-Obtain a JWT token:
+First, create a user to authenticate with. You can do this via the Django shell
+or the admin panel:
+
+.. code-block:: bash
+
+   python manage.py shell
+
+.. code-block:: python
+
+   from django.contrib.auth import get_user_model
+   User = get_user_model()
+
+   # Create two users — you will need at least two to test a chat
+   alice = User.objects.create_user(username="alice", password="secret123")
+   bob   = User.objects.create_user(username="bob",   password="secret123")
+
+   print(alice.id, bob.id)   # note the IDs — you will need them below
+
+Now start the server and obtain a token for Alice:
+
+.. code-block:: bash
+
+   python manage.py runserver
 
 .. code-block:: bash
 
    curl -X POST http://localhost:8000/api/token/ \
      -H "Content-Type: application/json" \
-     -d '{"username": "alice", "password": "secret"}'
+     -d '{"username": "alice", "password": "secret123"}'
    # → {"access": "<token>", "refresh": "..."}
 
-Connect to the WebSocket (pass the token as a query parameter — depends on your
-middleware; ``django-channels-jwt-auth-middleware`` reads it from the query string
-by default):
+Copy the ``access`` value. Connect to the WebSocket — the token is passed as a
+query parameter (``django-channels-jwt-auth-middleware`` reads it from the query
+string by default):
 
 .. code-block:: javascript
 
@@ -134,12 +172,12 @@ by default):
    ws.onopen = () => {
      console.log("Connected!");
 
-     // Create a one-to-one chat with user ID 2
+     // Create a one-to-one chat with Bob (use Bob's actual user ID)
      ws.send(JSON.stringify({
        event_type: "room.create",
        data: {
          type: "OneToOneChat",
-         participants: [2]
+         participants: [2]   // replace 2 with Bob's actual ID
        }
      }));
    };
@@ -149,8 +187,8 @@ by default):
      console.log(msg.eventType, msg.data);
    };
 
-The server will respond with a ``roomcreate.dispatch`` event containing the new
-room's details. To send a message into that room:
+The server responds with a ``roomcreate.dispatch`` event containing the new
+room's details. Send a message into that room:
 
 .. code-block:: javascript
 
@@ -164,6 +202,32 @@ room's details. To send a message into that room:
 
 All participants in the room — including on other devices — will receive a
 ``message.dispatch`` event in real time.
+
+Testing with a GUI Tool
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you prefer a visual interface over JavaScript, `WebSocket King
+<https://websocketking.com>`_ is a browser-based WebSocket client that works
+well for testing this package.
+
+1. Open `https://websocketking.com <https://websocketking.com>`_ in your browser.
+2. Enter your connection URL with the token in the query string::
+
+      ws://localhost:8000/messaging/?token=<your_access_token>
+
+3. Click **Connect**.
+4. In the message input, paste a JSON event and click **Send**:
+
+   .. code-block:: json
+
+      {"event_type": "room.create", "data": {"type": "OneToOneChat", "participants": [2]}}
+
+.. warning::
+
+   Do not omit the ``?token=<your_access_token>`` query parameter from the
+   connection URL. Without it the server cannot authenticate the connection and
+   will close it immediately. There is no separate authentication step — the
+   token goes in the URL when you open the socket.
 
 What Happens Automatically
 ---------------------------
