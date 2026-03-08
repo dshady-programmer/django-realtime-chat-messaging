@@ -1,9 +1,17 @@
 WebSocket Events
 ================
 
-All communication with the server happens over a single WebSocket connection.
-Client-to-server messages are called **events**; server-to-client messages are
-called **dispatches**.
+All communication with the server happens over a single persistent WebSocket
+connection. There are two directions of communication:
+
+- **Events** — messages sent *from the client to the server* to trigger an action
+  (create a room, send a message, react, etc.)
+- **Dispatches** — messages sent *from the server to the client* in response to
+  events. Some dispatches go only to the user who sent the event (private);
+  others are broadcast to every member of the relevant room (broadcast).
+
+Understanding which dispatches you will receive for a given event — and who else
+receives them — is essential for building your frontend correctly.
 
 Connection
 ----------
@@ -12,8 +20,11 @@ Connect to::
 
    ws://<host>/messaging/
 
-Authentication is handled by your ASGI middleware. Unauthenticated connections
-are closed immediately with code ``4001``.
+Authentication is handled by your ASGI middleware. Pass your JWT access token
+as a query parameter — do not omit it, as unauthenticated connections are closed
+immediately with code ``4001``::
+
+   ws://localhost:8000/messaging/?token=<your_access_token>
 
 Payload Format
 --------------
@@ -36,35 +47,180 @@ Every server dispatch follows this structure:
      "data": { ... }
    }
 
-Note the difference in casing: ``event_type`` (snake_case) for client events,
-``eventType`` (camelCase) for server dispatches.
+Note the casing difference: ``event_type`` (snake_case) for client events,
+``eventType`` (camelCase) for server dispatches. This is intentional — it makes
+it trivial to tell which direction a message is travelling.
+
+Events and Dispatches — Full Reference Table
+---------------------------------------------
+
+The table below lists every client event, the dispatch(es) it produces, and who
+receives each dispatch. Read this table before working through the detailed
+sections — it gives you the complete picture at a glance.
+
+**Broadcast** means all current members of the relevant room receive the dispatch,
+including the user who sent the event. **Private** means only the user who sent
+the event receives the dispatch. **Targeted** means the dispatch is sent to a
+specific subset of users (e.g. only the message sender, or only the removed
+members).
+
+.. list-table::
+   :header-rows: 1
+   :widths: 24 28 12 36
+
+   * - Client event
+     - Server dispatch
+     - Delivery
+     - Notes
+   * - *(on connect)*
+     - ``chat.notifications``
+     - Private
+     - Dispatched automatically on every successful connection. Contains all
+       pending notifications grouped by room. Only fires when
+       ``ENABLE_NOTIFICATION`` is ``True``.
+   * - ``message.send``
+     - ``message.dispatch``
+     - Broadcast
+     - Full message object sent to every room member in real time.
+   * - ``message.acknowledged``
+     - ``messagedelivered.dispatch``
+     - Targeted
+     - Sent only to the original sender(s) of the acknowledged messages,
+       informing them their message was delivered.
+   * - ``message.read``
+     - ``readreceipt.dispatch``
+     - Broadcast
+     - Sent to all room members so every client can update read state.
+   * - ``message.react``
+     - ``reaction.dispatch``
+     - Broadcast
+     - Sent to all room members with the updated message including reactions.
+   * - ``message.typing``
+     - ``messagetyping.dispatch``
+     - Broadcast
+     - Sent to all room members. Not persisted — purely real time.
+   * - ``message.modify`` (update)
+     - ``messagemodification.dispatch``
+     - Broadcast
+     - Sent to all room members with the updated message.
+   * - ``message.modify`` (delete)
+     - ``messagemodification.dispatch``
+     - Broadcast
+     - Sent to all room members with the list of deleted message IDs.
+   * - ``room.create``
+     - ``roomcreate.dispatch``
+     - Broadcast
+     - Sent to all initial members (creator + participants/subscribers).
+   * - ``room.list``
+     - ``roomlist.dispatch``
+     - Private
+     - Sent only to the requesting user. Contains all their rooms.
+   * - ``room.info``
+     - ``roominfo.dispatch``
+     - Private
+     - Sent only to the requesting user. Full details for one room.
+   * - ``room.messages``
+     - ``roommessages.dispatch``
+     - Private
+     - Sent only to the requesting user. Paginated message history.
+   * - ``room.join``
+     - ``roomaddmembers.dispatch``
+     - Broadcast
+     - Sent to all existing members notifying them of the new joiner.
+   * - ``room.leave``
+     - ``roomexit.dispatch``
+     - Targeted (leaver)
+     - Sent to the leaving user confirming they left.
+   * - ``room.leave``
+     - ``roomremovemembers.dispatch``
+     - Broadcast
+     - Sent to remaining members notifying them someone left.
+   * - ``room.leave`` *(if room becomes empty)*
+     - ``roomdelete.dispatch``
+     - Broadcast
+     - Sent to all members if the room is deleted after becoming empty.
+   * - ``room.add_members``
+     - ``roomaddmembers.dispatch``
+     - Broadcast
+     - Sent to all room members (including newly added ones) with the list of
+       who was added and by whom.
+   * - ``room.remove_members``
+     - ``roomexit.dispatch``
+     - Targeted (removed)
+     - Sent individually to each removed user informing them they were removed.
+   * - ``room.remove_members``
+     - ``roomremovemembers.dispatch``
+     - Broadcast
+     - Sent to remaining members with the list of who was removed and by whom.
+   * - ``room.modify`` (update/permissions/admin)
+     - ``roomupdate.dispatch``
+     - Broadcast
+     - Sent to all room members with the full updated room object.
+   * - ``room.modify`` (delete)
+     - ``roomdelete.dispatch``
+     - Broadcast
+     - Sent to all room members notifying them the room was deleted.
+   * - ``session.heartbeat``
+     - *(status response)*
+     - Private
+     - Returns ``{"status": "success"}`` to the requesting user. Not a formal
+       dispatch event.
 
 On Connect
 ----------
 
+When a client connects successfully, two things happen automatically before any
+event is sent:
+
+1. **Session registration** — the connection is registered and the client is
+   added to the channel groups for every room the user belongs to. This is what
+   enables real-time delivery: once connected, the user will receive broadcasts
+   from all their rooms immediately, even if they were offline when messages were
+   sent.
+
+2. **Notification dispatch** — if ``ENABLE_NOTIFICATION`` is ``True``, all
+   pending notifications are fetched and dispatched immediately so the client can
+   show unread counts or missed message badges without sending any event first.
+
 ``chat.notifications``
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Dispatched automatically to the connecting user immediately after a successful
-connection (when ``ENABLE_NOTIFICATION`` is ``True``).
+Dispatched automatically to the connecting user on every successful connection
+(when ``ENABLE_NOTIFICATION`` is ``True``).
+
+**Delivery:** Private — only the connecting user receives this.
 
 .. code-block:: javascript
 
    {
      "eventType": "chat.notifications",
      "data": {
-       "<room_uuid>": [
+       "<room_uuid_1>": [
          {
            "id": "<notification_uuid>",
            "notification_type": "NEW_MESSAGE",
+           "message": {
+             "id": "<message_uuid>",
+             "sender": {"id": 2, "username": "bob"},
+             "content": "Hey, are you there?",
+             "created_at": "2026-01-01T10:00:00Z"
+           }
+         }
+       ],
+       "<room_uuid_2>": [
+         {
+           "id": "<notification_uuid>",
+           "notification_type": "REACTION",
            "message": { ... }
          }
        ]
      }
    }
 
-Data is keyed by room UUID. Each value is a list of notification objects for that
-room. An empty object (``{}``) means no pending notifications.
+The data object is keyed by room UUID so your frontend can display per-room
+unread counts without any additional processing. An empty object (``{}``) means
+no pending notifications. Notification types are ``NEW_MESSAGE``, ``REPLY``, and
+``REACTION``.
 
 Message Events
 --------------
@@ -72,9 +228,16 @@ Message Events
 ``message.send``
 ~~~~~~~~~~~~~~~~
 
-Send a new message to a room. Requires room membership and send permission.
+Send a new message to a room. The sender must be a member of the room and must
+have send permission.
 
-**Client payload**::
+**Delivery:** Broadcast — all room members receive ``message.dispatch`` in real
+time, including the sender (so the sender can confirm delivery without special
+handling).
+
+**Client payload:**
+
+.. code-block:: javascript
 
    {
      "event_type": "message.send",
@@ -82,9 +245,9 @@ Send a new message to a room. Requires room membership and send permission.
        "room_id": "<room_uuid>",
        "content": "Hello!",
        "extra_fields": {
-         "parent_message_id": "<uuid>",   // optional — creates a reply
-         "forwarded_from_id": "<uuid>",   // optional — creates a forward
-         "media": [                        // optional — attach files
+         "parent_message_id": "<uuid>",    // optional — reply to a message
+         "forwarded_from_id": "<uuid>",    // optional — forward a message
+         "media": [                         // optional — attach files
            {
              "media_url": "https://cdn.example.com/file.jpg",
              "media_type": "image",
@@ -100,23 +263,50 @@ Send a new message to a room. Requires room membership and send permission.
 .. note::
 
    ``parent_message_id`` and ``forwarded_from_id`` are mutually exclusive.
-   A message cannot be both a reply and a forward.
+   A message cannot be both a reply and a forward at the same time.
 
-**Server dispatch** (broadcast to all room members)::
+**Server dispatch** — ``message.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "message.dispatch",
-     "data": { ... }  // full Message object
+     "data": {
+       "id": "<message_uuid>",
+       "room": {"id": "<room_uuid>"},
+       "sender": {"id": 1, "username": "alice"},
+       "content": "Hello!",
+       "is_deleted": false,
+       "is_edited": false,
+       "is_forwarded": false,
+       "forwarded_from": null,
+       "parent_message": null,
+       "delivered_to": ["alice"],
+       "read_receipts": [],
+       "reactions": [],
+       "attachments": [],
+       "created_at": "2026-01-01T12:00:00Z",
+       "updated_at": "2026-01-01T12:00:00Z"
+     }
    }
 
 ``message.acknowledged``
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Inform the server that the client received one or more messages. Updates
-``delivered_to`` on each message and removes the user from notification
-recipients.
+Inform the server that the client has received one or more messages. This
+updates ``delivered_to`` on each message and removes the user from the
+notification recipients list for each one (clearing their pending notifications).
 
-**Client payload**::
+Send this event as soon as messages are rendered on screen so senders see
+accurate delivery status.
+
+**Delivery:** Targeted — only the original sender(s) of the acknowledged
+messages receive ``messagedelivered.dispatch``. The acknowledging user receives
+nothing (the server updates the record silently on their behalf).
+
+**Client payload:**
+
+.. code-block:: javascript
 
    {
      "event_type": "message.acknowledged",
@@ -125,19 +315,33 @@ recipients.
      }
    }
 
-**Server dispatch** (sent only to the original message sender(s))::
+**Server dispatch** — ``messagedelivered.dispatch`` (to original sender(s) only):
+
+.. code-block:: javascript
 
    {
      "eventType": "messagedelivered.dispatch",
-     "data": [ ... ]  // list of updated message objects
+     "data": [
+       {
+         "id": "<message_uuid>",
+         "delivered_to": ["alice", "bob"],
+         ...
+       }
+     ]
    }
 
 ``message.read``
 ~~~~~~~~~~~~~~~~
 
-Mark one or more messages as read.
+Mark one or more messages as read. Creates a ``ReadReceipt`` for the current
+user against each message. All room members are notified so every client can
+update its read state display (e.g. showing "Seen by Alice").
 
-**Client payload**::
+**Delivery:** Broadcast — all room members receive ``readreceipt.dispatch``.
+
+**Client payload:**
+
+.. code-block:: javascript
 
    {
      "event_type": "message.read",
@@ -146,20 +350,35 @@ Mark one or more messages as read.
      }
    }
 
-**Server dispatch** (broadcast to all room members)::
+**Server dispatch** — ``readreceipt.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "readreceipt.dispatch",
-     "data": { ... }  // updated message(s) with read_receipts
+     "data": {
+       "id": "<message_uuid>",
+       "read_receipts": [
+         {"reader": {"id": 2, "username": "bob"}, "read_at": "2026-01-01T12:01:00Z"}
+       ],
+       ...
+     }
    }
 
 ``message.react``
 ~~~~~~~~~~~~~~~~~
 
-Add or remove a reaction. One reaction per user per message — adding a new one
-replaces the old.
+Add or remove a reaction on a message. Each user can have at most one reaction
+per message — if a user adds a new reaction, it automatically replaces their
+existing one. To remove a reaction, send ``"type": "remove"`` with the same
+``reaction_content``.
 
-**Client payload (add)**::
+**Delivery:** Broadcast — all room members receive ``reaction.dispatch`` with
+the updated message.
+
+**Client payload (add):**
+
+.. code-block:: javascript
 
    {
      "event_type": "message.react",
@@ -170,7 +389,9 @@ replaces the old.
      }
    }
 
-**Client payload (remove)**::
+**Client payload (remove):**
+
+.. code-block:: javascript
 
    {
      "event_type": "message.react",
@@ -181,23 +402,39 @@ replaces the old.
      }
    }
 
-**Server dispatch** (broadcast to all room members)::
+**Server dispatch** — ``reaction.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "reaction.dispatch",
      "data": {
        "status": "successful",
        "type": "add",
-       "message": { ... }
+       "message": {
+         "id": "<message_uuid>",
+         "reactions": [
+           {"user": {"id": 1, "username": "alice"}, "reaction_content": "👍", "created_at": "..."}
+         ],
+         ...
+       }
      }
    }
 
 ``message.typing``
 ~~~~~~~~~~~~~~~~~~
 
-Signal that the current user is typing. Not persisted.
+Signal to room members that the current user is typing. This event is not
+persisted — it exists purely to drive typing indicators on the frontend. Send it
+each time the user types a character (or use a debounce). There is no
+corresponding "stopped typing" event — stop sending ``message.typing`` and the
+indicator should fade after a client-side timeout.
 
-**Client payload**::
+**Delivery:** Broadcast — all room members receive ``messagetyping.dispatch``.
+
+**Client payload:**
+
+.. code-block:: javascript
 
    {
      "event_type": "message.typing",
@@ -206,7 +443,9 @@ Signal that the current user is typing. Not persisted.
      }
    }
 
-**Server dispatch** (broadcast to all room members)::
+**Server dispatch** — ``messagetyping.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "messagetyping.dispatch",
@@ -218,9 +457,16 @@ Signal that the current user is typing. Not persisted.
 ``message.modify``
 ~~~~~~~~~~~~~~~~~~
 
-Edit or delete messages. Only the original sender can modify their messages.
+Edit or delete a message. Only the original sender can modify their own
+messages. Bulk delete is supported; bulk update is not (update is always single
+message).
 
-**Update (single message only)**::
+**Delivery:** Broadcast — all room members receive
+``messagemodification.dispatch`` for both update and delete.
+
+**Update (single message only):**
+
+.. code-block:: javascript
 
    {
      "event_type": "message.modify",
@@ -228,12 +474,14 @@ Edit or delete messages. Only the original sender can modify their messages.
        "action": "update",
        "message_id": "<uuid>",
        "extra_fields": {
-         "content": "Updated content"
+         "content": "Corrected message content"
        }
      }
    }
 
-**Delete (single or bulk)**::
+**Delete (single or bulk):**
+
+.. code-block:: javascript
 
    {
      "event_type": "message.modify",
@@ -243,16 +491,39 @@ Edit or delete messages. Only the original sender can modify their messages.
      }
    }
 
-All messages in a bulk delete must come from the **same room**.
+.. note::
 
-**Server dispatch** (broadcast to all room members)::
+   All messages in a bulk delete must belong to the **same room**. The server
+   validates this and raises an error if messages span multiple rooms.
+
+**Server dispatch — update** — ``messagemodification.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "messagemodification.dispatch",
      "data": {
        "status": "successful",
-       "action": "update",   // or "delete"
-       "message": { ... }    // for update; "message_ids": [...] for delete
+       "action": "update",
+       "message": {
+         "id": "<message_uuid>",
+         "content": "Corrected message content",
+         "is_edited": true,
+         ...
+       }
+     }
+   }
+
+**Server dispatch — delete** — ``messagemodification.dispatch``:
+
+.. code-block:: javascript
+
+   {
+     "eventType": "messagemodification.dispatch",
+     "data": {
+       "status": "successful",
+       "action": "delete",
+       "message_ids": ["<uuid1>", "<uuid2>"]
      }
    }
 
@@ -262,9 +533,15 @@ Room Events
 ``room.create``
 ~~~~~~~~~~~~~~~
 
-Create a new room. The creator is automatically added as a member.
+Create a new room. The creator is automatically added as a member. The room type
+determines which fields are required and which are optional.
 
-**OneToOneChat**::
+**Delivery:** Broadcast — all initial members (creator plus participants or
+subscribers) receive ``roomcreate.dispatch``.
+
+**OneToOneChat:**
+
+.. code-block:: javascript
 
    {
      "event_type": "room.create",
@@ -276,10 +553,14 @@ Create a new room. The creator is automatically added as a member.
 
 .. note::
 
-   For ``OneToOneChat``, ``participants`` should contain **only the other user's
-   ID**. The creator is added automatically. The total count will be 2.
+   For ``OneToOneChat``, ``participants`` must contain **only the other user's
+   ID**. The creator is added automatically, making the total exactly 2
+   participants. Providing more than one ID or providing your own ID will raise
+   a validation error.
 
-**GroupChat**::
+**GroupChat:**
+
+.. code-block:: javascript
 
    {
      "event_type": "room.create",
@@ -300,7 +581,9 @@ Create a new room. The creator is automatically added as a member.
      }
    }
 
-**Channel**::
+**Channel:**
+
+.. code-block:: javascript
 
    {
      "event_type": "room.create",
@@ -318,26 +601,47 @@ Create a new room. The creator is automatically added as a member.
      }
    }
 
-**Server dispatch** (broadcast to all initial members)::
+**Server dispatch** — ``roomcreate.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "roomcreate.dispatch",
-     "data": { ... }  // full room object with type field
+     "data": {
+       "type": "GroupChat",
+       "id": "<room_uuid>",
+       "name": "Project Team",
+       "creator": {"id": 1, "username": "alice"},
+       "participants": [...],
+       "admins": [],
+       "property": {"preferences": {"notifications": true}},
+       ...
+     }
    }
+
+The ``type`` field in the dispatch identifies the concrete room type so your
+frontend can render the correct UI without additional queries.
 
 ``room.list``
 ~~~~~~~~~~~~~
 
-Retrieve all rooms the current user belongs to.
+Retrieve all rooms the current user belongs to. Each entry includes the room
+type, basic details, and the last message for preview display.
 
-**Client payload**::
+**Delivery:** Private — sent only to the requesting user.
+
+**Client payload:**
+
+.. code-block:: javascript
 
    {
      "event_type": "room.list",
      "data": {}
    }
 
-**Server dispatch** (sent only to requesting user)::
+**Server dispatch** — ``roomlist.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "roomlist.dispatch",
@@ -345,27 +649,37 @@ Retrieve all rooms the current user belongs to.
        {
          "type": "OneToOneChat",
          "id": "<uuid>",
-         "peer": { ... },
-         "last_message": { ... }
+         "peer": {"id": 2, "username": "bob"},
+         "last_message": {"content": "Hello!", "created_at": "..."}
        },
        {
          "type": "GroupChat",
          "id": "<uuid>",
          "name": "Project Team",
-         "creator": { ... },
-         "last_message": { ... }
+         "creator": {"id": 1, "username": "alice"},
+         "last_message": {"content": "Meeting at 3pm", "created_at": "..."}
+       },
+       {
+         "type": "Channel",
+         "id": "<uuid>",
+         "name": "Announcements",
+         "last_message": {"content": "New release out", "created_at": "..."}
        }
      ]
    }
 
-The ``type`` field in each room object identifies the concrete room type.
-
 ``room.info``
 ~~~~~~~~~~~~~
 
-Retrieve full details for a specific room.
+Retrieve full details for a specific room, including all members, admins,
+permissions, and room properties. Useful for rendering a room settings screen
+or member list.
 
-**Client payload**::
+**Delivery:** Private — sent only to the requesting user.
+
+**Client payload:**
+
+.. code-block:: javascript
 
    {
      "event_type": "room.info",
@@ -374,18 +688,26 @@ Retrieve full details for a specific room.
      }
    }
 
-**Server dispatch** (sent only to requesting user)::
+**Server dispatch** — ``roominfo.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "roominfo.dispatch",
      "data": {
        "type": "GroupChat",
        "id": "<uuid>",
-       "name": "...",
-       "participants": [...],
-       "admins": [...],
-       "creator": {...},
-       "property": {"preferences": {}},
+       "name": "Project Team",
+       "description": "Discussion for Project X",
+       "creator": {"id": 1, "username": "alice"},
+       "participants": [
+         {"id": 1, "username": "alice"},
+         {"id": 2, "username": "bob"}
+       ],
+       "admins": [{"id": 1, "username": "alice"}],
+       "property": {"preferences": {"notifications": true}},
+       "join_approval_required": false,
+       "group_locked": false,
        ...
      }
    }
@@ -393,9 +715,15 @@ Retrieve full details for a specific room.
 ``room.messages``
 ~~~~~~~~~~~~~~~~~
 
-Retrieve messages for a room with optional pagination.
+Retrieve message history for a room with optional pagination. Send this when
+the user opens a room to load the initial message history. Use the pagination
+fields in the response to implement infinite scroll (load more on demand).
 
-**Client payload**::
+**Delivery:** Private — sent only to the requesting user.
+
+**Client payload:**
+
+.. code-block:: javascript
 
    {
      "event_type": "room.messages",
@@ -408,10 +736,12 @@ Retrieve messages for a room with optional pagination.
      }
    }
 
-Omit ``paginate`` to retrieve all messages. Response is sent only to the
-requesting user.
+Omit ``paginate`` to retrieve all messages at once (not recommended for rooms
+with long history).
 
-**Server dispatch**::
+**Server dispatch** — ``roommessages.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "roommessages.dispatch",
@@ -424,19 +754,40 @@ requesting user.
        "size": 50,
        "data": {
          "room_id": "<uuid>",
-         "messages": [ ... ]
+         "messages": [
+           {
+             "id": "<message_uuid>",
+             "sender": {"id": 2, "username": "bob"},
+             "content": "Meeting at 3pm",
+             "created_at": "2026-01-01T11:00:00Z",
+             ...
+           }
+         ]
        }
      }
    }
 
+Use ``has_next`` and ``next_page_number`` to determine whether more pages exist.
+When the user scrolls to the top, request page 2, then page 3, and so on.
+
 ``room.join``
 ~~~~~~~~~~~~~
 
-Join a room. For Channels: allowed if ``is_public`` is ``True``. For GroupChats:
-raises an error by default (admin must add you). See :doc:`custom_handlers` to
-implement custom approval flows.
+Join an existing room. The behaviour depends on room type:
 
-**Client payload**::
+- **Channel** — allowed if ``is_public`` is ``True``. Private channels raise a
+  validation error.
+- **GroupChat** — raises a validation error by default ("ask an admin to add
+  you"). Override ``_join_room`` in a custom ``EventHandler`` to implement
+  approval flows or open joining (see :doc:`custom_handlers`).
+- **OneToOneChat** — cannot be joined; raises a validation error always.
+
+**Delivery:** Broadcast — all existing room members receive
+``roomaddmembers.dispatch`` notifying them of the new joiner.
+
+**Client payload:**
+
+.. code-block:: javascript
 
    {
      "event_type": "room.join",
@@ -445,12 +796,14 @@ implement custom approval flows.
      }
    }
 
-**Server dispatch** (broadcast to all room members)::
+**Server dispatch** — ``roomaddmembers.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "roomaddmembers.dispatch",
      "data": {
-       "room": { ... },
+       "room": {"id": "<uuid>", "name": "Announcements", ...},
        "new_members": ["alice"],
        "added_by": "self"
      }
@@ -459,9 +812,22 @@ implement custom approval flows.
 ``room.leave``
 ~~~~~~~~~~~~~~
 
-Leave a room. Not available for ``OneToOneChat``.
+Leave a room voluntarily. Not available for ``OneToOneChat`` — calling
+``room.leave`` on a one-to-one chat raises a validation error.
 
-**Client payload**::
+This event produces up to three dispatches depending on what happens after the
+user leaves.
+
+**Delivery:**
+
+- ``roomexit.dispatch`` → Private (the leaving user only)
+- ``roomremovemembers.dispatch`` → Broadcast (remaining members)
+- ``roomdelete.dispatch`` → Broadcast (all members, only if the room is deleted
+  because it became empty after the user left)
+
+**Client payload:**
+
+.. code-block:: javascript
 
    {
      "event_type": "room.leave",
@@ -470,30 +836,34 @@ Leave a room. Not available for ``OneToOneChat``.
      }
    }
 
-**Server dispatches**:
+**Server dispatch 1** — ``roomexit.dispatch`` (to the leaving user):
 
-Sent to the leaving user::
+.. code-block:: javascript
 
    {
      "eventType": "roomexit.dispatch",
      "data": {
-       "room": { ... },
+       "room": {"id": "<uuid>", "name": "Project Team", ...},
        "message": "You left Project Team"
      }
    }
 
-Broadcast to remaining members::
+**Server dispatch 2** — ``roomremovemembers.dispatch`` (to remaining members):
+
+.. code-block:: javascript
 
    {
      "eventType": "roomremovemembers.dispatch",
      "data": {
-       "room": { ... },
+       "room": {"id": "<uuid>", ...},
        "removed_members": ["alice"],
        "removed_by": "self"
      }
    }
 
-If the room is deleted because it becomes empty::
+**Server dispatch 3** — ``roomdelete.dispatch`` (if room becomes empty):
+
+.. code-block:: javascript
 
    {
      "eventType": "roomdelete.dispatch",
@@ -505,10 +875,16 @@ If the room is deleted because it becomes empty::
 ``room.add_members``
 ~~~~~~~~~~~~~~~~~~~~
 
-Add users to a room. Requires ``can_add_new_participants`` (GroupChat) or
-``can_add_new_subscribers`` (Channel) permission.
+Add one or more users to a room. Requires ``can_add_new_participants`` permission
+for GroupChats or ``can_add_new_subscribers`` for Channels. Admins have this
+permission by default.
 
-**Client payload**::
+**Delivery:** Broadcast — all room members (including the newly added ones)
+receive ``roomaddmembers.dispatch``.
+
+**Client payload:**
+
+.. code-block:: javascript
 
    {
      "event_type": "room.add_members",
@@ -518,12 +894,14 @@ Add users to a room. Requires ``can_add_new_participants`` (GroupChat) or
      }
    }
 
-**Server dispatch** (broadcast to all room members)::
+**Server dispatch** — ``roomaddmembers.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "roomaddmembers.dispatch",
      "data": {
-       "room": { ... },
+       "room": {"id": "<uuid>", "name": "Project Team", ...},
        "new_members": ["carol", "dave", "eve"],
        "added_by": "alice"
      }
@@ -532,11 +910,21 @@ Add users to a room. Requires ``can_add_new_participants`` (GroupChat) or
 ``room.remove_members``
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Remove users from a room. Requires ``can_remove_participants`` (GroupChat) or
-``can_remove_subscribers`` (Channel) permission. Room creator cannot be removed
-by another admin.
+Remove one or more users from a room. Requires ``can_remove_participants``
+(GroupChat) or ``can_remove_subscribers`` (Channel) permission. The room creator
+cannot be removed by another admin — only the creator themselves can leave.
 
-**Client payload**::
+This event produces two dispatches: one to each removed user, and one to the
+remaining members.
+
+**Delivery:**
+
+- ``roomexit.dispatch`` → Targeted (each removed user receives their own copy)
+- ``roomremovemembers.dispatch`` → Broadcast (remaining members)
+
+**Client payload:**
+
+.. code-block:: javascript
 
    {
      "event_type": "room.remove_members",
@@ -546,24 +934,26 @@ by another admin.
      }
    }
 
-**Server dispatches**:
+**Server dispatch 1** — ``roomexit.dispatch`` (to each removed user):
 
-Sent to each removed user::
+.. code-block:: javascript
 
    {
      "eventType": "roomexit.dispatch",
      "data": {
-       "room": { ... },
+       "room": {"id": "<uuid>", ...},
        "message": "You have been removed by alice"
      }
    }
 
-Broadcast to remaining members::
+**Server dispatch 2** — ``roomremovemembers.dispatch`` (to remaining members):
+
+.. code-block:: javascript
 
    {
      "eventType": "roomremovemembers.dispatch",
      "data": {
-       "room": { ... },
+       "room": {"id": "<uuid>", ...},
        "removed_members": ["carol", "dave"],
        "removed_by": "alice"
      }
@@ -572,10 +962,16 @@ Broadcast to remaining members::
 ``room.modify``
 ~~~~~~~~~~~~~~~
 
-Admin/moderator-only room management. Requires admin status for most actions;
-only the room creator can delete.
+Manage room settings, membership roles, and permissions. Most actions require
+admin (GroupChat) or moderator (Channel) status. Only the room creator can
+delete a GroupChat or Channel.
 
-**Update room details**::
+**Delivery:** Broadcast — all room members receive ``roomupdate.dispatch`` for
+all actions except delete, which sends ``roomdelete.dispatch``.
+
+**Update room details:**
+
+.. code-block:: javascript
 
    {
      "event_type": "room.modify",
@@ -596,7 +992,9 @@ only the room creator can delete.
      }
    }
 
-**Delete room** (creator only for GroupChat/Channel)::
+**Delete room** (creator only):
+
+.. code-block:: javascript
 
    {
      "event_type": "room.modify",
@@ -606,7 +1004,9 @@ only the room creator can delete.
      }
    }
 
-**Add/remove admin** (GroupChat only)::
+**Add or remove admin** (GroupChat only):
+
+.. code-block:: javascript
 
    {
      "event_type": "room.modify",
@@ -617,7 +1017,11 @@ only the room creator can delete.
      }
    }
 
-**Add/remove moderator** (Channel only)::
+Use ``"action": "remove_admin"`` to demote. The room creator cannot be demoted.
+
+**Add or remove moderator** (Channel only):
+
+.. code-block:: javascript
 
    {
      "event_type": "room.modify",
@@ -628,7 +1032,11 @@ only the room creator can delete.
      }
    }
 
-**Grant/revoke permissions**::
+Use ``"action": "remove_moderator"`` to demote.
+
+**Grant or revoke permissions:**
+
+.. code-block:: javascript
 
    {
      "event_type": "room.modify",
@@ -642,18 +1050,31 @@ only the room creator can delete.
      }
    }
 
-Valid actions: ``update``, ``delete``, ``add_admin``, ``remove_admin``,
-``add_moderator``, ``remove_moderator``, ``add_permission``,
-``remove_permission``.
+Use ``"action": "remove_permission"`` to revoke. The room creator is silently
+excluded from permission removals — their permissions cannot be revoked.
 
-**Server dispatch** (broadcast to all room members)::
+Valid ``action`` values: ``update``, ``delete``, ``add_admin``,
+``remove_admin``, ``add_moderator``, ``remove_moderator``,
+``add_permission``, ``remove_permission``.
+
+**Server dispatch — all actions except delete** — ``roomupdate.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "roomupdate.dispatch",
-     "data": { ... }  // full updated room object
+     "data": {
+       "type": "GroupChat",
+       "id": "<uuid>",
+       "name": "New Room Name",
+       "admins": [...],
+       ...
+     }
    }
 
-For delete::
+**Server dispatch — delete** — ``roomdelete.dispatch``:
+
+.. code-block:: javascript
 
    {
      "eventType": "roomdelete.dispatch",
@@ -668,26 +1089,43 @@ Session Events
 ``session.heartbeat``
 ~~~~~~~~~~~~~~~~~~~~~
 
-Keep the session alive. Send every 15–30 seconds.
+Keep the WebSocket session alive and prevent it from being marked as expired.
+Send this event every 15–30 seconds from the client. If heartbeats stop arriving
+for longer than ``INACTIVITY_THRESHOLD`` (default: 60 seconds), the session is
+considered inactive. Inactive sessions are cleaned up on the next connection
+event.
 
-**Client payload**::
+**Delivery:** Private — the server responds directly to the requesting user only.
+This response is not a formal dispatch event — it does not carry an ``eventType``
+field.
+
+**Client payload:**
+
+.. code-block:: javascript
 
    {
      "event_type": "session.heartbeat",
      "data": {}
    }
 
-**Server response** (to requesting user only)::
+**Server response:**
+
+.. code-block:: javascript
 
    {"status": "success"}
 
 Display Logic Tips
 -------------------
 
-Several dispatch events include context fields to help the frontend display the
-right message:
+Several dispatches include context fields specifically to help your frontend
+display accurate status messages without additional logic:
 
-- ``removed_by: "self"`` — the user left voluntarily → display "Alice left"
-- ``removed_by: "<username>"`` — the user was removed → display "Bob removed Alice"
-- ``added_by: "self"`` — the user joined voluntarily → display "Alice joined"
-- ``added_by: "<username>"`` — the user was added by someone → display "Bob added Alice"
+- ``"removed_by": "self"`` — the user left voluntarily → display *"Alice left"*
+- ``"removed_by": "<username>"`` — the user was removed by someone else →
+  display *"Bob removed Alice"*
+- ``"added_by": "self"`` — the user joined voluntarily → display *"Alice joined"*
+- ``"added_by": "<username>"`` — the user was added by someone else →
+  display *"Bob added Alice"*
+
+Use these values to drive system messages in your chat UI rather than
+hard-coding logic on the client side.
