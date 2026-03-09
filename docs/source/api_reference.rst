@@ -175,29 +175,39 @@ ChatMessagingConsumer
 
 ``realtime_chat_messaging.consumers.ChatMessagingConsumer``
 
-**Lifecycle methods** (always call ``super()`` when overriding):
+See :doc:`custom_consumer` for full usage guidance, all handler method names,
+and event mapper examples.
 
-- ``connect()`` — authenticate, cleanup expired sessions, set up groups
-- ``disconnect(close_code)`` — cleanup expired sessions
-- ``receive(text_data, bytes_data)`` — parse JSON, route via EVENT_MAPPER
+**Lifecycle methods** — always call ``super()`` when overriding:
 
-**Group helpers**:
+- ``connect()`` — authenticate, register session, restore group memberships, dispatch pending notifications
+- ``disconnect(close_code)`` — clean up expired sessions and remove from groups
+- ``receive(text_data, bytes_data)`` — parse JSON, look up ``event_type`` in the event map, call handler
 
-- ``send_group(group, event_type, data)`` — broadcast to a channel group
-- ``add_channel_to_group(group, user_id=None)`` — add all user sessions to a group
-- ``discard_channel_from_group(group, user_id=None)`` — remove all user sessions from a group
+**Group and channel helpers:**
 
-**Session helpers**:
-
-- ``channel_setup()`` — restore group memberships and register session
-- ``channel_cleanup()`` — remove expired sessions from groups
+- ``send_group(group, event_type, data)`` — broadcast to a channel layer group
+- ``add_channel_to_group(group, user_id=None)`` — add all active sessions for a user to a group
+- ``discard_channel_from_group(group, user_id=None)`` — remove all active sessions for a user from a group
+- ``channel_setup()`` — fetch ``user_groups`` from cache and wire current channel name into each group
+- ``channel_cleanup()`` — remove expired session channel names from all groups
 
 **Consumer attributes** (available after ``connect()``):
 
 - ``self.user`` — authenticated Django user
 - ``self.session`` — current ``Session`` instance
-- ``self.channel_name`` — this connection's channel name
-- ``self.channel_layer`` — Django Channels layer
+- ``self.channel_name`` — unique channel name for this connection; changes on every reconnect
+- ``self.channel_layer`` — configured channel layer instance
+- ``self.permission_handler`` — instance of the configured ``PermissionHandler`` class
+
+**Event mapper:**
+
+``realtime_chat_messaging.variables.consumers.map_event_type_to_handlers``
+
+The default function that builds the ``event_type`` to handler method routing
+table used by ``receive()``. Pass a custom mapper via ``EVENT_MAPPER`` in
+settings to add, restrict, or replace events. See :doc:`custom_consumer` for
+the full default mapping table and customization examples.
 
 Loader Utilities
 ----------------
