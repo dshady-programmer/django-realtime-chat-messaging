@@ -12,7 +12,7 @@
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=1215bb9a" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=0aaa6049" />
     
     
 
@@ -294,6 +294,7 @@
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
@@ -334,7 +335,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="introduction.html#what-it-does">What It Does</a></li>
-<li class="toctree-l2"><a class="reference internal" href="introduction.html#what-it-does-not-do">What It Does NOT Do</a></li>
+<li class="toctree-l2"><a class="reference internal" href="introduction.html#what-it-does-not-do">What It Does Not Do</a></li>
 <li class="toctree-l2"><a class="reference internal" href="introduction.html#design-philosophy">Design Philosophy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="introduction.html#requirements">Requirements</a></li>
 </ul>
@@ -443,11 +444,13 @@
 <li class="toctree-l1"><a class="reference internal" href="websocket_events.html">WebSocket Events</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="websocket_events.html#connection">Connection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="websocket_events.html#payload-format">Payload Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket_events.html#events-and-dispatches-full-reference-table">Events and Dispatches — Full Reference Table</a></li>
 <li class="toctree-l2"><a class="reference internal" href="websocket_events.html#on-connect">On Connect</a></li>
 <li class="toctree-l2"><a class="reference internal" href="websocket_events.html#message-events">Message Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="websocket_events.html#room-events">Room Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="websocket_events.html#session-events">Session Events</a></li>
 <li class="toctree-l2"><a class="reference internal" href="websocket_events.html#display-logic-tips">Display Logic Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="websocket_events.html#why-am-i-not-receiving-broadcasts">Why Am I Not Receiving Broadcasts?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="error_codes.html">Error Codes</a><ul>
@@ -512,12 +515,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="custom_consumer.html">Custom Consumer</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#creating-a-custom-consumer">Creating a Custom Consumer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#available-methods-to-override">Available Methods to Override</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#the-event-mapper">The Event Mapper</a></li>
 <li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#overriding-connect-and-disconnect">Overriding <code class="docutils literal notranslate"><span class="pre">connect</span></code> and <code class="docutils literal notranslate"><span class="pre">disconnect</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#adding-new-event-handlers">Adding New Event Handlers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#registering-new-events-with-the-event-mapper">Registering New Events with the Event Mapper</a></li>
 <li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#adding-rate-limiting">Adding Rate Limiting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#using-send-group-in-custom-handlers">Using <code class="docutils literal notranslate"><span class="pre">send_group</span></code> in Custom Handlers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="custom_consumer.html#full-custom-consumer-example">Full Custom Consumer Example</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="custom_permissions.html">Custom Permissions</a><ul>
@@ -556,6 +559,11 @@
 <li class="toctree-l2"><a class="reference internal" href="api_reference.html#settings">Settings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_reference.html#cache-utilities">Cache Utilities</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api_reference.html#websocket-close-codes">WebSocket Close Codes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#events-fire-but-no-broadcast-is-received">Events Fire But No Broadcast Is Received</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#websocket-connection-closes-immediately">WebSocket Connection Closes Immediately</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>

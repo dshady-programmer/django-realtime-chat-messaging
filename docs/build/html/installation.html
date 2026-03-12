@@ -12,7 +12,7 @@
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=1215bb9a" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=37115962" />
     
     
 
@@ -294,6 +294,7 @@
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
@@ -435,7 +436,7 @@ directly from the command line and do not need it in <code class="docutils liter
 </div>
 <p>Then create or update <code class="docutils literal notranslate"><span class="pre">asgi.py</span></code>. The example below uses
 <code class="docutils literal notranslate"><span class="pre">django-channels-jwt-auth-middleware</span></code> for JWT-based WebSocket authentication,
-which is the recommended approach:</p>
+which is the recommended approach especially with REST APIs:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">django</span>
 
@@ -462,6 +463,40 @@ which is the recommended approach:</p>
     <span class="p">}</span>
 <span class="p">)</span>
 </pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><code class="docutils literal notranslate"><span class="pre">AllowedHostsOriginValidator</span></code> validates the WebSocket connection’s origin
+header against Django’s <code class="docutils literal notranslate"><span class="pre">ALLOWED_HOSTS</span></code> setting. If the host is not listed,
+the connection is rejected silently before it reaches your consumer.</p>
+<p>Make sure <code class="docutils literal notranslate"><span class="pre">ALLOWED_HOSTS</span></code> is set in <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Development — allow any host</span>
+<span class="n">ALLOWED_HOSTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]</span>
+
+<span class="c1"># Production — list your hostnames explicitly</span>
+<span class="c1"># ALLOWED_HOSTS = [&quot;example.com&quot;, &quot;www.example.com&quot;]</span>
+</pre></div>
+</div>
+<p>Forgetting this is one of the most common reasons WebSocket connections fail
+after a fresh setup. Never use <code class="docutils literal notranslate"><span class="pre">&quot;*&quot;</span></code> in production.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">AllowedHostsOriginValidator</span></code> reads directly from Django’s <code class="docutils literal notranslate"><span class="pre">ALLOWED_HOSTS</span></code>
+setting to decide whether to accept or reject each incoming WebSocket
+connection. If <code class="docutils literal notranslate"><span class="pre">ALLOWED_HOSTS</span></code> is empty or does not include the host your
+client is connecting from, <strong>every WebSocket connection will be rejected</strong>
+with no meaningful error on the client side — the connection simply closes
+immediately.</p>
+<p>Make sure <code class="docutils literal notranslate"><span class="pre">ALLOWED_HOSTS</span></code> is set correctly before testing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># settings.py — development</span>
+<span class="n">ALLOWED_HOSTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;localhost&quot;</span><span class="p">,</span> <span class="s2">&quot;127.0.0.1&quot;</span><span class="p">]</span>
+
+<span class="c1"># settings.py — production</span>
+<span class="n">ALLOWED_HOSTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;example.com&quot;</span><span class="p">,</span> <span class="s2">&quot;www.example.com&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Never use <code class="docutils literal notranslate"><span class="pre">ALLOWED_HOSTS</span> <span class="pre">=</span> <span class="pre">[&quot;*&quot;]</span></code> in production.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -515,7 +550,7 @@ re-subscribed to their rooms on reconnect without a database query.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">CACHES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;BACKEND&quot;</span><span class="p">:</span> <span class="s2">&quot;django.core.cache.backends.redis.RedisCache&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;LOCATION&quot;</span><span class="p">:</span> <span class="s2">&quot;redis://localhost:6379&quot;</span><span class="p">,</span> <span class="c1"># localhost is used here as demo, replace with your redis server prepared for production</span>
+        <span class="s2">&quot;LOCATION&quot;</span><span class="p">:</span> <span class="s2">&quot;redis://localhost:6379&quot;</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">}</span>
 </pre></div>

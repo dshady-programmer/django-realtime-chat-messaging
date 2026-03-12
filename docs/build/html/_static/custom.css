@@ -1,29 +1,21 @@
 /* ==========================================================================
    django-realtime-chat-messaging — Custom Documentation Styles
-   Colour scheme aligned with package logo:
-     Green  #3a9e3f / #2d7d32  (primary brand)
-     Blue   #2979b0 / #1a5f8a  (links, accents)
-     Orange #f5a623             (highlights, warnings)
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
 
 
 /* --------------------------------------------------------------------------
-   LOGO — size control in the sidebar
-   -------------------------------------------------------------------------- */
+   LOGO
+-------------------------------------------------------------------------- */
 
 .sidebar-logo {
     max-width: 220px;
     width: 100%;
     padding: 0.5rem 0;
-    /* The logo has a black background — this removes it.
-       Only works if the PNG has a transparent background.
-       If it still shows black, replace the PNG with a transparent version. */
-    mix-blend-mode: multiply;   /* light mode: blends black bg away */
+    mix-blend-mode: multiply;
 }
 
-/* Dark mode: use screen blend instead so the logo shows on dark sidebar */
 [data-theme="dark"] .sidebar-logo {
     mix-blend-mode: screen;
 }
@@ -36,10 +28,9 @@
 
 
 /* --------------------------------------------------------------------------
-   SIDEBAR NAVIGATION
-   -------------------------------------------------------------------------- */
+   SIDEBAR
+-------------------------------------------------------------------------- */
 
-/* Active item — green left border */
 .sidebar-tree .current > .reference {
     border-left: 3px solid var(--color-brand-primary);
     padding-left: calc(var(--sidebar-item-spacing-horizontal) - 3px);
@@ -47,7 +38,6 @@
     color: var(--color-brand-primary);
 }
 
-/* Section captions */
 .sidebar-tree .caption {
     font-size: 0.65rem;
     font-weight: 700;
@@ -61,316 +51,354 @@
 
 /* --------------------------------------------------------------------------
    HEADINGS
-   -------------------------------------------------------------------------- */
+-------------------------------------------------------------------------- */
 
-h1, h2, h3, h4 {
-    letter-spacing: -0.02em;
-    font-weight: 700;
+h1,h2,h3,h4{
+    letter-spacing:-0.02em;
+    font-weight:700;
 }
 
-h1 {
-    font-size: 2rem;
-    padding-bottom: 0.5rem;
-    /* Two-colour underline using the logo green and blue */
-    border-bottom: 3px solid;
-    border-image: linear-gradient(
+h1{
+    font-size:2rem;
+    padding-bottom:.5rem;
+    border-bottom:3px solid;
+    border-image:linear-gradient(
         to right,
         #3a9e3f 0%,
         #3a9e3f 40%,
         #2979b0 40%,
         #2979b0 100%
-    ) 1;
-    margin-bottom: 1.5rem;
+    )1;
+    margin-bottom:1.5rem;
 }
 
-h2 {
-    font-size: 1.35rem;
-    margin-top: 2.5rem;
-    /* Subtle green left accent on h2 */
-    padding-left: 0.75rem;
-    border-left: 3px solid #3a9e3f;
+h2{
+    font-size:1.35rem;
+    margin-top:2.5rem;
+    padding-left:.75rem;
+    border-left:3px solid #3a9e3f;
 }
 
-h3 {
-    font-size: 1.1rem;
-    margin-top: 2rem;
+h3{
+    font-size:1.1rem;
+    margin-top:2rem;
 }
 
 
 /* --------------------------------------------------------------------------
-   LINKS — use the logo blue
-   -------------------------------------------------------------------------- */
+   LINKS
+-------------------------------------------------------------------------- */
 
 article a,
-.content a {
-    color: #2979b0;
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.15s ease, color 0.15s ease;
+.content a{
+    color:#2979b0;
+    text-decoration:none;
+    border-bottom:1px solid transparent;
+    transition:border-color .15s ease,color .15s ease;
 }
 
 article a:hover,
-.content a:hover {
-    color: #1a5f8a;
-    border-bottom-color: #1a5f8a;
+.content a:hover{
+    color:#1a5f8a;
+    border-bottom-color:#1a5f8a;
 }
 
-[data-theme="dark"] article a {
-    color: #64b5f6;
+[data-theme="dark"] article a{
+    color:#64b5f6;
 }
 
-[data-theme="dark"] article a:hover {
-    color: #90caf9;
-    border-bottom-color: #90caf9;
+[data-theme="dark"] article a:hover{
+    color:#90caf9;
+    border-bottom-color:#90caf9;
 }
 
 
 /* --------------------------------------------------------------------------
    INLINE CODE
-   -------------------------------------------------------------------------- */
+-------------------------------------------------------------------------- */
 
 code.literal,
-code.docutils {
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    font-size: 0.85em;
-    padding: 0.15em 0.4em;
-    border-radius: 4px;
-    color: #2d7d32;          /* green text for inline code in light mode */
+code.docutils{
+    font-family:'JetBrains Mono','Fira Code',monospace;
+    font-size:.85em;
+    padding:.15em .4em;
+    border-radius:4px;
+    color:#2d7d32;
+    background:#edf7ed;
 }
 
 [data-theme="dark"] code.literal,
-[data-theme="dark"] code.docutils {
-    color: #81c784;
+[data-theme="dark"] code.docutils{
+    color:#81c784;
+    background:#172217;
 }
 
 
 /* --------------------------------------------------------------------------
    CODE BLOCKS
-   -------------------------------------------------------------------------- */
+-------------------------------------------------------------------------- */
 
-div.highlight,
-div.highlight-default,
-div.highlight-python,
-div.highlight-javascript,
-div.highlight-json,
-div.highlight-bash {
-    border-radius: 8px;
-    border: 1px solid #d6ead6;
+div.highlight{
+    border-radius:8px;
+    border:1px solid #d6ead6;
 }
 
-[data-theme="dark"] div.highlight {
-    border-color: #253d25;
+[data-theme="dark"] div.highlight{
+    border-color:#253d25;
 }
 
-div.highlight pre {
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    font-size: 0.855rem;
-    line-height: 1.65;
-    padding: 1.1rem 1.25rem;
-    border-radius: 8px;
+div.highlight pre{
+    font-family:'JetBrains Mono','Fira Code',monospace;
+    font-size:.855rem;
+    line-height:1.65;
+    padding:1.1rem 1.25rem;
+    border-radius:8px;
 }
 
-/* Language label (set via JS) */
-div.highlight[data-lang]::before {
-    content: attr(data-lang);
-    display: block;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 0.3rem 1.25rem;
-    color: #3a9e3f;
-    background: #edf7ed;
-    border-radius: 8px 8px 0 0;
-    border-bottom: 1px solid #d6ead6;
+div.highlight[data-lang]::before{
+    content:attr(data-lang);
+    display:block;
+    font-family:'Inter',sans-serif;
+    font-size:.65rem;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    padding:.3rem 1.25rem;
+    color:#3a9e3f;
+    background:#edf7ed;
+    border-radius:8px 8px 0 0;
+    border-bottom:1px solid #d6ead6;
 }
 
-[data-theme="dark"] div.highlight[data-lang]::before {
-    color: #66bb6a;
-    background: #172217;
-    border-bottom-color: #253d25;
+[data-theme="dark"] div.highlight[data-lang]::before{
+    color:#66bb6a;
+    background:#172217;
+    border-bottom-color:#253d25;
 }
 
 
 /* --------------------------------------------------------------------------
    TABLES
-   -------------------------------------------------------------------------- */
+-------------------------------------------------------------------------- */
 
-table.docutils {
-    border: none;
-    border-radius: 8px;
-    overflow: hidden;
-    width: 100%;
-    font-size: 0.9rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+table.docutils{
+    border:none;
+    border-radius:8px;
+    overflow:hidden;
+    width:100%;
+    font-size:.9rem;
+    box-shadow:0 1px 3px rgba(0,0,0,.06);
 }
 
-table.docutils thead tr th {
-    font-weight: 700;
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    border-bottom: 2px solid #3a9e3f;
-    padding: 0.65rem 1rem;
-    color: #2d7d32;
-    background: #f4faf4;
+table.docutils thead tr th{
+    font-weight:700;
+    font-size:.75rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    border-bottom:2px solid #3a9e3f;
+    padding:.65rem 1rem;
+    color:#2d7d32;
+    background:#f4faf4;
 }
 
-[data-theme="dark"] table.docutils thead tr th {
-    border-bottom-color: #66bb6a;
-    color: #81c784;
-    background: #172217;
+[data-theme="dark"] table.docutils thead tr th{
+    border-bottom-color:#66bb6a;
+    color:#81c784;
+    background:#172217;
 }
 
-table.docutils tbody tr td {
-    padding: 0.6rem 1rem;
-    border-bottom: 1px solid #e8f5e8;
-    vertical-align: top;
+table.docutils tbody tr td{
+    padding:.6rem 1rem;
+    border-bottom:1px solid #e8f5e8;
 }
 
-[data-theme="dark"] table.docutils tbody tr td {
-    border-bottom-color: #1f3d1f;
+[data-theme="dark"] table.docutils tbody tr td{
+    border-bottom-color:#1f3d1f;
 }
 
-table.docutils tbody tr:last-child td {
-    border-bottom: none;
+table.docutils tbody tr:nth-child(even) td{
+    background:#f9fdf9;
 }
 
-/* Zebra stripe — subtle */
-table.docutils tbody tr:nth-child(even) td {
-    background: #f9fdf9;
-}
-
-[data-theme="dark"] table.docutils tbody tr:nth-child(even) td {
-    background: #141d14;
+[data-theme="dark"] table.docutils tbody tr:nth-child(even) td{
+    background:#141d14;
 }
 
 
 /* --------------------------------------------------------------------------
-   ADMONITIONS — coloured using logo palette
-   -------------------------------------------------------------------------- */
+   ADMONITIONS
+-------------------------------------------------------------------------- */
 
-.admonition {
-    border-radius: 8px;
-    border-left-width: 4px;
-    padding: 0.85rem 1rem 0.85rem 1.1rem;
-    font-size: 0.93rem;
+.admonition{
+    border-radius:8px;
+    border-left-width:4px;
+    padding:.85rem 1rem .85rem 1.1rem;
+    font-size:.93rem;
 }
 
-.admonition-title {
-    font-weight: 700;
-    font-size: 0.78rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
+.admonition-title{
+    font-weight:700;
+    font-size:.78rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    margin-bottom:.4rem;
 }
 
-/* Note — green (primary brand) */
-.admonition.note {
-    border-left-color: #3a9e3f;
-    background: #f0faf0;
+.admonition.note{
+    border-left-color:#3a9e3f;
+    background:#f0faf0;
 }
 
-[data-theme="dark"] .admonition.note {
-    background: #172817;
+.admonition.warning{
+    border-left-color:#f5a623;
+    background:#fffbf0;
 }
 
-/* Warning — orange (logo wifi signal colour) */
-.admonition.warning {
-    border-left-color: #f5a623;
-    background: #fffbf0;
+.admonition.important{
+    border-left-color:#2979b0;
+    background:#f0f6fc;
 }
 
-[data-theme="dark"] .admonition.warning {
-    background: #201a0f;
+.admonition.tip{
+    border-left-color:#66bb6a;
+    background:#f4faf4;
 }
 
-/* Important — blue (logo blue) */
-.admonition.important {
-    border-left-color: #2979b0;
-    background: #f0f6fc;
-}
-
-[data-theme="dark"] .admonition.important {
-    background: #0f1a24;
-}
-
-/* Tip — lighter green */
-.admonition.tip {
-    border-left-color: #66bb6a;
-    background: #f4faf4;
-}
+[data-theme="dark"] .admonition.note{background:#172817;}
+[data-theme="dark"] .admonition.warning{background:#201a0f;}
+[data-theme="dark"] .admonition.important{background:#0f1a24;}
+[data-theme="dark"] .admonition.tip{background:#1c2b1c;}
 
 
 /* --------------------------------------------------------------------------
-   PREV / NEXT NAVIGATION
-   -------------------------------------------------------------------------- */
+   NAVIGATION
+-------------------------------------------------------------------------- */
 
-.prev-next-area a {
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    transition: background 0.15s ease;
-    border: 1px solid #d6ead6;
+.prev-next-area a{
+    border-radius:8px;
+    padding:.75rem 1rem;
+    transition:background .15s ease;
+    border:1px solid #d6ead6;
 }
 
-[data-theme="dark"] .prev-next-area a {
-    border-color: #253d25;
+.prev-next-area a:hover{
+    background:#e8f5e8;
+    border-color:#3a9e3f;
 }
 
-.prev-next-area a:hover {
-    background: #e8f5e8;
-    border-color: #3a9e3f;
+[data-theme="dark"] .prev-next-area a{
+    border-color:#253d25;
 }
 
-[data-theme="dark"] .prev-next-area a:hover {
-    background: #1a2e1a;
+[data-theme="dark"] .prev-next-area a:hover{
+    background:#1a2e1a;
 }
 
-.prev-next-title {
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: #2979b0;
+.prev-next-title{
+    font-weight:600;
+    font-size:.95rem;
+    color:#2979b0;
 }
 
 
 /* --------------------------------------------------------------------------
    SCROLLBAR
-   -------------------------------------------------------------------------- */
+-------------------------------------------------------------------------- */
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-    background: #3a9e3f;
-    border-radius: 3px;
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{
+    background:#3a9e3f;
+    border-radius:3px;
 }
 
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-    background: #2d7d32;
+[data-theme="dark"] ::-webkit-scrollbar-thumb{
+    background:#2d7d32;
 }
 
 
 /* --------------------------------------------------------------------------
    COPY BUTTON
-   -------------------------------------------------------------------------- */
+-------------------------------------------------------------------------- */
 
-.copybtn {
-    border-radius: 5px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
+.copybtn{
+    border-radius:5px;
+    opacity:0;
+    transition:opacity .2s ease;
 }
 
-div.highlight:hover .copybtn {
-    opacity: 1;
+div.highlight:hover .copybtn{
+    opacity:1;
+}
+
+
+/* --------------------------------------------------------------------------
+   SYSTEM THEME (ONLY WHEN NO data-theme SET)
+-------------------------------------------------------------------------- */
+
+@media (prefers-color-scheme: dark){
+
+    [data-theme="auto"] .sidebar-logo{
+        mix-blend-mode:screen;
+    }
+
+    [data-theme="auto"] article a{
+        color:#64b5f6;
+    }
+
+    [data-theme="auto"] article a:hover{
+        color:#90caf9;
+    }
+    [data-theme="auto"] code.literal,
+    [data-theme="auto"] code.docutils{
+        color:#81c784;
+        background:#172217;
+    }
+    
+    [data-theme="auto"] ::-webkit-scrollbar-thumb{
+        background:#2d7d32;
+    }
+
+    [data-theme="auto"] .prev-next-area a{
+        border-color:#253d25;
+    }
+
+    [data-theme="auto"] .prev-next-area a:hover{
+        background:#1a2e1a;
+    }
+    [data-theme="auto"] div.highlight{
+        border-color:#253d25;
+    }
+    [data-theme="auto"] div.highlight[data-lang]::before{
+        color:#66bb6a;
+        background:#172217;
+        border-bottom-color:#253d25;
+    }
+    [data-theme="auto"] .admonition.note{background:#172817;}
+    [data-theme="auto"] .admonition.warning{background:#201a0f;}
+    [data-theme="auto"] .admonition.important{background:#0f1a24;}
+    [data-theme="auto"] .admonition.tip{background:#1c2b1c;}
+    [data-theme="auto"] table.docutils thead tr th{
+        border-bottom-color:#66bb6a;
+        color:#81c784;
+        background:#172217;
+    }
+    [data-theme="auto"] table.docutils tbody tr:nth-child(even) td{
+        background:#141d14;
+    }
+    [data-theme="auto"] table.docutils tbody tr td{
+        border-bottom-color:#1f3d1f;
+    }
+ 
 }
 
 
 /* --------------------------------------------------------------------------
    RESPONSIVE
-   -------------------------------------------------------------------------- */
+-------------------------------------------------------------------------- */
 
-@media (max-width: 768px) {
-    h1 { font-size: 1.6rem; }
-    h2 { font-size: 1.2rem; padding-left: 0.5rem; }
-    div.highlight pre { font-size: 0.8rem; }
+@media (max-width:768px){
+    h1{font-size:1.6rem;}
+    h2{font-size:1.2rem;padding-left:.5rem;}
+    div.highlight pre{font-size:.8rem;}
 }
