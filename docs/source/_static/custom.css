@@ -145,22 +145,26 @@ code.docutils {
     background: #172217;
 }
 
-/* Inside admonitions, pin explicit colours so inline code chips remain
-   readable in light, dark, and the system auto/dimmed intermediate mode.
-   Never use color: inherit here — in mid/auto mode the inherited text
-   colour can be near-white, making text invisible against the chip. */
-.admonition code.literal,
-.admonition code.docutils {
-    background: rgba(0, 0, 0, 0.08);
-    color: #1a5c1e !important;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+/* Admonition inline code — use prefers-color-scheme to read the OS
+   setting directly, bypassing Furo's [data-theme] attribute entirely.
+   This works in light, dark, and any intermediate display mode. */
+
+@media (prefers-color-scheme: light) {
+    .admonition code.literal,
+    .admonition code.docutils {
+        background-color: #edf7ed !important;
+        color: #2d7d32 !important;
+        border: none !important;
+    }
 }
 
-[data-theme="dark"] .admonition code.literal,
-[data-theme="dark"] .admonition code.docutils {
-    background: rgba(255, 255, 255, 0.1);
-    color: #a5d6a7 !important;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+@media (prefers-color-scheme: dark) {
+    .admonition code.literal,
+    .admonition code.docutils {
+        background-color: #172217 !important;
+        color: #81c784 !important;
+        border: none !important;
+    }
 }
 
 
