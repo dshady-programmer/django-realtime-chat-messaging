@@ -135,12 +135,29 @@ code.docutils {
     font-size: 0.85em;
     padding: 0.15em 0.4em;
     border-radius: 4px;
-    color: #2d7d32;          /* green text for inline code in light mode */
+    color: #2d7d32;
+    background: #edf7ed;
 }
 
 [data-theme="dark"] code.literal,
 [data-theme="dark"] code.docutils {
     color: #81c784;
+    background: #172217;
+}
+
+/* Inside admonitions, use a semi-transparent tint so the chip never
+   clashes with the admonition background in any colour mode (light,
+   dark, or the system auto/dimmed intermediate mode). */
+.admonition code.literal,
+.admonition code.docutils {
+    background: rgba(0, 0, 0, 0.07);
+    color: inherit;
+}
+
+[data-theme="dark"] .admonition code.literal,
+[data-theme="dark"] .admonition code.docutils {
+    background: rgba(255, 255, 255, 0.1);
+    color: inherit;
 }
 
 
