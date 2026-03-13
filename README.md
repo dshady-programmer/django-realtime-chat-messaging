@@ -4,24 +4,29 @@ A reusable Django package that adds fully functional, production-ready real-time
 chat to any existing application. Connect a WebSocket, configure Django Channels,
 and you get private chats, group chats, broadcast channels, reactions, read
 receipts, delivery tracking, push notification scaffolding, and multi-device
-session support — without writing any chat business logic yourself.
+session support without writing any chat business logic yourself.
+
+## Articles
+
+- [Adding Real-Time Chat to Django Shouldn't Be This Hard](https://medium.com/@dshady-programmer/adding-real-time-chat-to-django-shouldnt-be-this-hard-2637622d6ce7) (Medium)
+- [I Got Tired of Building Chat From Scratch in Django, So I Made a Package](https://dev.to/dshady-programmer/i-got-tired-of-building-chat-from-scratch-in-django-so-i-made-a-package-4k2n) (dev.to)
 
 ## Features
 
-- **Three room types** — private one-to-one chats, group chats, and broadcast channels
-- **Full message lifecycle** — create, reply, forward, edit, and delete (soft or hard)
-- **Reactions** — one reaction per user per message, auto-replacing via signals
-- **Read receipts and delivery tracking** — per message, per user, with bulk support
-- **Push notification scaffolding** — integrates with Firebase, AWS SNS, or any provider
-- **Multi-device sessions** — all active connections receive every message simultaneously
-- **Object-level permissions** — via `django-guardian`, automatically managed via signals
-- **XSS-safe content** — all message bodies sanitized with `bleach`
-- **Everything is swappable** — models, serializers, handlers, permissions, consumer, and URL path
+- **Three room types.** Private one-to-one chats, group chats, and broadcast channels
+- **Full message lifecycle.** Create, reply, forward, edit, and delete (soft or hard)
+- **Reactions.** One reaction per user per message, auto-replacing via signals
+- **Read receipts and delivery tracking.** Per message, per user, with bulk support
+- **Push notification scaffolding.** Integrates with Firebase, AWS SNS, or any provider
+- **Multi-device sessions.** All active connections receive every message simultaneously
+- **Object-level permissions.** Via `django-guardian`, automatically managed via signals
+- **XSS-safe content.** All message bodies sanitized with `bleach`
+- **Everything is swappable.** Models, serializers, handlers, permissions, consumer, and URL path
 
 ## Requirements
 
-- Python ≥ 3.11
-- Django ≥ 4.2
+- Python 3.11 or higher
+- Django 4.2 or higher
 - Redis (production channel layer and cache)
 
 ## Installation
@@ -36,16 +41,16 @@ pip install django-realtime-chat-messaging django-channels-jwt-auth-middleware d
 
 ```python
 INSTALLED_APPS = [
-    "daphne",                         # serves ASGI — omit if using Uvicorn/Hypercorn
+    "daphne",                         # serves ASGI; omit if using Uvicorn/Hypercorn
     "channels",                       # required
     "django.contrib.admin",
     "django.contrib.auth",
-    "polymorphic",                    # required — do not omit
+    "polymorphic",                    # required; do not omit
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "guardian",                       # required — do not omit
+    "guardian",                       # required; do not omit
     "rest_framework",                 # required
     "realtime_chat_messaging",        # required
     # ... your own apps
@@ -96,21 +101,6 @@ SIMPLE_JWT = {
 > ```
 >
 > Never use `ALLOWED_HOSTS = ["*"]` in production.
-
-
-> **Important:** `AllowedHostsOriginValidator` (used in `asgi.py` below) validates
-> WebSocket origins against Django's `ALLOWED_HOSTS`. If it is not set, every
-> WebSocket connection will be silently rejected. Add this to `settings.py`:
->
-> ```python
-> # Development
-> ALLOWED_HOSTS = ["*"]
->
-> # Production — use your real hostnames
-> # ALLOWED_HOSTS = ["example.com", "www.example.com"]
-> ```
->
-> Never use `"*"` in production.
 
 ### 2. `asgi.py`
 
@@ -180,7 +170,7 @@ Obtain a token for Alice:
 curl -X POST http://localhost:8000/api/token/ \
   -H "Content-Type: application/json" \
   -d '{"username": "alice", "password": "secret123"}'
-# → {"access": "<token>", "refresh": "..."}
+# {"access": "<token>", "refresh": "..."}
 ```
 
 ### 6. Connect and send a message
@@ -210,8 +200,8 @@ ws.send(JSON.stringify({
 ```
 
 > **Important:** The token must be passed as a query parameter in the WebSocket
-> URL (`?token=<your_access_token>`). There is no separate authentication step —
-> omitting the token will cause the server to close the connection immediately.
+> URL (`?token=<your_access_token>`). Omitting the token will cause the server
+> to close the connection immediately.
 
 ### Testing with WebSocket King
 
@@ -219,7 +209,7 @@ Prefer a visual tool? [WebSocket King](https://websocketking.com) is a
 browser-based WebSocket client that requires no setup.
 
 1. Go to [websocketking.com](https://websocketking.com)
-2. Enter your connection URL — **include the token**:
+2. Enter your connection URL including the token:
    ```
    ws://localhost:8000/messaging/?token=<your_access_token>
    ```
@@ -268,6 +258,4 @@ Includes:
 
 ## License
 
-Apache 2.0 — see [LICENSE](LICENSE).
-
-
+Apache 2.0. See [LICENSE](LICENSE).
